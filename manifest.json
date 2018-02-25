@@ -1,0 +1,66 @@
+{
+    "package_format": 1,
+    "name": "Gitea",
+    "id": "gitea",
+    "packaging_format": 1,
+    "description": {
+        "en": "Lightweight git forge",
+        "fr": "Forge git légère"
+    },
+    "url": "http://gogs.io",
+    "license": "MIT",
+    "version": "0.11.33~ynh1",
+    "maintainer": {
+        "name": "",
+        "email": ""
+    },
+    "multi_instance": true,
+    "services": [
+        "nginx",
+        "mysql"
+    ],
+    "requirements": {
+        "yunohost": ">= 2.7.9"
+    },
+    "arguments": {
+        "install" : [
+            {
+                "name": "domain",
+                "type": "domain",
+                "ask": {
+                    "en": "Choose a domain for Gitea",
+                    "fr": "Choisissez un domaine pour Gitea"
+                },
+                "example": "domain.org"
+            },
+            {
+                "name": "path",
+                "type": "path",
+                "ask": {
+                    "en": "Choose a path for Gitea",
+                    "fr": "Choisissez un chemin pour Gitea"
+                },
+                "example": "/gitea",
+                "default": "/gitea"
+            },
+            {
+                "name": "admin",
+                "type": "user",
+                "ask": {
+                    "en": "Choose the Gitea administrator (must be an existing YunoHost user)",
+                    "fr": "Choisissez l'administrateur de Gitea (doit être un utilisateur YunoHost existant)"
+                },
+                "example": "johndoe"
+            },
+            {
+                "name": "is_public",
+                "type": "boolean",
+                "ask": {
+                    "en": "Is it a public site ?",
+                    "fr": "Est-ce un site public ?"
+                },
+                "default": true
+            }
+        ]
+    }
+}

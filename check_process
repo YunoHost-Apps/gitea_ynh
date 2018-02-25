@@ -1,0 +1,41 @@
+;; General
+    ; Manifest
+        domain="domain.tld"    (DOMAIN)
+        path="/path"	   (PATH)
+        admin="john"            (USER)
+        is_public=1 (PUBLIC|public=1|private=0)
+    ; Checks
+        pkg_linter=1
+        setup_sub_dir=1
+        setup_root=1
+        setup_nourl=0
+        setup_private=1
+        setup_public=1
+        upgrade=1
+        upgrade=1   from_commit=aa075b2051ffad7b0b6fef3a9c767376d5bdbfab
+        upgrade=1   from_commit=1cbec051e1171de5a8ed1e850eb4fb3506114da5
+        upgrade=1   from_commit=5a706ed246392c1ce39c47a648cb93e2996e80d3
+        backup_restore=1
+        multi_instance=1
+        incorrect_path=0
+        port_already_use=1 (6000)
+        change_url=1
+;;; Levels
+    Level 1=auto
+    Level 2=auto
+    Level 3=auto
+    # https://github.com/YunoHost-Apps/gitea_ynh/blob/master/conf/login_source.sql
+    Level 4=1
+    Level 5=auto
+    Level 6=auto
+    Level 7=auto
+    Level 8=0
+    Level 9=0
+    Level 10=0
+;;; Upgrade options
+	; commit=aa075b2051ffad7b0b6fef3a9c767376d5bdbfab
+		name=Before multi_instance and refactoring
+	; commit=1cbec051e1171de5a8ed1e850eb4fb3506114da5
+		name=From V0.10.18
+	; commit=5a706ed246392c1ce39c47a648cb93e2996e80d3
+		name=The oldest package

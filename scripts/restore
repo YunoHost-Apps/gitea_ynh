@@ -1,0 +1,66 @@
+#!/bin/bash
+
+#=================================================
+# GENERIC START
+#=================================================
+
+# IMPORT GENERIC HELPERS
+source /usr/share/yunohost/helpers
+
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+# Load common variables and helpers
+source ../settings/scripts/experimental_helper.sh
+source ../settings/scripts/_common.sh
+
+# Retrieve old app settings
+domain=$(ynh_app_setting_get "$app" domain)
+path_url=$(ynh_app_setting_get "$app" path)
+dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
+admin=$(ynh_app_setting_get "$app" adminusername)
+
+# Check domain/path availability with app helper
+ynh_webpath_available $domain $path_url || ynh_die "$domain is not available as domain, please use an other domain."
+
+# Check user parameter
+ynh_user_exists "$admin" \
+  || ynh_die "The chosen admin user does not exist."
+
+# Check Final Path availability
+test ! -e "$final_path" || ynh_die "This path already contains a folder"
+
+#=================================================
+# STANDARD RESTORATION STEPS
+#=================================================
+
+# Add users
+ynh_system_user_create $app
+
+# Restore all files
+ynh_restore
+
+# Create and restore the database
+ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
+ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ./db.sql
+
+# Restore systemd files
+systemctl daemon-reload
+systemctl enable "$app".service
+
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+
+# Set permissions
+set_permission
+
+# Configure logrotate
+ynh_use_logrotate "/var/log/$app"
+
+# Add Gogs to YunoHost's monitored services
+yunohost service add "$app" --log /var/log/"$app"/"$app".log
+
+# Reload services
+systemctl reload nginx.service
+ynh_check_starting "INFO] Listen: http://0.0.0.0:" "/var/log/$app/gogs.log"

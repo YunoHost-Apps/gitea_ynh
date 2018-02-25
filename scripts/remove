@@ -1,0 +1,46 @@
+#!/bin/bash
+
+#=================================================
+# GENERIC START
+#=================================================
+
+# IMPORT GENERIC HELPERS
+source /usr/share/yunohost/helpers
+
+# Load common variables and helpers
+source ./experimental_helper.sh
+source ./_common.sh
+
+#=================================================
+# STANDARD REMOVE
+#=================================================
+
+# Stop gogs
+systemctl stop "$app".service
+
+# Drop MySQL database and user
+ynh_mysql_drop_db "$dbname" 2>/dev/null
+ynh_mysql_drop_user "$dbuser" 2>/dev/null
+
+# Retrieve domain from app settings
+domain=$(ynh_app_setting_get "$app" domain)
+
+# Delete app directory and configurations
+ynh_secure_remove "$final_path"
+ynh_secure_remove "$DATADIR"
+ynh_secure_remove "/var/log/$app"
+
+# Remove the app-specific logrotate config
+ynh_remove_logrotate
+
+# Remove nginx config
+ynh_remove_nginx_config
+
+# Remove gogs user and data
+ynh_system_user_delete $app
+
+# Remove init script
+ynh_remove_systemd_config
+
+# Remove monitor
+yunohost service remove "$app"

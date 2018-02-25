@@ -1,0 +1,38 @@
+#!/bin/bash
+
+#=================================================
+# GENERIC START
+#=================================================
+
+# IMPORT GENERIC HELPERS
+source /usr/share/yunohost/helpers
+
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+# Load common variables and helpers
+source ../settings/scripts/experimental_helper.sh
+source ../settings/scripts/_common.sh
+
+# Retrieve app settings
+domain=$(ynh_app_setting_get "$app" domain)
+
+#=================================================
+# STANDARD BACKUP STEPS
+#=================================================
+
+# Copy the app source files
+ynh_backup "$final_path"
+
+# Copy the data files
+ynh_backup "$DATADIR"
+
+# Copy the conf files
+ynh_backup "/etc/nginx/conf.d/${domain}.d/${app}.conf"
+ynh_backup "/etc/systemd/system/${app}.service"
+
+# Backup logs
+ynh_backup "/var/log/$app"
+
+# Dump the database
+ynh_mysql_dump_db "$dbname" > ./db.sql

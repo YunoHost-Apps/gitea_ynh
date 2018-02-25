@@ -1,0 +1,24 @@
+[Unit]
+Description=Gitea
+After=syslog.target
+After=network.target
+After=mysql.service
+After=slapd.service
+
+[Service]
+# Modify these two values and uncomment them if you have
+# repos with lots of files and get an HTTP error 500 because
+# of that
+###
+#LimitMEMLOCK=infinity
+#LimitNOFILE=65535
+Type=simple
+User=__APP__
+Group=__APP__
+WorkingDirectory=/home/__APP__
+ExecStart=/opt/__APP__/gogs web
+Restart=always
+Environment=USER=__APP__ HOME=/home/__APP__
+
+[Install]
+WantedBy=multi-user.target

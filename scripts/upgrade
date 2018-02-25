@@ -1,0 +1,110 @@
+#!/bin/bash
+
+#=================================================
+# GENERIC START
+#=================================================
+
+# IMPORT GENERIC HELPERS
+source /usr/share/yunohost/helpers
+
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+# Load common variables and helpers
+source ./experimental_helper.sh
+source ./_common.sh
+
+# Retrieve app settings
+domain=$(ynh_app_setting_get "$app" domain)
+path_url=$(ynh_normalize_url_path $(ynh_app_setting_get "$app" path))
+dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
+admin=$(ynh_app_setting_get "$app" adminusername)
+key=$(ynh_app_setting_get "$app" secret_key)
+is_public=$(ynh_app_setting_get "$app" is_public)
+port=$(ynh_app_setting_get "$app" web_port)
+
+# Backup the current version of the app
+ynh_backup_before_upgrade
+ynh_clean_setup () {
+    ynh_restore_upgradebackup
+}
+
+# Stop service
+systemctl stop "$app".service
+
+#=================================================
+# MIGRATION FROM OLD VERSION
+#=================================================
+
+# Update settings is_public to new standard
+if [ "$is_public" = "Yes" ]; then
+	ynh_app_setting_set $app is_public 1	# Fixe is_public en booléen
+	is_public=1
+elif [ "$is_public" = "No" ]; then
+	ynh_app_setting_set $app is_public 0
+	is_public=0
+fi
+
+if [[ $port == "" ]]
+then
+    port=$(ynh_find_port 6000)
+    ynh_app_setting_set $app web_port $port
+fi
+
+# handle upgrade from old package installation
+# this test that /etc/gogs exist since this was used in the old package
+# but not in the new
+# this code will be removed in the future
+if [ -d "/etc/gogs" ]
+then
+    # create needed directories if not already created
+    create_dir
+
+    # move repositories to new dir
+    old_repo_path=$(ynh_app_setting_get "$app" repopath)
+    mv "${old_repo_path:-/home/yunohost.app/gogs}"/* "$REPO_PATH" || true # Avoid if the directory is empty
+    # cleanup old dir and conf
+    ynh_secure_remove /opt/gogs
+    ynh_secure_remove /etc/gogs
+    ynh_secure_remove /opt/gogs_src
+    
+    # create needed directories if not already created
+    create_dir
+fi
+# end of old package upgrade
+
+# test if user gogs is locked because of an old installation of the package.
+# if it's blocked, unlock it to allow ssh usage with git
+if [[ $(grep "$app" /etc/shadow | cut -d: -f2) == '!' ]]
+then
+    usermod -p '*' "$app"
+fi
+
+#=================================================
+# STANDARD UPGRADE STEPS
+#=================================================
+
+# Clean template to fix issue : https://github.com/gogits/gogs/issues/4585
+ynh_secure_remove "/opt/gogs/templates"
+
+# Install Gogs
+ynh_setup_source $final_path $architecture
+
+# Configure gogs with app.ini file
+config_gogs
+
+# Configure init script
+ynh_add_systemd_config
+
+# Modify Nginx configuration file and copy it to Nginx conf directory
+config_nginx
+
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+
+# Set permissions
+set_permission
+
+# Reload services
+ynh_check_starting "INFO] Listen: http://0.0.0.0:" "/var/log/$app/gogs.log"

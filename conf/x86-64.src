@@ -1,0 +1,11 @@
+SOURCE_URL=https://github.com/gogits/gogs/releases/download/v0.11.33/linux_amd64.zip
+SOURCE_SUM=7f0841a0451174349bf058e3827a0f46b8a827de0303827a6ff6d20fd03db3ff
+# (Optional) Program to check the integrity (sha256sum, md5sum...)
+# default: sha256
+SOURCE_SUM_PRG=sha256sum
+# (Optional) Archive format
+# default: tar.gz
+SOURCE_FORMAT=zip
+# (Optional) Put false if sources are directly in the archive root
+# default: true
+SOURCE_IN_SUBDIR=true
