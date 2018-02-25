@@ -54,18 +54,3 @@ Gitea is published under the MIT License:
 https://github.com/go-gitea/gitea/blob/master/LICENSE
 
 This package is published under the MIT License.
-
-
-## Developper info
-Please do your pull requests to the `dev` branch.
-
-Test or upgrade to dev version:
-```bash
-sudo su - admin
-git clone -b dev https://github.com/YunoHost-Apps/gogs_ynh
-# to install
-sudo yunohost app install -l Gogs /home/admin/gogs_ynh
-# to upgrade
-sudo yunohost app upgrade -f /home/admin/gogs_ynh gogs
-
-```
