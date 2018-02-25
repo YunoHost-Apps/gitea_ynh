@@ -5,6 +5,8 @@ Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to 
 
 [![Integration level](https://dash.yunohost.org/integration/gitea.svg)](https://ci-apps.yunohost.org/jenkins/job/gitea%20%28Community%29/lastBuild/consoleFull) 
 
+[![Build Status](https://srvmaison.fr.nf/jenkins/job/gitea%20(Community)%20stable/badge/icon)](https://srvmaison.fr.nf/jenkins/job/gitea%20(Community)%20stable/)
+
 [![Install Gitea with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=gitea)
 
 ## Requirements
