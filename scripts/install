@@ -59,7 +59,8 @@ ynh_system_user_create $app
 create_dir
 
 # Install Gogs
-ynh_setup_source $final_path $architecture
+cd $final_path
+wget https://github.com/go-gitea/gitea/releases/download/v1.3.3/gitea-1.3.3-linux-$architecture
 
 # Configure gogs with app.ini file
 config_gogs
