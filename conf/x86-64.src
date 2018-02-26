@@ -5,7 +5,7 @@ SOURCE_SUM=4f37b280eb9dcde7820e801e51ca07682faee703c220548da2f8aa9b6adb5231
 SOURCE_SUM_PRG=sha256sum
 # (Optional) Archive format
 # default: tar.gz
-SOURCE_FORMAT=tar.gz
+SOURCE_FORMAT=
 # (Optional) Put false if sources are directly in the archive root
 # default: true
 SOURCE_IN_SUBDIR=true
