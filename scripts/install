@@ -60,7 +60,7 @@ create_dir
 
 # Install Gogs
 cd $final_path
-wget https://github.com/go-gitea/gitea/releases/download/v1.3.3/gitea-1.3.3-linux-amd64 gitea
+wget https://github.com/go-gitea/gitea/releases/download/v1.3.3/gitea-1.3.3-linux-amd64
 mv gitea-1.3.3-linux-amd64 gitea
 
 # Configure gogs with app.ini file
