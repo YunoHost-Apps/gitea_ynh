@@ -48,7 +48,7 @@ config_nginx() {
 config_gitea() {
     ynh_backup_if_checksum_is_different "$final_path/custom/conf/app.ini"
 
-    cp ../conf/app.ini "$final_path/custom/conf"
+    cp "$final_path/app.ini" "$final_path/custom/conf"
 
     if [ "$path_url" = "/" ]
     then
