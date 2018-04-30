@@ -58,6 +58,12 @@ ynh_system_user_create $app
 # create needed directories
 create_dir
 
+# Configure init script
+ynh_add_systemd_config
+
+# Modify Nginx configuration file and copy it to Nginx conf directory
+config_nginx
+
 # Install Gogs
 cp -a ../conf/app.ini $final_path
 cd $final_path
