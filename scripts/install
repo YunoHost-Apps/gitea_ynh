@@ -49,6 +49,13 @@ ynh_app_setting_set $app web_port $port
 # STANDARD MODIFICATIONS
 #=================================================
 
+
+# Configure init script
+ynh_add_systemd_config
+
+# Modify Nginx configuration file and copy it to Nginx conf directory
+config_nginx
+
 # Initialize database and store mysql password for upgrade
 ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
 
@@ -72,12 +79,6 @@ mv gitea-1.3.3-linux-amd64 gitea
 
 # Configure gogs with app.ini file
 config_gitea
-
-# Configure init script
-ynh_add_systemd_config
-
-# Modify Nginx configuration file and copy it to Nginx conf directory
-config_nginx
 
 # Start gogs for building mysql tables
 systemctl start "$app".service
