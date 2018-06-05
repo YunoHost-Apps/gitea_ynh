@@ -72,19 +72,17 @@ ynh_add_systemd_config
 config_nginx
 
 # Configure gitea with app.ini file
+cp -a ../conf/app.ini $final_path
 config_gitea
 
 # Install gitea
-cp -a ../conf/app.ini $final_path
-cd $final_path
-wget https://github.com/go-gitea/gitea/releases/download/v1.3.3/gitea-1.3.3-linux-amd64
-mv gitea-1.3.3-linux-amd64 gitea
-
-# Start gitea for building mysql tables
-systemctl start "$app".service
+wget https://github.com/go-gitea/gitea/releases/download/v1.3.3/gitea-1.3.3-linux-amd64 -O $final_path/gitea
 
 # Set permissions
 set_permission
+
+# Start gitea for building mysql tables
+systemctl start "$app".service
 
 # Wait till login_source mysql table is created
 while ! $(ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname"  <<< "SELECT * FROM login_source;" &>/dev/null)
