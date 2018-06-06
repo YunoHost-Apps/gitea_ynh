@@ -1,0 +1,7 @@
+image: python:3.5-jessie
+test:
+  script:
+  - apt-get update
+  - apt-get install git
+  - git clone https://github.com/YunoHost/package_linter
+  - python package_linter/package_linter.py .
