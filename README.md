@@ -46,7 +46,7 @@ Architecture: this package is compatible with amd64, i386 and arm. The package w
 
 ## Issue
 
-Any issue is welcome here : https://github.com/YunoHost-Apps/gitea_ynh/issues
+Any issue is welcome here : https://framagit.org/YunoHost-Apps/gitea_ynh/issues
 
 ## License
 Gitea is published under the MIT License:
