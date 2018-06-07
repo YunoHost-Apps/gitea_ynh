@@ -49,6 +49,7 @@ config_gitea() {
     ynh_backup_if_checksum_is_different "$final_path/custom/conf/app.ini"
 
     cp ../conf/app.ini "$final_path/custom/conf"
+    usermod -s /bin/bash $app
 
     if [ "$path_url" = "/" ]
     then
