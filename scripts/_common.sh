@@ -48,7 +48,7 @@ config_nginx() {
 config_gitea() {
     ynh_backup_if_checksum_is_different "$final_path/custom/conf/app.ini"
 
-    cp "$final_path/app.ini" "$final_path/custom/conf"
+    cp ../conf/app.ini "$final_path/custom/conf"
 
     if [ "$path_url" = "/" ]
     then
@@ -74,7 +74,7 @@ set_permission() {
     chown -R $app:$app "/home/$app"
     chown -R $app:$app "/var/log/$app"
     chmod u=rwX,g=rX,o= "$final_path"
-    chmod u=rwx,g=rx,o= "$final_path/gitea"
+    chmod u=rwx,g=rx,o= "$final_path/$app"
     chmod u=rwX,g=rX,o= "/home/$app"
     chmod u=rwX,g=rX,o= "/var/log/$app"
 }
