@@ -111,5 +111,5 @@ yunohost service add "$app" --log "/var/log/$app/$app.log"
 ynh_use_logrotate "/var/log/$app"
 
 # Reload services
-ynh_check_starting "Serving [::]:$port with pid" "/var/log/$app/gitea.log"
+# ynh_check_starting "Serving [::]:$port with pid" "/var/log/$app/gitea.log"
 systemctl restart gitea

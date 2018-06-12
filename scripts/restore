@@ -63,4 +63,4 @@ yunohost service add "$app" --log /var/log/"$app"/"$app".log
 
 # Reload services
 systemctl reload nginx.service
-ynh_check_starting "INFO] Listen: http://0.0.0.0:" "/var/log/$app/gogs.log"
+# ynh_check_starting "INFO] Listen: http://0.0.0.0:" "/var/log/$app/gogs.log"
