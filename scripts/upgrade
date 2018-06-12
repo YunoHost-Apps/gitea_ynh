@@ -67,7 +67,7 @@ then
     ynh_secure_remove /opt/gogs
     ynh_secure_remove /etc/gogs
     ynh_secure_remove /opt/gogs_src
-    
+
     # create needed directories if not already created
     create_dir
 fi

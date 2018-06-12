@@ -1,4 +1,4 @@
-SOURCE_URL=https://github.com/go-gitea/gitea/releases/download/v1.3.3/gitea-1.3.3-linux-386
+SOURCE_URL=https://github.com/go-gitea/gitea/releases/download/v1.4.2/gitea-1.4.2-linux-386
 SOURCE_SUM=1b746cccffca446876ccc71efe328699f002622dab1d438e2142c8d7c23a22d7
 # (Optional) Program to check the integrity (sha256sum, md5sum...)
 # default: sha256

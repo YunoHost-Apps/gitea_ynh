@@ -44,3 +44,5 @@ ynh_remove_systemd_config
 
 # Remove monitor
 yunohost service remove "$app"
+
+true # Do not fail if remove after install error

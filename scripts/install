@@ -75,7 +75,7 @@ config_nginx
 config_gitea
 
 # Install gitea
-wget -O gitea https://github.com/go-gitea/gitea/releases/download/v1.3.3/gitea-1.3.3-linux-amd64 $final_path/gitea
+ynh_setup_source $final_path $architecture
 
 # Set permissions
 set_permission
@@ -112,4 +112,4 @@ ynh_use_logrotate "/var/log/$app"
 
 # Reload services
 ynh_check_starting "Serving [::]:$port with pid" "/var/log/$app/gitea.log"
-systemctl gitea restart
+systemctl restart gitea
