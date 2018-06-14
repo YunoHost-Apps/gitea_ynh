@@ -183,7 +183,7 @@ ynh_setup_source () {
             tar -xf $src_filename -C "$dest_dir" $strip
         fi
         if [[ "$src_format" = "bin" ]] ; then
-            chmod +x $src_filename
+            mv $src_filename $app
         else
             ynh_die "Archive format unrecognized."
         fi
