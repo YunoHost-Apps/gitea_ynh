@@ -8,4 +8,4 @@ SOURCE_SUM_PRG=sha256sum
 SOURCE_FORMAT=zip
 # (Optional) Put false if sources are directly in the archive root
 # default: true
-SOURCE_IN_SUBDIR=true
+SOURCE_IN_SUBDIR=false
