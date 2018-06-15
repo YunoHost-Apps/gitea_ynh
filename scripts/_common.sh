@@ -79,3 +79,6 @@ set_permission() {
     chmod u=rwX,g=rX,o= "/home/$app"
     chmod u=rwX,g=rX,o= "/var/log/$app"
 }
+
+
+

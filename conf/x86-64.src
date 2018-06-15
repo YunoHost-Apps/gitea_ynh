@@ -1,11 +1,11 @@
-SOURCE_URL=https://dl.gitea.io/gitea/1.4.2/gitea-1.4.2-linux-amd64
-SOURCE_SUM=c843d462b5edb0d64572b148a0e814e41d069d196c3b3ee491449225e1c39d7d
+SOURCE_URL=https://rafi59.codelib.re/git/attachments/c54bf3d7-1837-4129-82f7-1ea1aee48cf2
+SOURCE_SUM=2f914fe40a5d337e29ddcd69dd97cba60c1373f5bcece0d4fecff86b0705eb58
 # (Optional) Program to check the integrity (sha256sum, md5sum...)
 # default: sha256
 SOURCE_SUM_PRG=sha256sum
 # (Optional) Archive format
 # default: tar.gz
-SOURCE_FORMAT=bin
+SOURCE_FORMAT=zip
 # (Optional) Put false if sources are directly in the archive root
 # default: true
-SOURCE_IN_SUBDIR=true
+SOURCE_IN_SUBDIR=false
