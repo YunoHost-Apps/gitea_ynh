@@ -1,5 +1,5 @@
-SOURCE_URL=https://rafi59.codelib.re/git/attachments/5707d3d4-ece9-4724-8055-892bd89de3bb
-SOURCE_SUM=2917570f3f43e36daf6f473223630d31fdf81e36b12baeeb4b8c49b1240ed413
+SOURCE_URL=https://rafi59.codelib.re/git/attachments/c54bf3d7-1837-4129-82f7-1ea1aee48cf2
+SOURCE_SUM=2f914fe40a5d337e29ddcd69dd97cba60c1373f5bcece0d4fecff86b0705eb58
 # (Optional) Program to check the integrity (sha256sum, md5sum...)
 # default: sha256
 SOURCE_SUM_PRG=sha256sum

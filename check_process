@@ -12,9 +12,6 @@
         setup_private=1
         setup_public=1
         upgrade=1
-        upgrade=1   from_commit=aa075b2051ffad7b0b6fef3a9c767376d5bdbfab
-        upgrade=1   from_commit=1cbec051e1171de5a8ed1e850eb4fb3506114da5
-        upgrade=1   from_commit=5a706ed246392c1ce39c47a648cb93e2996e80d3
         backup_restore=1
         multi_instance=1
         incorrect_path=0
@@ -32,10 +29,3 @@
     Level 8=0
     Level 9=0
     Level 10=0
-;;; Upgrade options
-	; commit=aa075b2051ffad7b0b6fef3a9c767376d5bdbfab
-		name=Before multi_instance and refactoring
-	; commit=1cbec051e1171de5a8ed1e850eb4fb3506114da5
-		name=From V0.10.18
-	; commit=5a706ed246392c1ce39c47a648cb93e2996e80d3
-		name=The oldest package

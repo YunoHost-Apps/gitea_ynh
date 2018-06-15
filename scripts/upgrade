@@ -52,28 +52,28 @@ then
 fi
 
 # handle upgrade from old package installation
-# this test that /etc/gogs exist since this was used in the old package
+# this test that /etc/gitea exist since this was used in the old package
 # but not in the new
 # this code will be removed in the future
-if [ -d "/etc/gogs" ]
+if [ -d "/etc/gitea" ]
 then
     # create needed directories if not already created
     create_dir
 
     # move repositories to new dir
     old_repo_path=$(ynh_app_setting_get "$app" repopath)
-    mv "${old_repo_path:-/home/yunohost.app/gogs}"/* "$REPO_PATH" || true # Avoid if the directory is empty
+    mv "${old_repo_path:-/home/yunohost.app/gitea}"/* "$REPO_PATH" || true # Avoid if the directory is empty
     # cleanup old dir and conf
-    ynh_secure_remove /opt/gogs
-    ynh_secure_remove /etc/gogs
-    ynh_secure_remove /opt/gogs_src
+    ynh_secure_remove /opt/gitea
+    ynh_secure_remove /etc/gitea
+    ynh_secure_remove /opt/gitea_src
 
     # create needed directories if not already created
     create_dir
 fi
 # end of old package upgrade
 
-# test if user gogs is locked because of an old installation of the package.
+# test if user gitea is locked because of an old installation of the package.
 # if it's blocked, unlock it to allow ssh usage with git
 if [[ $(grep "$app" /etc/shadow | cut -d: -f2) == '!' ]]
 then
@@ -85,13 +85,13 @@ fi
 #=================================================
 
 # Clean template to fix issue : https://github.com/gogits/gogs/issues/4585
-ynh_secure_remove "/opt/gogs/templates"
+ynh_secure_remove "/opt/gitea/templates"
 
-# Install Gogs
+# Install gitea
 ynh_setup_source $final_path $architecture
 
-# Configure gogs with app.ini file
-config_gogs
+# Configure gitea with app.ini file
+config_gitea
 
 # Configure init script
 ynh_add_systemd_config
@@ -107,4 +107,6 @@ config_nginx
 set_permission
 
 # Reload services
-# ynh_check_starting "INFO] Listen: http://0.0.0.0:" "/var/log/$app/gogs.log"
+# ynh_check_starting "INFO] Listen: http://0.0.0.0:" "/var/log/$app/gitea.log"
+sleep 20
+systemctl restart gitea
