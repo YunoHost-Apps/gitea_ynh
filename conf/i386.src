@@ -1,11 +1,5 @@
-SOURCE_URL=https://rafi59.codelib.re/git/attachments/9ac42714-14fb-4ab6-ad84-d91e51777070
-SOURCE_SUM=68103f9dc86abf379717ac754f30b44b0512ac60906e12839dcd1b580012ebfb
-# (Optional) Program to check the integrity (sha256sum, md5sum...)
-# default: sha256
+SOURCE_URL=https://github.com/go-gitea/gitea/releases/download/v1.4.3/gitea-1.4.3-linux-386
+SOURCE_SUM=760dda6f1cd76aa705915686a1d18837af3c4d912f731d1399048409a46ed2ea
 SOURCE_SUM_PRG=sha256sum
-# (Optional) Archive format
-# default: tar.gz
-SOURCE_FORMAT=zip
-# (Optional) Put false if sources are directly in the archive root
-# default: true
-SOURCE_IN_SUBDIR=false
+SOURCE_FILENAME=gitea
+SOURCE_EXTRACT=false
