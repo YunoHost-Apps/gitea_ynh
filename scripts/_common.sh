@@ -74,11 +74,9 @@ set_permission() {
     chown -R $app:$app "$final_path"
     chown -R $app:$app "/home/$app"
     chown -R $app:$app "/var/log/$app"
+
     chmod u=rwX,g=rX,o= "$final_path"
-    chmod u=rwx,g=rx,o= "$final_path/$app"
+    chmod u=rwx,g=rx,o= "$final_path/gitea"
     chmod u=rwX,g=rX,o= "/home/$app"
     chmod u=rwX,g=rX,o= "/var/log/$app"
 }
-
-
-
