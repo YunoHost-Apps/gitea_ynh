@@ -77,6 +77,7 @@ set_permission() {
 
     chmod u=rwX,g=rX,o= "$final_path"
     chmod u=rwx,g=rx,o= "$final_path/gitea"
+    chmod u=rwx,g=rx,o= "$final_path/custom/conf/app.ini"
     chmod u=rwX,g=rX,o= "/home/$app"
     chmod u=rwX,g=rX,o= "/var/log/$app"
 }
