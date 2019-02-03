@@ -100,6 +100,11 @@ ynh_add_systemd_config
 config_nginx
 
 #=================================================
+# SETUP FAIL2BAN
+#=================================================
+ynh_add_fail2ban_config "/var/log/$app/$app.log" ".*Failed authentication attempt for .* from <HOST>" 5
+
+#=================================================
 # GENERIC FINALIZATION
 #=================================================
 
