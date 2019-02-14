@@ -104,10 +104,7 @@ ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ../conf/login_source.sql
 #=================================================
 
 # Unprotect root from SSO if public
-if [ "$is_public" = '1' ]
-then
-    ynh_app_setting_set $app unprotected_uris "/"
-fi
+set_access_settings
 
 # Add gitea to YunoHost's monitored services
 yunohost service add "$app" --log "/var/log/$app/$app.log"

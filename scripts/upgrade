@@ -106,6 +106,9 @@ config_nginx
 # Set permissions
 set_permission
 
+# Unprotect root from SSO if public
+set_access_settings
+
 # Reload services
 # ynh_check_starting "INFO] Listen: http://0.0.0.0:" "/var/log/$app/gitea.log"
 sleep 20
