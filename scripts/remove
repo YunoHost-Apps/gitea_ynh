@@ -15,7 +15,7 @@ source ./_common.sh
 # STANDARD REMOVE
 #=================================================
 
-# Stop gogs
+# Stop gitea
 systemctl stop "$app".service
 
 # Drop MySQL database and user
@@ -36,7 +36,7 @@ ynh_remove_logrotate
 # Remove nginx config
 ynh_remove_nginx_config
 
-# Remove gogs user and data
+# Remove gitea user and data
 ynh_system_user_delete $app
 
 # Remove init script
