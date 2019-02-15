@@ -85,7 +85,7 @@ fi
 #=================================================
 
 # Clean template to fix issue : https://github.com/gogits/gogs/issues/4585
-ynh_secure_remove "/opt/gitea/templates"
+ynh_secure_remove "/opt/$app/templates"
 
 # Install gitea
 ynh_setup_source $final_path $architecture
