@@ -17,6 +17,8 @@ if [ -n "$(uname -m | grep 64)" ]; then
 	architecture="x86-64"
 elif [ -n "$(uname -m | grep 86)" ]; then
 	architecture="i386"
+elif [ -n "$(uname -m | grep armv7)" ]; then
+	architecture="armv7"
 elif [ -n "$(uname -m | grep arm)" ]; then
 	architecture="arm"
 else
