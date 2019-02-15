@@ -50,5 +50,4 @@ config_nginx
 config_gitea
 
 # RELOAD services
-ynh_check_starting "INFO] Listen: http://0.0.0.0:" "/var/log/$app/gitea.log"
-sleep 1
+ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "systemd" -a restart

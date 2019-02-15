@@ -19,6 +19,7 @@ domain=$(ynh_app_setting_get "$app" domain)
 path_url=$(ynh_app_setting_get "$app" path)
 dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
 admin=$(ynh_app_setting_get "$app" adminusername)
+port=$(ynh_app_setting_get "$app" web_port)
 
 # Check domain/path availability with app helper
 ynh_webpath_available $domain $path_url || ynh_die "$domain is not available as domain, please use an other domain."
@@ -68,5 +69,4 @@ yunohost service add "$app" --log /var/log/"$app"/"$app".log
 
 # Reload services
 systemctl reload nginx.service
-sleep 20
-systemctl start gitea
+ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "systemd"

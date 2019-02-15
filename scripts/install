@@ -113,6 +113,4 @@ yunohost service add "$app" --log "/var/log/$app/$app.log"
 ynh_use_logrotate "/var/log/$app"
 
 # Reload services
-# ynh_check_starting "Serving [::]:$port with pid" "/var/log/$app/gitea.log"
-sleep 20
-systemctl start gitea
+ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "systemd"
