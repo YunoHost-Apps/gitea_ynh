@@ -48,6 +48,7 @@ config_nginx() {
 }
 
 config_gitea() {
+    ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
     ynh_backup_if_checksum_is_different "$final_path/custom/conf/app.ini"
 
     cp ../conf/app.ini "$final_path/custom/conf"
@@ -68,6 +69,7 @@ config_gitea() {
     ynh_replace_string "__DATA_PATH__" "$DATA_PATH" "$final_path/custom/conf/app.ini"
     ynh_replace_string "__PORT__" $port "$final_path/custom/conf/app.ini"
     ynh_replace_string "__APP__" $app "$final_path/custom/conf/app.ini"
+    ynh_replace_string "__SSH_PORT_" $ssh_port "$final_path/custom/conf/app.ini"
 
     ynh_store_file_checksum "$final_path/custom/conf/app.ini"
 }
