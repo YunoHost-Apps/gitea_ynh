@@ -1,0 +1,5 @@
+/opt/$app
+/home/$app
+/var/log/$app
+/etc/systemd/system/$app.service
+/etc/nginx/conf.d/$domain.d/$app.conf
