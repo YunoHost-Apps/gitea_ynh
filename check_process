@@ -29,3 +29,6 @@
     Level 8=0
     Level 9=0
     Level 10=0
+;;; Upgrade options
+	; commit=bf663ad8695a64dba7c45aa518aec048cb2f2b2e
+		name=First package version
