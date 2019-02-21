@@ -16,7 +16,7 @@ source ./_common.sh
 
 # Retrieve arguments
 domain=$YNH_APP_ARG_DOMAIN
-path_url=$YNH_APP_ARG_PATH
+path_url=$(ynh_normalize_url_path $YNH_APP_ARG_PATH)
 admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
 
@@ -60,7 +60,12 @@ config_nginx
 ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
 
 # Add users
-ynh_system_user_create $app
+# We can't use the official helper (for now) because we need to set the shell for the login
+test getent passwd "$app" &>/dev/null || \
+    useradd -d "$DATADIR" --system --user-group "$app" --shell /bin/bash || \
+        ynh_die "Unable to create $app system account"
+# Should be replaced by this when getops is available in the helper ynh_system_user_create (probably in Yunohost 3.5)
+# ynh_system_user_create --username= $app --home_dir=/opt/yunohost/$app --use_shell
 
 # create needed directories
 create_dir
@@ -99,10 +104,7 @@ ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ../conf/login_source.sql
 #=================================================
 
 # Unprotect root from SSO if public
-if [ "$is_public" = '1' ]
-then
-    ynh_app_setting_set $app unprotected_uris "/"
-fi
+set_access_settings
 
 # Add gitea to YunoHost's monitored services
 yunohost service add "$app" --log "/var/log/$app/$app.log"
@@ -111,6 +113,9 @@ yunohost service add "$app" --log "/var/log/$app/$app.log"
 ynh_use_logrotate "/var/log/$app"
 
 # Reload services
-# ynh_check_starting "Serving [::]:$port with pid" "/var/log/$app/gitea.log"
-sleep 20
-systemctl start gitea
+ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "systemd"
+sleep 1
+
+# Store the checksum with the 'INTERNAL_TOKEN' value.
+# Should be removed when the issue https://github.com/go-gitea/gitea/issues/3246 is fixed
+ynh_store_file_checksum "$final_path/custom/conf/app.ini"

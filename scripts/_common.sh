@@ -17,6 +17,8 @@ if [ -n "$(uname -m | grep 64)" ]; then
 	architecture="x86-64"
 elif [ -n "$(uname -m | grep 86)" ]; then
 	architecture="i386"
+elif [ -n "$(uname -m | grep armv7)" ]; then
+	architecture="armv7"
 elif [ -n "$(uname -m | grep arm)" ]; then
 	architecture="arm"
 else
@@ -46,6 +48,7 @@ config_nginx() {
 }
 
 config_gitea() {
+    ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
     ynh_backup_if_checksum_is_different "$final_path/custom/conf/app.ini"
 
     cp ../conf/app.ini "$final_path/custom/conf"
@@ -66,6 +69,7 @@ config_gitea() {
     ynh_replace_string "__DATA_PATH__" "$DATA_PATH" "$final_path/custom/conf/app.ini"
     ynh_replace_string "__PORT__" $port "$final_path/custom/conf/app.ini"
     ynh_replace_string "__APP__" $app "$final_path/custom/conf/app.ini"
+    ynh_replace_string "__SSH_PORT_" $ssh_port "$final_path/custom/conf/app.ini"
 
     ynh_store_file_checksum "$final_path/custom/conf/app.ini"
 }
@@ -80,4 +84,22 @@ set_permission() {
     chmod u=rwx,g=rx,o= "$final_path/custom/conf/app.ini"
     chmod u=rwX,g=rX,o= "/home/$app"
     chmod u=rwX,g=rX,o= "/var/log/$app"
+}
+
+set_access_settings() {
+    if [ "$is_public" = '1' ]
+    then
+        ynh_app_setting_set $app unprotected_uris "/"
+    else
+        # For an access to the git server by https in private mode we need to allow the access to theses URL :
+        #  - "DOMAIN/PATH/USER/REPOSITORY/info/refs"
+        #  - "DOMAIN/PATH/USER/REPOSITORY/git-upload-pack"
+        #  - "DOMAIN/PATH/USER/REPOSITORY/git-receive-pack"
+
+        excaped_domain=${domain//'.'/'%.'}
+        excaped_domain=${excaped_domain//'-'/'%-'}
+        excaped_path=${path_url//'.'/'%.'}
+        excaped_path=${excaped_path//'-'/'%-'}
+        ynh_app_setting_set $app skipped_regex "$excaped_domain$excaped_path/[%w-.]*/[%w-.]*/git%-receive%-pack,$excaped_domain$excaped_path/[%w-.]*/[%w-.]*/git%-upload%-pack,$excaped_domain$excaped_path/[%w-.]*/[%w-.]*/info/refs"
+    fi
 }
