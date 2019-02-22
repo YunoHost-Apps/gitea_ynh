@@ -43,10 +43,46 @@ test getent passwd "$app" &>/dev/null || \
 # Should be replaced by this when getops is available in the helper ynh_system_user_create (probably in Yunohost 3.5)
 # ynh_system_user_create --username= $app --home_dir=/opt/yunohost/$app --use_shell
 
-# Restore all files
-ynh_restore
 
-# Create and restore the database
+#=================================================
+# RESTORE THE NGINX CONFIGURATION
+#=================================================
+
+ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
+
+#=================================================
+# RESTORE THE LOGROTATE CONFIGURATION
+#=================================================
+
+ynh_restore_file "/etc/logrotate.d/$app"
+
+#=================================================
+# RESTORE THE APP MAIN DIR
+#=================================================
+ynh_restore_file "$final_path"
+
+#=================================================
+# RESTORE DATADIR
+#=================================================
+# Restore all files
+datadir="/home/${app}"
+
+# The data directory will be restored only if it exists in the backup archive
+# So only if it was backup previously.
+if [ -d "$YNH_BACKUP_DIR/apps/$app/backup/home/$app" ]
+then
+	ynh_restore_file "$datadir"
+else
+	# Create app folders
+	mkdir -p "$datadir"
+fi
+# Remove the option backup_core_only if it's in the settings.yml file
+ynh_app_setting_delete $app backup_core_only
+
+
+#=================================================
+# RESTORE DATABASE
+#=================================================
 ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
 ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ./db.sql
 

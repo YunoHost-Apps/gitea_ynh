@@ -36,3 +36,17 @@ ynh_backup "/var/log/$app"
 
 # Dump the database
 ynh_mysql_dump_db "$dbname" > ./db.sql
+
+
+#=================================================
+# BACKUP THE DATA DIRECTORY
+#=================================================
+
+backup_core_only=$(ynh_app_setting_get "$app" backup_core_only)
+# If backup_core_only have any value in the settings.yml file, do not backup the data directory
+if [ -z $backup_core_only ]
+then
+	ynh_backup "/home/$app"
+else
+	echo "Data dir will not be saved, because backup_core_only is set." >&2
+fi

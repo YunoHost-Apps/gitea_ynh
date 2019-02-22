@@ -24,6 +24,8 @@ is_public=$(ynh_app_setting_get "$app" is_public)
 port=$(ynh_app_setting_get "$app" web_port)
 
 # Backup the current version of the app
+# Inform the backup/restore process that it should not save the data directory
+ynh_app_setting_set $app backup_core_only 1
 ynh_backup_before_upgrade
 ynh_clean_setup () {
     ynh_restore_upgradebackup
