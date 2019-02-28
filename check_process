@@ -24,7 +24,7 @@
     Level 1=auto
     Level 2=auto
     Level 3=auto
-    # https://github.com/YunoHost-Apps/gitea_ynh/blob/master/conf/login_source.sql
+    # https://github.com/YunoHost-Apps/gogs_ynh/blob/master/conf/login_source.sql
     Level 4=1
     Level 5=auto
     Level 6=auto

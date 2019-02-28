@@ -16,7 +16,7 @@ source ./_common.sh
 
 # Retrieve arguments
 domain=$YNH_APP_ARG_DOMAIN
-path_url=$YNH_APP_ARG_PATH
+path_url=$(ynh_normalize_url_path $YNH_APP_ARG_PATH)
 admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
 
@@ -53,7 +53,10 @@ ynh_app_setting_set $app web_port $port
 ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
 
 # Add users
-ynh_system_user_create $app
+# We can't use the official helper because we need to set the shell for the login
+test getent passwd "$app" &>/dev/null || \
+    useradd -d "$DATADIR" --system --user-group "$app" --shell /bin/bash || \
+        ynh_die "Unable to create $app system account"
 
 # create needed directories
 create_dir
@@ -70,32 +73,15 @@ ynh_add_systemd_config
 # Modify Nginx configuration file and copy it to Nginx conf directory
 config_nginx
 
-# Start gogs for building mysql tables
-systemctl start "$app".service
-
-# Set permissions
-set_permission
-
-# Wait till login_source mysql table is created
-while ! $(ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname"  <<< "SELECT * FROM login_source;" &>/dev/null)
-do
-    sleep 2
-done
-
-# Add ldap config
-ynh_replace_string "__ADMIN__" "$admin" ../conf/login_source.sql
-ynh_replace_string "__APP__" "$app" ../conf/login_source.sql
-ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ../conf/login_source.sql
-
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
 
+# Set permissions
+set_permission
+
 # Unprotect root from SSO if public
-if [ "$is_public" = '1' ]
-then
-    ynh_app_setting_set $app unprotected_uris "/"
-fi
+set_access_settings
 
 # Add Gogs to YunoHost's monitored services
 yunohost service add "$app" --log "/var/log/$app/$app.log"

@@ -1,5 +1,5 @@
-SOURCE_URL=https://github.com/go-gitea/gitea/releases/download/v1.3.3/gitea-1.3.3-linux-386
-SOURCE_SUM=1b746cccffca446876ccc71efe328699f002622dab1d438e2142c8d7c23a22d7
+SOURCE_URL=https://github.com/gogits/gogs/releases/download/v0.11.79/linux_386.zip
+SOURCE_SUM=ad1a89eb01723a4b289b7b8773fd018f78b0dad801101f27c1af0f2d649edeeb
 # (Optional) Program to check the integrity (sha256sum, md5sum...)
 # default: sha256
 SOURCE_SUM_PRG=sha256sum

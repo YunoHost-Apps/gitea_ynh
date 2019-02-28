@@ -14,57 +14,32 @@ ynh_abort_if_errors
 source ./experimental_helper.sh
 source ./_common.sh
 
-cp -r  /etc/yunohost/apps/${app}/conf ../ # Quick hack for https://github.com/YunoHost/yunohost/pull/427
-
 # RETRIEVE ARGUMENTS
 old_domain=$YNH_APP_OLD_DOMAIN
-old_path=$YNH_APP_OLD_PATH
-new_domain=$YNH_APP_NEW_DOMAIN
-new_path=$YNH_APP_NEW_PATH
+domain=$YNH_APP_NEW_DOMAIN
+path_url=$(ynh_normalize_url_path ${YNH_APP_NEW_PATH:-'/'})
 app=$YNH_APP_INSTANCE_NAME
 
 dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
 admin=$(ynh_app_setting_get "$app" adminusername)
 key=$(ynh_app_setting_get "$app" secret_key)
 port=$(ynh_app_setting_get "$app" web_port)
-
-# CHECK THE SYNTAX OF THE PATHS
-test -n "$old_path" || old_path="/"
-test -n "$new_path" || new_path="/"
-new_path=$(ynh_normalize_url_path $new_path)
-old_path=$(ynh_normalize_url_path $old_path)
-
-domain="$new_domain"
-path_url="$new_path"
-
-# CHECK WHICH PARTS SHOULD BE CHANGED
-change_domain=0
-if [ "$old_domain" != "$new_domain" ]
-then
-    change_domain=1
-fi
-
-change_path=0
-if [ "$old_path" != "$new_path" ]
-then
-    change_path=1
-fi
+is_public=$(ynh_app_setting_get "$app" is_public)
 
 #=================================================
 # STANDARD MODIFICATIONS
 #=================================================
 
-# MODIFY URL IN NGINX CONF
-nginx_conf_path=/etc/nginx/conf.d/$old_domain.d/$app.conf
-
 # Change the domain for nginx
-if [ $change_domain -eq 1 ]
+if [ "$old_domain" != "$domain" ]
 then
     # Delete file checksum for the old conf file location
-    ynh_delete_file_checksum "$nginx_conf_path"
-    mv $nginx_conf_path /etc/nginx/conf.d/$new_domain.d/$app.conf
+    ynh_delete_file_checksum "/etc/nginx/conf.d/$old_domain.d/$app.conf"
+
+    mv "/etc/nginx/conf.d/$old_domain.d/$app.conf" "/etc/nginx/conf.d/$domain.d/$app.conf"
+
     # Store file checksum for the new config file location
-    ynh_store_file_checksum "/etc/nginx/conf.d/$new_domain.d/$app.conf"
+    ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
 fi
 
 config_nginx

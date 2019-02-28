@@ -1,5 +1,5 @@
-SOURCE_URL=https://github.com/gogits/gogs/releases/download/v0.11.33/linux_amd64.zip
-SOURCE_SUM=7f0841a0451174349bf058e3827a0f46b8a827de0303827a6ff6d20fd03db3ff
+SOURCE_URL=https://github.com/gogits/gogs/releases/download/v0.11.79/linux_amd64.zip
+SOURCE_SUM=85f60494de63e6c4af16faba9bc739eb7c9e5477de1f16d11c6665495141162f
 # (Optional) Program to check the integrity (sha256sum, md5sum...)
 # default: sha256
 SOURCE_SUM_PRG=sha256sum

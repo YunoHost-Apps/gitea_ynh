@@ -1,7 +1,7 @@
 {
     "package_format": 1,
-    "name": "Gitea",
-    "id": "gitea",
+    "name": "Gogs",
+    "id": "gogs",
     "packaging_format": 1,
     "description": {
         "en": "Lightweight git forge",
@@ -9,10 +9,14 @@
     },
     "url": "http://gogs.io",
     "license": "MIT",
-    "version": "0.11.33~ynh1",
+    "version": "0.11.66~ynh1",
     "maintainer": {
-        "name": "",
-        "email": ""
+        "name": "Josué Tille",
+        "email": "josue@tille.ch"
+    },
+    "previous_maintainers": {
+        "name": "tostaki",
+        "email": "maxime@max.privy.place"
     },
     "multi_instance": true,
     "services": [
@@ -20,7 +24,7 @@
         "mysql"
     ],
     "requirements": {
-        "yunohost": ">= 2.7.9"
+        "yunohost": ">= 2.7.12"
     },
     "arguments": {
         "install" : [
@@ -28,8 +32,8 @@
                 "name": "domain",
                 "type": "domain",
                 "ask": {
-                    "en": "Choose a domain for Gitea",
-                    "fr": "Choisissez un domaine pour Gitea"
+                    "en": "Choose a domain for Gogs",
+                    "fr": "Choisissez un domaine pour Gogs"
                 },
                 "example": "domain.org"
             },
@@ -37,18 +41,18 @@
                 "name": "path",
                 "type": "path",
                 "ask": {
-                    "en": "Choose a path for Gitea",
-                    "fr": "Choisissez un chemin pour Gitea"
+                    "en": "Choose a path for Gogs",
+                    "fr": "Choisissez un chemin pour Gogs"
                 },
-                "example": "/gitea",
-                "default": "/gitea"
+                "example": "/gogs",
+                "default": "/gogs"
             },
             {
                 "name": "admin",
                 "type": "user",
                 "ask": {
-                    "en": "Choose the Gitea administrator (must be an existing YunoHost user)",
-                    "fr": "Choisissez l'administrateur de Gitea (doit être un utilisateur YunoHost existant)"
+                    "en": "Choose the Gogs administrator (must be an existing YunoHost user)",
+                    "fr": "Choisissez l'administrateur de Gogs (doit être un utilisateur YunoHost existant)"
                 },
                 "example": "johndoe"
             },

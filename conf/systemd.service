@@ -1,5 +1,5 @@
 [Unit]
-Description=Gitea
+Description=Gogs (Go Git Service)
 After=syslog.target
 After=network.target
 After=mysql.service

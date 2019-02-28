@@ -35,7 +35,10 @@ test ! -e "$final_path" || ynh_die "This path already contains a folder"
 #=================================================
 
 # Add users
-ynh_system_user_create $app
+# We can't use the official helper because we need to set the shell for the login
+test getent passwd "$app" &>/dev/null || \
+    useradd -d "$DATADIR" --system --user-group "$app" --shell /bin/bash || \
+        ynh_die "Unable to create $app system account"
 
 # Restore all files
 ynh_restore

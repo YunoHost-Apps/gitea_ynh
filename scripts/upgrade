@@ -80,6 +80,13 @@ then
     usermod -p '*' "$app"
 fi
 
+# Remove old authentification mecanisme, actually the registry in the database has been replaced by a config file
+if [[ ! -e "$final_path/custom/conf/auth.d/ldap.conf" ]]
+then
+    ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname"  <<< "DELETE FROM login_source WHERE name = 'Yunohost LDAP';"
+    mkdir -p "$final_path/custom/conf/auth.d"
+fi
+
 #=================================================
 # STANDARD UPGRADE STEPS
 #=================================================
@@ -102,6 +109,9 @@ config_nginx
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
+
+# Unprotect root from SSO if public
+set_access_settings
 
 # Set permissions
 set_permission
