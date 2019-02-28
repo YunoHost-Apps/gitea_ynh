@@ -12,6 +12,8 @@
         setup_private=1
         setup_public=1
         upgrade=1
+        upgrade=1   from_commit=349992d4f3921e4e1adb37a0cace4a5a9eb67099
+        upgrade=1   from_commit=4e078e91129725c8b09ba551ab2a04e0328a45b3
         backup_restore=1
         multi_instance=1
         incorrect_path=0
@@ -30,5 +32,7 @@
     Level 9=0
     Level 10=0
 ;;; Upgrade options
-	; commit=bf663ad8695a64dba7c45aa518aec048cb2f2b2e
+	; commit=349992d4f3921e4e1adb37a0cace4a5a9eb67099
 		name=First package version
+	; commit=4e078e91129725c8b09ba551ab2a04e0328a45b3
+		name=Gogs code, check migration from gogs
