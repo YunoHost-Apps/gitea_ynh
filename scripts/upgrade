@@ -43,7 +43,6 @@ systemctl stop "$app".service
 ynh_handle_app_migration gogs gogs_migrations
 
 if [[ $migration_process -eq 1 ]]; then
-
     # Reload variables
     dbname=$app
     dbuser=$app
@@ -66,6 +65,16 @@ if [[ $migration_process -eq 1 ]]; then
     ynh_replace_string "__ADMIN__" "$admin" ../conf/login_source.sql
     ynh_replace_string "__APP__" "$app" ../conf/login_source.sql
     ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ../conf/login_source.sql
+
+    # Fix hooks
+    if [[ -e $REPO_PATH ]];then
+        ls $REPO_PATH/*/*.git/hooks/pre-receive | while read p; do
+            ynh_secure_remove $p
+        done
+        ls $REPO_PATH/*/*.git/hooks/post-receive | while read p; do
+            ynh_secure_remove $p
+        done
+    fi
 
     upstream_version="0.0.1"
 fi
