@@ -280,6 +280,7 @@ ynh_handle_app_migration ()  {
 
     local settings_dir="/etc/yunohost/apps"
     cp -a "$settings_dir/$old_app" "$settings_dir/$new_app"
+    cp -a ../{scripts,conf} "$settings_dir/$new_app"
 
     # Replace the old id by the new one
     ynh_replace_string "\(^id: .*\)$old_app" "\1$new_app" "$settings_dir/$new_app/settings.yml"
