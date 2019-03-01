@@ -43,11 +43,6 @@ systemctl stop "$app".service
 ynh_handle_app_migration gogs gogs_migrations
 
 if [[ $migration_process -eq 1 ]]; then
-    # Replace the user
-    ynh_system_user_delete $old_app
-    test getent passwd "$app" &>/dev/null || \
-        useradd -d "$DATADIR" --system --user-group "$app" --shell /bin/bash || \
-            ynh_die "Unable to create $app system account"
 
     # Reload variables
     dbname=$app
@@ -56,6 +51,12 @@ if [[ $migration_process -eq 1 ]]; then
     DATADIR="/home/$app"
     REPO_PATH="$DATADIR/repositories"
     DATA_PATH="$DATADIR/data"
+
+    # Replace the user
+    ynh_system_user_delete $old_app
+    test getent passwd "$app" &>/dev/null || \
+        useradd -d "$DATADIR" --system --user-group "$app" --shell /bin/bash || \
+            ynh_die "Unable to create $app system account"
 
     # Clean old binary
     ynh_secure_remove $final_path/gogs
