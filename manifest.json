@@ -9,10 +9,10 @@
     },
     "url": "http://gitea.io",
     "license": "MIT",
-    "version": "1.5.2~ynh1",
+    "version": "1.7.3~ynh1",
     "maintainer": {
-        "name": "",
-        "email": ""
+        "name": "rafi59",
+        "email": "rafi59_dev@srvmaison.fr.nf"
     },
     "multi_instance": true,
     "services": [
