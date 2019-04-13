@@ -80,7 +80,7 @@ config_nginx
 config_gitea
 
 # Install gitea
-ynh_setup_source $final_path $architecture
+ynh_setup_source $final_path source/$architecture
 
 # Set permissions
 set_permission
@@ -111,6 +111,9 @@ yunohost service add "$app" --log "/var/log/$app/$app.log"
 
 # Configure logrotate
 ynh_use_logrotate "/var/log/$app"
+
+# Save Version
+ynh_app_setting_set $app upstream_version $(ynh_app_upstream_version)
 
 # Reload services
 ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "systemd"
