@@ -99,8 +99,16 @@ config_nginx
 # DB migration
 #=================================================
 
-# Support for the time when the upstream_version was not updated
-upstream_version=${upstream_version:-1.7}
+# Before the version 1.7 the upstream version was not stored
+# The way to find the version for the install < 1.7 is to parse the binary file to find which version is installed
+if [ -z ${upstream_version:-} ]; then
+    for version in "0.0." "1.0." "1.1." "1.2." "1.3." "1.4." "1.5." "1.6." "1.7."; do
+        if strings $final_path/gitea | grep -P "^${version//./\\.}\d"; then
+            upstream_version="${version}0"
+            break
+        fi
+    done
+fi
 
 restart_gitea() {
     # Set permissions
@@ -112,7 +120,7 @@ restart_gitea() {
 }
 
 case $upstream_version in
-"0.0.1" )
+"0.0."* )
     ynh_setup_source $final_path source/${architecture}_1.0
     set_permission
     systemctl start $app
