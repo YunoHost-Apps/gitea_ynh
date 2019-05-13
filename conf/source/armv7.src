@@ -2,7 +2,7 @@
 # See : https://github.com/go-gitea/gitea/issues/6700
 # Use temporary the armv6 binary
 SOURCE_URL=https://github.com/go-gitea/gitea/releases/download/v1.8.1/gitea-1.8.1-linux-arm-6
-SOURCE_SUM=134eb209071cb9fa2ddc7b58d343f5af5ddc9e718f6567e25bc4fdebd2d98dc0
+SOURCE_SUM=c4996c2f413945bb131e7096751838ef49c5e9e40ce33b280f45ecd13e895274
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FILENAME=gitea
 SOURCE_EXTRACT=false
