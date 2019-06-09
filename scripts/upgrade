@@ -15,14 +15,14 @@ source ./experimental_helper.sh
 source ./_common.sh
 
 # Retrieve app settings
-domain=$(ynh_app_setting_get "$app" domain)
-path_url=$(ynh_normalize_url_path $(ynh_app_setting_get "$app" path))
-dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
-admin=$(ynh_app_setting_get "$app" adminusername)
-key=$(ynh_app_setting_get "$app" secret_key)
-is_public=$(ynh_app_setting_get "$app" is_public)
-port=$(ynh_app_setting_get "$app" web_port)
-upstream_version=$(ynh_app_setting_get $app upstream_version)
+domain=$(ynh_app_setting_get --app $app --key domain)
+path_url=$(ynh_normalize_url_path $(ynh_app_setting_get --app $app --key path))
+dbpass=$(ynh_app_setting_get --app $app --key mysqlpwd)
+admin=$(ynh_app_setting_get --app $app --key adminusername)
+key=$(ynh_app_setting_get --app $app --key secret_key)
+is_public=$(ynh_app_setting_get --app $app --key is_public)
+port=$(ynh_app_setting_get --app $app --key web_port)
+upstream_version=$(ynh_app_setting_get --app $app --key upstream_version)
 
 # Backup the current version of the app
 ynh_backup_before_upgrade
@@ -58,8 +58,8 @@ if [[ $migration_process -eq 1 ]]; then
             ynh_die "Unable to create $app system account"
 
     # Clean old binary
-    ynh_secure_remove $final_path/gogs
-    ynh_secure_remove $final_path/custom/conf/auth.d
+    ynh_secure_remove --file=$final_path/gogs
+    ynh_secure_remove --file=$final_path/custom/conf/auth.d
 
     # Restore authentication from SQL database
     ynh_replace_string "__ADMIN__" "$admin" ../conf/login_source.sql
@@ -69,10 +69,10 @@ if [[ $migration_process -eq 1 ]]; then
     # Fix hooks
     if [[ -e $REPO_PATH ]];then
         ls $REPO_PATH/*/*.git/hooks/pre-receive | while read p; do
-            ynh_secure_remove $p
+            ynh_secure_remove --file=$p
         done
         ls $REPO_PATH/*/*.git/hooks/post-receive | while read p; do
-            ynh_secure_remove $p
+            ynh_secure_remove --file=$p
         done
     fi
 
@@ -84,7 +84,7 @@ fi
 #=================================================
 
 # Clean template to fix issue : https://github.com/gogits/gogs/issues/4585
-ynh_secure_remove "/opt/$app/templates"
+ynh_secure_remove --file="/opt/$app/templates"
 
 # Configure gitea with app.ini file
 config_gitea
@@ -168,7 +168,7 @@ ynh_setup_source $final_path source/$architecture
 set_permission
 
 # Save Version
-ynh_app_setting_set $app upstream_version $(ynh_app_upstream_version)
+ynh_app_setting_set --app $app --key upstream_version --value $(ynh_app_upstream_version)
 
 # Unprotect root from SSO if public
 set_access_settings
@@ -179,7 +179,7 @@ sleep 1
 
 # Store the checksum with the 'INTERNAL_TOKEN' value.
 # Should be removed when the issue https://github.com/go-gitea/gitea/issues/3246 is fixed
-ynh_store_file_checksum "$final_path/custom/conf/app.ini"
+ynh_store_file_checksum --file "$final_path/custom/conf/app.ini"
 
 #=================================================
 # FINISH MIGRATION PROCESS

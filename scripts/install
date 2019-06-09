@@ -39,11 +39,11 @@ key=$(ynh_string_random)
 port=$(ynh_find_port 6000)
 
 # Store Settings
-ynh_app_setting_set $app mysqlpwd $dbpass
-ynh_app_setting_set $app adminusername $admin
-ynh_app_setting_set $app is_public $is_public
-ynh_app_setting_set $app secret_key $key
-ynh_app_setting_set $app web_port $port
+ynh_app_setting_set --app $app --key mysqlpwd --value $dbpass
+ynh_app_setting_set --app $app --key adminusername --value $admin
+ynh_app_setting_set --app $app --key is_public --value $is_public
+ynh_app_setting_set --app $app --key secret_key --value $key
+ynh_app_setting_set --app $app --key web_port --value $port
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -113,7 +113,7 @@ yunohost service add "$app" --log "/var/log/$app/$app.log"
 ynh_use_logrotate "/var/log/$app"
 
 # Save Version
-ynh_app_setting_set $app upstream_version $(ynh_app_upstream_version)
+ynh_app_setting_set --app $app --key upstream_version --value $(ynh_app_upstream_version)
 
 # Reload services
 ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "systemd"
@@ -121,4 +121,4 @@ sleep 1
 
 # Store the checksum with the 'INTERNAL_TOKEN' value.
 # Should be removed when the issue https://github.com/go-gitea/gitea/issues/3246 is fixed
-ynh_store_file_checksum "$final_path/custom/conf/app.ini"
+ynh_store_file_checksum --file "$final_path/custom/conf/app.ini"

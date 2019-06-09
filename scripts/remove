@@ -23,12 +23,12 @@ ynh_mysql_drop_db "$dbname" 2>/dev/null
 ynh_mysql_drop_user "$dbuser" 2>/dev/null
 
 # Retrieve domain from app settings
-domain=$(ynh_app_setting_get "$app" domain)
+domain=$(ynh_app_setting_get --app $app --key domain)
 
 # Delete app directory and configurations
-ynh_secure_remove "$final_path"
-ynh_secure_remove "$DATADIR"
-ynh_secure_remove "/var/log/$app"
+ynh_secure_remove --file="$final_path"
+ynh_secure_remove --file="$DATADIR"
+ynh_secure_remove --file="/var/log/$app"
 
 # Remove the app-specific logrotate config
 ynh_remove_logrotate

@@ -15,11 +15,11 @@ source ../settings/scripts/experimental_helper.sh
 source ../settings/scripts/_common.sh
 
 # Retrieve old app settings
-domain=$(ynh_app_setting_get "$app" domain)
-path_url=$(ynh_app_setting_get "$app" path)
-dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
-admin=$(ynh_app_setting_get "$app" adminusername)
-port=$(ynh_app_setting_get "$app" web_port)
+domain=$(ynh_app_setting_get --app $app --key domain)
+path_url=$(ynh_app_setting_get --app $app --key path)
+dbpass=$(ynh_app_setting_get --app $app --key mysqlpwd)
+admin=$(ynh_app_setting_get --app $app --key adminusername)
+port=$(ynh_app_setting_get --app $app --key web_port)
 
 # Check domain/path availability with app helper
 ynh_webpath_available $domain $path_url || ynh_die "$domain is not available as domain, please use an other domain."

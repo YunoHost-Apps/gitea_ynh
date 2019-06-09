@@ -15,7 +15,7 @@ source ../settings/scripts/experimental_helper.sh
 source ../settings/scripts/_common.sh
 
 # Retrieve app settings
-domain=$(ynh_app_setting_get "$app" domain)
+domain=$(ynh_app_setting_get --app $app --key domain)
 
 #=================================================
 # STANDARD BACKUP STEPS

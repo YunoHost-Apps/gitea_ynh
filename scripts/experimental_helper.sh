@@ -95,7 +95,7 @@ ynh_systemd_action() {
 ynh_clean_check_starting () {
 	# Stop the execution of tail.
 	kill -s 15 $pid_tail 2>&1
-	ynh_secure_remove "$templog" 2>&1
+	ynh_secure_remove --file="$templog" 2>&1
 }
 
 # Read the value of a key in a ynh manifest file
@@ -352,7 +352,7 @@ ynh_handle_app_migration ()  {
         # Remove the old database
         ynh_mysql_remove_db $db_name $db_name
         # And the dump
-        ynh_secure_remove "$sql_dump"
+        ynh_secure_remove --file="$sql_dump"
 
         # Update the value of $db_name
         db_name=$new_db_name
