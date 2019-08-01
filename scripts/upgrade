@@ -161,7 +161,7 @@ esac
 ynh_setup_source $final_path source/$architecture
 
 # SETUP FAIL2BAN
-ynh_add_fail2ban_config "/var/log/$app/$app.log" ".*Failed authentication attempt for .* from <HOST>" 5
+ynh_add_fail2ban_config --logpath "/var/log/$app/$app.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
 
 #=================================================
 # GENERIC FINALIZATION
