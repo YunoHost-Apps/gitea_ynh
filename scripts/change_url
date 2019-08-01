@@ -26,6 +26,7 @@ dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
 admin=$(ynh_app_setting_get "$app" adminusername)
 key=$(ynh_app_setting_get "$app" secret_key)
 port=$(ynh_app_setting_get "$app" web_port)
+upstream_version=$(ynh_app_setting_get $app upstream_version)
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -50,7 +51,7 @@ config_nginx
 config_gitea
 
 # RELOAD services
-ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "systemd" -a restart
+ynh_systemd_action -l "Gitea v$upstream_version built with GNU Make .*, go.* : bindata, sqlite, sqlite_unlock_notify" -p "systemd" -a restart -t 5
 sleep 1
 
 # Store the checksum with the 'INTERNAL_TOKEN' value.
