@@ -54,9 +54,7 @@ ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ./db.sql
 systemctl daemon-reload
 systemctl enable "$app".service
 
-#=================================================
 # SETUP FAIL2BAN
-#=================================================
 ynh_add_fail2ban_config "/var/log/$app/$app.log" ".*Failed authentication attempt for .* from <HOST>" 5
 
 #=================================================

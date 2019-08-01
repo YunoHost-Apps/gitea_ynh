@@ -99,9 +99,7 @@ ynh_replace_string "__ADMIN__" "$admin" ../conf/login_source.sql
 ynh_replace_string "__APP__" "$app" ../conf/login_source.sql
 ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ../conf/login_source.sql
 
-#=================================================
 # SETUP FAIL2BAN
-#=================================================
 ynh_add_fail2ban_config "/var/log/$app/$app.log" ".*Failed authentication attempt for .* from <HOST>" 5
 
 #=================================================

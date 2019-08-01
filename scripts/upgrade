@@ -157,12 +157,10 @@ case $upstream_version in
 ;&
 esac
 
-# Install gitea
+# Install gitea source
 ynh_setup_source $final_path source/$architecture
 
-#=================================================
 # SETUP FAIL2BAN
-#=================================================
 ynh_add_fail2ban_config "/var/log/$app/$app.log" ".*Failed authentication attempt for .* from <HOST>" 5
 
 #=================================================
