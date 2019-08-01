@@ -22,17 +22,17 @@ domain=$(ynh_app_setting_get --app $app --key domain)
 #=================================================
 
 # Copy the app source files
-ynh_backup "$final_path"
+ynh_backup --src_path "$final_path"
 
 # Copy the data files
-ynh_backup "$DATADIR"
+ynh_backup --src_path "$DATADIR"
 
 # Copy the conf files
-ynh_backup "/etc/nginx/conf.d/${domain}.d/${app}.conf"
-ynh_backup "/etc/systemd/system/${app}.service"
+ynh_backup --src_path "/etc/nginx/conf.d/${domain}.d/${app}.conf"
+ynh_backup --src_path "/etc/systemd/system/${app}.service"
 
 # Backup logs
-ynh_backup "/var/log/$app"
+ynh_backup --src_path "/var/log/$app"
 
 # Dump the database
 ynh_mysql_dump_db "$dbname" > ./db.sql

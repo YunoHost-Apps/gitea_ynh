@@ -22,14 +22,14 @@ admin=$(ynh_app_setting_get --app $app --key adminusername)
 port=$(ynh_app_setting_get --app $app --key web_port)
 
 # Check domain/path availability with app helper
-ynh_webpath_available $domain $path_url || ynh_die "$domain is not available as domain, please use an other domain."
+ynh_webpath_available $domain $path_url || ynh_die --message "$domain is not available as domain, please use an other domain."
 
 # Check user parameter
 ynh_user_exists "$admin" \
-  || ynh_die "The chosen admin user does not exist."
+  || ynh_die --message "The chosen admin user does not exist."
 
 # Check Final Path availability
-test ! -e "$final_path" || ynh_die "This path already contains a folder"
+test ! -e "$final_path" || ynh_die --message "This path already contains a folder"
 
 #=================================================
 # STANDARD RESTORATION STEPS
@@ -39,7 +39,7 @@ test ! -e "$final_path" || ynh_die "This path already contains a folder"
 # We can't use the official helper (for now) because we need to set the shell for the login
 test getent passwd "$app" &>/dev/null || \
     useradd -d "$DATADIR" --system --user-group "$app" --shell /bin/bash || \
-        ynh_die "Unable to create $app system account"
+        ynh_die --message "Unable to create $app system account"
 # Should be replaced by this when getops is available in the helper ynh_system_user_create (probably in Yunohost 3.5)
 # ynh_system_user_create --username= $app --home_dir=/opt/yunohost/$app --use_shell
 

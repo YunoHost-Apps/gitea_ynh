@@ -22,7 +22,7 @@ elif [ -n "$(uname -m | grep armv7)" ]; then
 elif [ -n "$(uname -m | grep arm)" ]; then
 	architecture="arm"
 else
-	ynh_die "Unable to detect your achitecture, please open a bug describing \
+	ynh_die --message "Unable to detect your achitecture, please open a bug describing \
         your hardware and the result of the command \"uname -m\"." 1
 fi
 
