@@ -1,14 +1,3 @@
-# Delete a file checksum from the app settings
-#
-# $app should be defined when calling this helper
-#
-# usage: ynh_remove_file_checksum file
-# | arg: file - The file for which the checksum will be deleted
-ynh_delete_file_checksum () {
-	local checksum_setting_name=checksum_${1//[\/ ]/_}	# Replace all '/' and ' ' by '_'
-	ynh_app_setting_delete $app $checksum_setting_name
-} 
-
 # Start (or other actions) a service,  print a log in case of failure and optionnaly wait until the service is completely started
 #
 # usage: ynh_systemd_action [-n service_name] [-a action] [ [-l "line to match"] [-p log_path] [-t timeout] [-e length] ]
@@ -86,56 +75,6 @@ ynh_systemd_action() {
         echo ""
         ynh_clean_check_starting
     fi
-}
-
-# Clean temporary process and file used by ynh_check_starting
-# (usually used in ynh_clean_setup scripts)
-#
-# usage: ynh_clean_check_starting
-ynh_clean_check_starting () {
-	# Stop the execution of tail.
-	kill -s 15 $pid_tail 2>&1
-	ynh_secure_remove --file="$templog" 2>&1
-}
-
-# Read the value of a key in a ynh manifest file
-#
-# usage: ynh_read_manifest manifest key
-# | arg: -m, --manifest= - Path of the manifest to read
-# | arg: -k, --key= - Name of the key to find
-ynh_read_manifest () {
-	# Declare an array to define the options of this helper.
-        declare -Ar args_array=( [m]=manifest= [k]=manifest_key= )
-        local manifest
-        local manifest_key
-	# Manage arguments with getopts
-	ynh_handle_getopts_args "$@"
-
-	if [ ! -e "$manifest" ]; then
-		# If the manifest isn't found, try the common place for backup and restore script.
-		manifest="../settings/manifest.json"
-	fi
-
-	jq ".$manifest_key" "$manifest" --raw-output
-}
-
-# Read the upstream version from the manifest
-# The version number in the manifest is defined by <upstreamversion>~ynh<packageversion>
-# For example : 4.3-2~ynh3
-# This include the number before ~ynh
-# In the last example it return 4.3-2
-#
-# usage: ynh_app_upstream_version [-m manifest]
-# | arg: -m, --manifest= - Path of the manifest to read
-ynh_app_upstream_version () {
-    declare -Ar args_array=( [m]=manifest= )
-    local manifest
-    # Manage arguments with getopts
-    ynh_handle_getopts_args "$@"
-
-    manifest="${manifest:-../manifest.json}"
-    version_key=$(ynh_read_manifest --manifest="$manifest" --manifest_key="version")
-    echo "${version_key/~ynh*/}"
 }
 
 # Execute a command as another user
@@ -242,7 +181,7 @@ ynh_handle_app_migration ()  {
     if [ "$old_app_id" != "$migration_id" ]
     then
         # If the new app is not the authorized id, fail.
-        ynh_die "Incompatible application for migration from $old_app_id to $new_app_id"
+        ynh_die --message "Incompatible application for migration from $old_app_id to $new_app_id"
     fi
 
     echo "Migrate from $old_app_id to $new_app_id" >&2
