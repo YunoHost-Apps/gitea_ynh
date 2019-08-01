@@ -9,321 +9,387 @@ ynh_delete_file_checksum () {
 	ynh_app_setting_delete $app $checksum_setting_name
 } 
 
-# Start or restart a service and follow its booting
+# Start (or other actions) a service,  print a log in case of failure and optionnaly wait until the service is completely started
 #
-# usage: ynh_check_starting "Line to match" [Log file] [Timeout] [Service name]
-#
-# | arg: Line to match - The line to find in the log to attest the service have finished to boot.
-# | arg: Log file - The log file to watch
-# | arg: Service name
-# /var/log/$app/$app.log will be used if no other log is defined.
-# | arg: Timeout - The maximum time to wait before ending the watching. Defaut 300 seconds.
-ynh_check_starting () {
-	local line_to_match="$1"
-	local service_name="${4:-$app}"
-	local app_log="${2:-/var/log/$service_name/$service_name.log}"
-	local timeout=${3:-300}
+# usage: ynh_systemd_action [-n service_name] [-a action] [ [-l "line to match"] [-p log_path] [-t timeout] [-e length] ]
+# | arg: -n, --service_name= - Name of the service to reload. Default : $app
+# | arg: -a, --action=       - Action to perform with systemctl. Default: start
+# | arg: -l, --line_match=   - Line to match - The line to find in the log to attest the service have finished to boot.
+#                              If not defined it don't wait until the service is completely started.
+# | arg: -p, --log_path=     - Log file - Path to the log file. Default : /var/log/$app/$app.log
+# | arg: -t, --timeout=      - Timeout - The maximum time to wait before ending the watching. Default : 300 seconds.
+# | arg: -e, --length=       - Length of the error log : Default : 20
+ynh_systemd_action() {
+    # Declare an array to define the options of this helper.
+    declare -Ar args_array=( [n]=service_name= [a]=action= [l]=line_match= [p]=log_path= [t]=timeout= [e]=length= )
+    local service_name
+    local action
+    local line_match
+    local length
+    local log_path
+    local timeout
 
-	ynh_clean_check_starting () {
-		# Stop the execution of tail.
-		kill -s 15 $pid_tail 2>&1
-		ynh_secure_remove "$templog" 2>&1
-	}
+    # Manage arguments with getopts
+    ynh_handle_getopts_args "$@"
 
-	echo "Starting of $service_name" >&2
-	systemctl stop $service_name
-	local templog="$(mktemp)"
-	# Following the starting of the app in its log
-	tail -F -n0 "$app_log" > "$templog" &
-	# Get the PID of the tail command
-	local pid_tail=$!
-	systemctl start $service_name
+    local service_name="${service_name:-$app}"
+    local action=${action:-start}
+    local log_path="${log_path:-/var/log/$service_name/$service_name.log}"
+    local length=${length:-20}
+    local timeout=${timeout:-300}
 
-	local i=0
-	for i in `seq 1 $timeout`
-	do
-		# Read the log until the sentence is found, that means the app finished to start. Or run until the timeout
-		if grep --quiet "$line_to_match" "$templog"
-		then
-			echo "The service $service_name has correctly started." >&2
-			break
-		fi
-		echo -n "." >&2
-		sleep 1
-	done
-	if [ $i -eq $timeout ]
-	then
-		echo "The service $service_name didn't fully started before the timeout." >&2
-	fi
+    # Start to read the log
+    if [[ -n "${line_match:-}" ]]
+    then
+        local templog="$(mktemp)"
+        # Following the starting of the app in its log
+        if [ "$log_path" == "systemd" ] ; then
+            # Read the systemd journal
+            journalctl --unit=$service_name --follow --since=-0 --quiet > "$templog" &
+        else
+            # Read the specified log file
+            tail -F -n0 "$log_path" > "$templog" &
+        fi
+        # Get the PID of the tail command
+        local pid_tail=$!
+    fi
 
-	echo ""
-	ynh_clean_check_starting
+    echo "${action^} the service $service_name" >&2
+    systemctl $action $service_name \
+        || ( journalctl --lines=$length -u $service_name >&2 \
+        ; test -e "$log_path" && echo "--" && tail --lines=$length "$log_path" >&2 \
+        ; false )
+
+    # Start the timeout and try to find line_match
+    if [[ -n "${line_match:-}" ]]
+    then
+        local i=0
+        for i in $(seq 1 $timeout)
+        do
+            # Read the log until the sentence is found, that means the app finished to start. Or run until the timeout
+            if grep --quiet "$line_match" "$templog"
+            then
+                echo "The service $service_name has correctly started." >&2
+                break
+            fi
+            echo -n "." >&2
+            sleep 1
+        done
+        if [ $i -eq $timeout ]
+        then
+            echo "The service $service_name didn't fully started before the timeout." >&2
+            echo "Please find here an extract of the end of the log of the service $service_name:"
+            journalctl --lines=$length -u $service_name >&2
+            test -e "$log_path" && echo "--" && tail --lines=$length "$log_path" >&2
+        fi
+
+        echo ""
+        ynh_clean_check_starting
+    fi
 }
 
-# Fail2ban
+# Clean temporary process and file used by ynh_check_starting
+# (usually used in ynh_clean_setup scripts)
+#
+# usage: ynh_clean_check_starting
+ynh_clean_check_starting () {
+	# Stop the execution of tail.
+	kill -s 15 $pid_tail 2>&1
+	ynh_secure_remove "$templog" 2>&1
+}
+
+# Read the value of a key in a ynh manifest file
+#
+# usage: ynh_read_manifest manifest key
+# | arg: -m, --manifest= - Path of the manifest to read
+# | arg: -k, --key= - Name of the key to find
+ynh_read_manifest () {
+	# Declare an array to define the options of this helper.
+        declare -Ar args_array=( [m]=manifest= [k]=manifest_key= )
+        local manifest
+        local manifest_key
+	# Manage arguments with getopts
+	ynh_handle_getopts_args "$@"
+
+	if [ ! -e "$manifest" ]; then
+		# If the manifest isn't found, try the common place for backup and restore script.
+		manifest="../settings/manifest.json"
+	fi
+
+	jq ".$manifest_key" "$manifest" --raw-output
+}
+
+# Read the upstream version from the manifest
+# The version number in the manifest is defined by <upstreamversion>~ynh<packageversion>
+# For example : 4.3-2~ynh3
+# This include the number before ~ynh
+# In the last example it return 4.3-2
+#
+# usage: ynh_app_upstream_version [-m manifest]
+# | arg: -m, --manifest= - Path of the manifest to read
+ynh_app_upstream_version () {
+    declare -Ar args_array=( [m]=manifest= )
+    local manifest
+    # Manage arguments with getopts
+    ynh_handle_getopts_args "$@"
+
+    manifest="${manifest:-../manifest.json}"
+    version_key=$(ynh_read_manifest --manifest="$manifest" --manifest_key="version")
+    echo "${version_key/~ynh*/}"
+}
+
+# Execute a command as another user
+# usage: exec_as USER COMMAND [ARG ...]
+exec_as() {
+  local USER=$1
+  shift 1
+
+  if [[ $USER = $(whoami) ]]; then
+    eval "$@"
+  else
+    sudo -u "$USER" "$@"
+  fi
+}
 
 # Need also the helper https://github.com/YunoHost-Apps/Experimental_helpers/blob/master/ynh_handle_getopts_args/ynh_handle_getopts_args
 
-# Create a dedicated fail2ban config (jail and filter conf files)
+# Make the main steps to migrate an app to its fork.
 #
-# usage: ynh_add_fail2ban_config log_file filter [max_retry [ports]]
-# | arg: -l, --logpath= - Log file to be checked by fail2ban
-# | arg: -r, --failregex= - Failregex to be looked for by fail2ban
-# | arg: -m, --max_retry= - Maximum number of retries allowed before banning IP address - default: 3
-# | arg: -p, --ports= - Ports blocked for a banned IP address - default: http,https
-ynh_add_fail2ban_config () {
+# This helper has to be used for an app which needs to migrate to a new name or a new fork
+# (like owncloud to nextcloud or zerobin to privatebin).
+#
+# This helper will move the files of an app to its new name
+# or recreate the things it can't move.
+#
+# To specify which files it has to move, you have to create a "migration file", stored in ../conf
+# This file is a simple list of each file it has to move,
+# except that file names must reference the $app variable instead of the real name of the app,
+# and every instance-specific variables (like $domain).
+# $app is especially important because it's this variable which will be used to identify the old place and the new one for each file.
+#
+# If a database exists for this app, it will be dumped and then imported in a newly created database, with a new name and new user.
+# Don't forget you have to then apply these changes to application-specific settings (depends on the packaged application)
+#
+# Same things for an existing user, a new one will be created.
+# But the old one can't be removed unless it's not used. See below.
+#
+# If you have some dependencies for your app, it's possible to change the fake debian package which manages them.
+# You have to fill the $pkg_dependencies variable, and then a new fake package will be created and installed,
+# and the old one will be removed.
+# If you don't have a $pkg_dependencies variable, the helper can't know what the app dependencies are.
+#
+# The app settings.yml will be modified as follows:
+# - finalpath will be changed according to the new name (but only if the existing $final_path contains the old app name)
+# - The checksums of php-fpm and nginx config files will be updated too.
+# - If there is a $db_name value, it will be changed.
+# - And, of course, the ID will be changed to the new name too.
+#
+# Finally, the $app variable will take the value of the new name.
+# The helper will set the $migration_process variable to 1 if a migration has been successfully handled.
+#
+# You have to handle by yourself all the migrations not done by this helper, like configuration or special values in settings.yml
+# Also, at the end of the upgrade script, you have to add a post_migration script to handle all the things the helper can't do during YunoHost upgrade (mostly for permission reasons),
+# especially remove the old user, move some hooks and remove the old configuration directory
+# To launch this script, you have to move it elsewhere and start it after the upgrade script.
+# `cp ../conf/$script_post_migration /tmp`
+# `(cd /tmp; echo "/tmp/$script_post_migration" | at now + 2 minutes)`
+#
+# usage: ynh_handle_app_migration migration_id migration_list
+# | arg: -i, --migration_id= - ID from which to migrate
+# | arg: -l, --migration_list= - File specifying every file to move (one file per line)
+ynh_handle_app_migration ()  {
+  # Need for end of install
+  ynh_package_install at
+
+  #=================================================
+  # LOAD SETTINGS
+  #=================================================
+
+  old_app=$YNH_APP_INSTANCE_NAME
+  local old_app_id=$YNH_APP_ID
+  local old_app_number=$YNH_APP_INSTANCE_NUMBER
+
   # Declare an array to define the options of this helper.
-  declare -Ar args_array=( [l]=logpath= [r]=failregex= [m]=max_retry= [p]=ports= )
-  local logpath
-  local failregex
-  local max_retry
-  local ports
+  declare -Ar args_array=( [i]=migration_id= [l]=migration_list= )
+  # Get the id from which to migrate
+  local migration_id
+  # And the file with the paths to move
+  local migration_list
   # Manage arguments with getopts
   ynh_handle_getopts_args "$@"
-  max_retry=${max_retry:-3}
-  ports=${ports:-http,https}
 
-  test -n "$logpath" || ynh_die "ynh_add_fail2ban_config expects a logfile path as first argument and received nothing."
-  test -n "$failregex" || ynh_die "ynh_add_fail2ban_config expects a failure regex as second argument and received nothing."
-
-  finalfail2banjailconf="/etc/fail2ban/jail.d/$app.conf"
-  finalfail2banfilterconf="/etc/fail2ban/filter.d/$app.conf"
-  ynh_backup_if_checksum_is_different "$finalfail2banjailconf" 1
-  ynh_backup_if_checksum_is_different "$finalfail2banfilterconf" 1
-
-  sudo tee $finalfail2banjailconf <<EOF
-[$app]
-enabled = true
-port = $ports
-filter = $app
-logpath = $logpath
-maxretry = $max_retry
-EOF
-
-  sudo tee $finalfail2banfilterconf <<EOF
-[INCLUDES]
-before = common.conf
-[Definition]
-failregex = $failregex
-ignoreregex =
-EOF
-
-  ynh_store_file_checksum "$finalfail2banjailconf"
-  ynh_store_file_checksum "$finalfail2banfilterconf"
-
-  if [ "$(lsb_release --codename --short)" != "jessie" ]; then
-    systemctl reload fail2ban
+  # Get the new app id in the manifest
+  local new_app_id=$(grep \"id\": ../manifest.json | cut -d\" -f4)
+  if [ $old_app_number -eq 1 ]; then
+    local new_app=$new_app_id
   else
-    systemctl restart fail2ban
+    local new_app=${new_app_id}__${old_app_number}
   fi
-  local fail2ban_error="$(journalctl -u fail2ban | tail -n50 | grep "WARNING.*$app.*")"
-  if [ -n "$fail2ban_error" ]
+
+  #=================================================
+  # CHECK IF IT HAS TO MIGRATE 
+  #=================================================
+
+  migration_process=0
+
+  if [ "$old_app_id" == "$new_app_id" ]
   then
-    echo "[ERR] Fail2ban failed to load the jail for $app" >&2
-    echo "WARNING${fail2ban_error#*WARNING}" >&2
-  fi
-}
-
-# Remove the dedicated fail2ban config (jail and filter conf files)
-#
-# usage: ynh_remove_fail2ban_config
-ynh_remove_fail2ban_config () {
-  ynh_secure_remove "/etc/fail2ban/jail.d/$app.conf"
-  ynh_secure_remove "/etc/fail2ban/filter.d/$app.conf"
-  if [ "$(lsb_release --codename --short)" != "jessie" ]; then
-    systemctl reload fail2ban
+    # If the 2 id are the same
+    # No migration to do.
+    echo 0
+    return 0
   else
-    systemctl restart fail2ban
+    if [ "$old_app_id" != "$migration_id" ]
+    then
+        # If the new app is not the authorized id, fail.
+        ynh_die "Incompatible application for migration from $old_app_id to $new_app_id"
+    fi
+
+    echo "Migrate from $old_app_id to $new_app_id" >&2
+
+    #=================================================
+    # CHECK IF THE MIGRATION CAN BE DONE
+    #=================================================
+
+    # TODO Handle multi instance apps...
+    # Check that there is not already an app installed for this id.
+    (yunohost app list --installed -f "$new_app" | grep -q id) \
+    && ynh_die "$new_app is already installed"
+
+    #=================================================
+    # CHECK THE LIST OF FILES TO MOVE
+    #=================================================
+
+    local temp_migration_list="$(tempfile)"
+
+    # Build the list by removing blank lines and comment lines
+    sed '/^#.*\|^$/d' "../conf/$migration_list" > "$temp_migration_list"
+
+    # Check if there is no file in the destination
+    local file_to_move=""
+    while read file_to_move
+    do
+        # Replace all occurences of $app by $new_app in each file to move.
+        local move_to_destination="${file_to_move//\$app/$new_app}"
+        test -e "$move_to_destination" && ynh_die "A file named $move_to_destination already exists."
+    done < "$temp_migration_list"
+
+    #=================================================
+    # COPY YUNOHOST SETTINGS FOR THIS APP
+    #=================================================
+
+    local settings_dir="/etc/yunohost/apps"
+    cp -a "$settings_dir/$old_app" "$settings_dir/$new_app"
+    cp -a ../{scripts,conf} "$settings_dir/$new_app"
+
+    # Replace the old id by the new one
+    ynh_replace_string "\(^id: .*\)$old_app" "\1$new_app" "$settings_dir/$new_app/settings.yml"
+    # INFO: There a special behavior with yunohost app setting:
+    # if the id given in argument does not match with the id
+    # stored in the config file, the config file will be purged.
+    # That's why we use sed instead of app setting here.
+    # https://github.com/YunoHost/yunohost/blob/c6b5284be8da39cf2da4e1036a730eb5e0515096/src/yunohost/app.py#L1316-L1321
+
+    # Change the label if it's simply the name of the app
+    old_label=$(ynh_app_setting_get $new_app label)
+    if [ "${old_label,,}" == "$old_app_id" ]
+    then
+        # Build the new label from the id of the app. With the first character as upper case
+        new_label=$(echo $new_app_id | cut -c1 | tr [:lower:] [:upper:])$(echo $new_app_id | cut -c2-)
+        ynh_app_setting_set $new_app label $new_label
+    fi
+
+    #=================================================
+    # MOVE FILES TO THE NEW DESTINATION
+    #=================================================
+
+    while read file_to_move
+    do
+        # Replace all occurence of $app by $new_app in each file to move.
+        move_to_destination="$(eval echo "${file_to_move//\$app/$new_app}")"
+        local real_file_to_move="$(eval echo "${file_to_move//\$app/$old_app}")"
+        echo "Move file $real_file_to_move to $move_to_destination" >&2
+        mv "$real_file_to_move" "$move_to_destination"
+    done < "$temp_migration_list"
+
+    #=================================================
+    # UPDATE SETTINGS KNOWN ENTRIES
+    #=================================================
+
+    # Replace nginx checksum
+    ynh_replace_string "\(^checksum__etc_nginx.*\)_$old_app" "\1_$new_app/" "$settings_dir/$new_app/settings.yml"
+
+    # Replace php5-fpm checksums
+    ynh_replace_string "\(^checksum__etc_php5.*[-_]\)$old_app" "\1$new_app/" "$settings_dir/$new_app/settings.yml"
+
+    # Replace final_path
+    ynh_replace_string "\(^final_path: .*\)$old_app" "\1$new_app" "$settings_dir/$new_app/settings.yml"
+
+    #=================================================
+    # MOVE THE DATABASE
+    #=================================================
+
+    db_pwd=$(ynh_app_setting_get $old_app mysqlpwd)
+    db_name=$dbname
+
+    # Check if a database exists before trying to move it
+    local mysql_root_password=$(cat $MYSQL_ROOT_PWD_FILE)
+    if [ -n "$db_name" ] && mysqlshow -u root -p$mysql_root_password | grep -q "^| $db_name"
+    then
+        new_db_name=$(ynh_sanitize_dbid $new_app)
+        echo "Rename the database $db_name to $new_db_name" >&2
+
+        local sql_dump="/tmp/${db_name}-$(date '+%s').sql"
+
+        # Dump the old database
+        ynh_mysql_dump_db "$db_name" > "$sql_dump"
+
+        # Create a new database
+        ynh_mysql_setup_db $new_db_name $new_db_name $db_pwd
+        # Then restore the old one into the new one
+        ynh_mysql_connect_as $new_db_name $db_pwd $new_db_name < "$sql_dump"
+
+        # Remove the old database
+        ynh_mysql_remove_db $db_name $db_name
+        # And the dump
+        ynh_secure_remove "$sql_dump"
+
+        # Update the value of $db_name
+        db_name=$new_db_name
+        ynh_app_setting_set $new_app db_name $db_name
+    fi
+
+    #=================================================
+    # CHANGE THE FAKE DEPENDENCIES PACKAGE
+    #=================================================
+
+    # Check if a variable $pkg_dependencies exists
+    # If this variable doesn't exist, this part shall be managed in the upgrade script.
+    if [ -n "${pkg_dependencies:-}" ]
+    then
+      # Define the name of the package
+      local old_package_name="${old_app//_/-}-ynh-deps"
+      local new_package_name="${new_app//_/-}-ynh-deps"
+
+      if ynh_package_is_installed "$old_package_name"
+      then
+        # Install a new fake package
+        app=$new_app
+        ynh_install_app_dependencies $pkg_dependencies
+        # Then remove the old one
+        app=$old_app
+        ynh_remove_app_dependencies
+      fi
+    fi
+
+    #=================================================
+    # UPDATE THE ID OF THE APP
+    #=================================================
+
+    app=$new_app
+
+
+    # Set migration_process to 1 to inform that an upgrade has been made
+    migration_process=1
   fi
-}
-
-# Internal helper design to allow helpers to use getopts to manage their arguments
-#
-# example: function my_helper()
-# {
-#     declare -Ar args_array=( [a]=arg1= [b]=arg2= [c]=arg3 )
-#     local arg1
-#     local arg2
-#     local arg3
-#     ynh_handle_getopts_args "$@"
-#
-#     [...]
-# }
-# my_helper --arg1 "val1" -b val2 -c
-#
-# usage: ynh_handle_getopts_args "$@"
-# | arg: $@    - Simply "$@" to tranfert all the positionnal arguments to the function
-#
-# This helper need an array, named "args_array" with all the arguments used by the helper
-# 	that want to use ynh_handle_getopts_args
-# Be carreful, this array has to be an associative array, as the following example:
-# declare -Ar args_array=( [a]=arg1 [b]=arg2= [c]=arg3 )
-# Let's explain this array:
-# a, b and c are short options, -a, -b and -c
-# arg1, arg2 and arg3 are the long options associated to the previous short ones. --arg1, --arg2 and --arg3
-# For each option, a short and long version has to be defined.
-# Let's see something more significant
-# declare -Ar args_array=( [u]=user [f]=finalpath= [d]=database )
-#
-# NB: Because we're using 'declare' without -g, the array will be declared as a local variable.
-#
-# Please keep in mind that the long option will be used as a variable to store the values for this option.
-# For the previous example, that means that $finalpath will be fill with the value given as argument for this option.
-#
-# Also, in the previous example, finalpath has a '=' at the end. That means this option need a value.
-# So, the helper has to be call with --finalpath /final/path, --finalpath=/final/path or -f /final/path, the variable $finalpath will get the value /final/path
-# If there's many values for an option, -f /final /path, the value will be separated by a ';' $finalpath=/final;/path
-# For an option without value, like --user in the example, the helper can be called only with --user or -u. $user will then get the value 1.
-#
-# To keep a retrocompatibility, a package can still call a helper, using getopts, with positional arguments.
-# The "legacy mode" will manage the positional arguments and fill the variable in the same order than they are given in $args_array.
-# e.g. for `my_helper "val1" val2`, arg1 will be filled with val1, and arg2 with val2.
-ynh_handle_getopts_args () {
-	# Manage arguments only if there's some provided
-	set +x
-	if [ $# -ne 0 ]
-	then
-		# Store arguments in an array to keep each argument separated
-		local arguments=("$@")
-
-		# For each option in the array, reduce to short options for getopts (e.g. for [u]=user, --user will be -u)
-		# And built parameters string for getopts
-		# ${!args_array[@]} is the list of all keys in the array (A key is 'u' in [u]=user, user is a value)
-		local getopts_parameters=""
-		local key=""
-		for key in "${!args_array[@]}"
-		do
-			# Concatenate each keys of the array to build the string of arguments for getopts
-			# Will looks like 'abcd' for -a -b -c -d
-			# If the value of a key finish by =, it's an option with additionnal values. (e.g. --user bob or -u bob)
-			# Check the last character of the value associate to the key
-			if [ "${args_array[$key]: -1}" = "=" ]
-			then
-				# For an option with additionnal values, add a ':' after the letter for getopts.
-				getopts_parameters="${getopts_parameters}${key}:"
-			else
-				getopts_parameters="${getopts_parameters}${key}"
-			fi
-			# Check each argument given to the function
-			local arg=""
-			# ${#arguments[@]} is the size of the array
-			for arg in `seq 0 $(( ${#arguments[@]} - 1 ))`
-			do
-				# And replace long option (value of the key) by the short option, the key itself
-				# (e.g. for [u]=user, --user will be -u)
-				# Replace long option with =
-				arguments[arg]="${arguments[arg]//--${args_array[$key]}/-${key} }"
-				# And long option without =
-				arguments[arg]="${arguments[arg]//--${args_array[$key]%=}/-${key}}"
-			done
-		done
-
-		# Read and parse all the arguments
-		# Use a function here, to use standart arguments $@ and be able to use shift.
-		parse_arg () {
-			# Read all arguments, until no arguments are left
-			while [ $# -ne 0 ]
-			do
-				# Initialize the index of getopts
-				OPTIND=1
-				# Parse with getopts only if the argument begin by -, that means the argument is an option
-				# getopts will fill $parameter with the letter of the option it has read.
-				local parameter=""
-				getopts ":$getopts_parameters" parameter || true
-
-				if [ "$parameter" = "?" ]
-				then
-					ynh_die "Invalid argument: -${OPTARG:-}"
-				elif [ "$parameter" = ":" ]
-				then
-					ynh_die "-$OPTARG parameter requires an argument."
-				else
-					local shift_value=1
-					# Use the long option, corresponding to the short option read by getopts, as a variable
-					# (e.g. for [u]=user, 'user' will be used as a variable)
-					# Also, remove '=' at the end of the long option
-					# The variable name will be stored in 'option_var'
-					local option_var="${args_array[$parameter]%=}"
-					# If this option doesn't take values
-					# if there's a '=' at the end of the long option name, this option takes values
-					if [ "${args_array[$parameter]: -1}" != "=" ]
-					then
-						# 'eval ${option_var}' will use the content of 'option_var'
-						eval ${option_var}=1
-					else
-						# Read all other arguments to find multiple value for this option.
-						# Load args in a array
-						local all_args=("$@")
-
-						# If the first argument is longer than 2 characters,
-						# There's a value attached to the option, in the same array cell
-						if [ ${#all_args[0]} -gt 2 ]; then
-							# Remove the option and the space, so keep only the value itself.
-							all_args[0]="${all_args[0]#-${parameter} }"
-							# Reduce the value of shift, because the option has been removed manually
-							shift_value=$(( shift_value - 1 ))
-						fi
-
-						# Then read the array value per value
-						for i in `seq 0 $(( ${#all_args[@]} - 1 ))`
-						do
-							# If this argument is an option, end here.
-							if [ "${all_args[$i]:0:1}" == "-" ] || [ -z "${all_args[$i]}" ]
-							then
-								# Ignore the first value of the array, which is the option itself
-								if [ "$i" -ne 0 ]; then
-									break
-								fi
-							else
-								# Declare the content of option_var as a variable.
-								eval ${option_var}=""
-								# Else, add this value to this option
-								# Each value will be separated by ';'
-								if [ -n "${!option_var}" ]
-								then
-									# If there's already another value for this option, add a ; before adding the new value
-									eval ${option_var}+="\;"
-								fi
-								eval ${option_var}+=\"${all_args[$i]}\"
-								shift_value=$(( shift_value + 1 ))
-							fi
-						done
-					fi
-				fi
-
-				# Shift the parameter and its argument(s)
-				shift $shift_value
-			done
-		}
-
-		# LEGACY MODE
-		# Check if there's getopts arguments
-		if [ "${arguments[0]:0:1}" != "-" ]
-		then
-			# If not, enter in legacy mode and manage the arguments as positionnal ones.
-			echo "! Helper used in legacy mode !"
-			for i in `seq 0 $(( ${#arguments[@]} -1 ))`
-			do
-				# Use getopts_parameters as a list of key of the array args_array
-				# Remove all ':' in getopts_parameters
-				getopts_parameters=${getopts_parameters//:}
-				# Get the key from getopts_parameters, by using the key according to the position of the argument.
-				key=${getopts_parameters:$i:1}
-				# Use the long option, corresponding to the key, as a variable
-				# (e.g. for [u]=user, 'user' will be used as a variable)
-				# Also, remove '=' at the end of the long option
-				# The variable name will be stored in 'option_var'
-				local option_var="${args_array[$key]%=}"
-
-				# Store each value given as argument in the corresponding variable
-				# The values will be stored in the same order than $args_array
-				eval ${option_var}+=\"${arguments[$i]}\"
-			done
-		else
-			# END LEGACY MODE
-			# Call parse_arg and pass the modified list of args as an array of arguments.
-			parse_arg "${arguments[@]}"
-		fi
-	fi
-	set -x
 }

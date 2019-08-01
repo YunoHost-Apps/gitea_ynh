@@ -19,6 +19,7 @@ domain=$(ynh_app_setting_get "$app" domain)
 path_url=$(ynh_app_setting_get "$app" path)
 dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
 admin=$(ynh_app_setting_get "$app" adminusername)
+port=$(ynh_app_setting_get "$app" web_port)
 
 # Check domain/path availability with app helper
 ynh_webpath_available $domain $path_url || ynh_die "$domain is not available as domain, please use an other domain."
@@ -35,7 +36,12 @@ test ! -e "$final_path" || ynh_die "This path already contains a folder"
 #=================================================
 
 # Add users
-ynh_system_user_create $app
+# We can't use the official helper (for now) because we need to set the shell for the login
+test getent passwd "$app" &>/dev/null || \
+    useradd -d "$DATADIR" --system --user-group "$app" --shell /bin/bash || \
+        ynh_die "Unable to create $app system account"
+# Should be replaced by this when getops is available in the helper ynh_system_user_create (probably in Yunohost 3.5)
+# ynh_system_user_create --username= $app --home_dir=/opt/yunohost/$app --use_shell
 
 # Restore all files
 ynh_restore
@@ -68,5 +74,5 @@ yunohost service add "$app" --log /var/log/"$app"/"$app".log
 
 # Reload services
 systemctl reload nginx.service
-sleep 20
-systemctl start gitea
+ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "systemd"
+sleep 1

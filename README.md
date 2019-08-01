@@ -19,7 +19,7 @@ From the command-line:
 ## Upgrade
 From the command-line:
 
-`sudo yunohost app upgrade Gitea -u https://framagit.org/YunoHost-Apps/gitea_ynh gitea`
+`sudo yunohost app upgrade gitea -u https://framagit.org/YunoHost-Apps/gitea_ynh`
 
 ## Notes on SSH usage
 If you want to use Gitea with ssh and be able to pull/push with you ssh key, your ssh daemon must be properly configured to use private/public keys. Here is a sample configuration of `/etc/ssh/sshd_config` that works with Gitea:

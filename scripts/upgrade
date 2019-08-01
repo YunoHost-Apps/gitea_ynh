@@ -22,6 +22,7 @@ admin=$(ynh_app_setting_get "$app" adminusername)
 key=$(ynh_app_setting_get "$app" secret_key)
 is_public=$(ynh_app_setting_get "$app" is_public)
 port=$(ynh_app_setting_get "$app" web_port)
+upstream_version=$(ynh_app_setting_get $app upstream_version)
 
 # Backup the current version of the app
 ynh_backup_before_upgrade
@@ -33,51 +34,49 @@ ynh_clean_setup () {
 systemctl stop "$app".service
 
 #=================================================
-# MIGRATION FROM OLD VERSION
+# MIGRATION FROM GOGS
 #=================================================
 
-# Update settings is_public to new standard
-if [ "$is_public" = "Yes" ]; then
-	ynh_app_setting_set $app is_public 1	# Fixe is_public en booléen
-	is_public=1
-elif [ "$is_public" = "No" ]; then
-	ynh_app_setting_set $app is_public 0
-	is_public=0
-fi
+[[ $YNH_APP_ID == "gogs" ]] \
+    && [[ "$(cat "/opt/$app/templates/.VERSION")" != 0.11.79.1211 ]] \
+    && ynh_die "It look like that you have an old gogs install. You need first upgrade gogs instance (id : $gogs_migrate_id) and after migrate to gitea."
+ynh_handle_app_migration gogs gogs_migrations
 
-if [[ $port == "" ]]
-then
-    port=$(ynh_find_port 6000)
-    ynh_app_setting_set $app web_port $port
-fi
+if [[ $migration_process -eq 1 ]]; then
+    # Reload variables
+    dbname=$app
+    dbuser=$app
+    final_path="/opt/$app"
+    DATADIR="/home/$app"
+    REPO_PATH="$DATADIR/repositories"
+    DATA_PATH="$DATADIR/data"
 
-# handle upgrade from old package installation
-# this test that /etc/gitea exist since this was used in the old package
-# but not in the new
-# this code will be removed in the future
-if [ -d "/etc/gitea" ]
-then
-    # create needed directories if not already created
-    create_dir
+    # Replace the user
+    ynh_system_user_delete $old_app
+    test getent passwd "$app" &>/dev/null || \
+        useradd -d "$DATADIR" --system --user-group "$app" --shell /bin/bash || \
+            ynh_die "Unable to create $app system account"
 
-    # move repositories to new dir
-    old_repo_path=$(ynh_app_setting_get "$app" repopath)
-    mv "${old_repo_path:-/home/yunohost.app/gitea}"/* "$REPO_PATH" || true # Avoid if the directory is empty
-    # cleanup old dir and conf
-    ynh_secure_remove /opt/gitea
-    ynh_secure_remove /etc/gitea
-    ynh_secure_remove /opt/gitea_src
+    # Clean old binary
+    ynh_secure_remove $final_path/gogs
+    ynh_secure_remove $final_path/custom/conf/auth.d
 
-    # create needed directories if not already created
-    create_dir
-fi
-# end of old package upgrade
+    # Restore authentication from SQL database
+    ynh_replace_string "__ADMIN__" "$admin" ../conf/login_source.sql
+    ynh_replace_string "__APP__" "$app" ../conf/login_source.sql
+    ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ../conf/login_source.sql
 
-# test if user gitea is locked because of an old installation of the package.
-# if it's blocked, unlock it to allow ssh usage with git
-if [[ $(grep "$app" /etc/shadow | cut -d: -f2) == '!' ]]
-then
-    usermod -p '*' "$app"
+    # Fix hooks
+    if [[ -e $REPO_PATH ]];then
+        ls $REPO_PATH/*/*.git/hooks/pre-receive | while read p; do
+            ynh_secure_remove $p
+        done
+        ls $REPO_PATH/*/*.git/hooks/post-receive | while read p; do
+            ynh_secure_remove $p
+        done
+    fi
+
+    upstream_version="0.0.1"
 fi
 
 #=================================================
@@ -85,10 +84,7 @@ fi
 #=================================================
 
 # Clean template to fix issue : https://github.com/gogits/gogs/issues/4585
-ynh_secure_remove "/opt/gitea/templates"
-
-# Install gitea
-ynh_setup_source $final_path $architecture
+ynh_secure_remove "/opt/$app/templates"
 
 # Configure gitea with app.ini file
 config_gitea
@@ -98,6 +94,71 @@ ynh_add_systemd_config
 
 # Modify Nginx configuration file and copy it to Nginx conf directory
 config_nginx
+
+#=================================================
+# DB migration
+#=================================================
+
+# Before the version 1.7 the upstream version was not stored
+# The way to find the version for the install < 1.7 is to parse the binary file to find which version is installed
+if [ -z ${upstream_version:-} ]; then
+    for version in "0.0." "1.0." "1.1." "1.2." "1.3." "1.4." "1.5." "1.6." "1.7."; do
+        if strings $final_path/gitea | grep -P "^${version//./\\.}\d"; then
+            upstream_version="${version}0"
+            break
+        fi
+    done
+fi
+
+restart_gitea() {
+    # Set permissions
+    set_permission
+    ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "systemd"
+    # Leave the time to update the database schema
+    sleep 5
+    systemctl stop $app
+}
+
+case $upstream_version in
+"0.0."* )
+    ynh_setup_source $final_path source/${architecture}_1.0
+    set_permission
+    systemctl start $app
+    sleep 20
+    systemctl stop $app
+;&
+"1.0."* )
+    ynh_setup_source $final_path source/${architecture}_1.1
+    restart_gitea
+;&
+"1.1."* )
+    ynh_setup_source $final_path source/${architecture}_1.2
+    restart_gitea
+;&
+"1.2."* )
+    ynh_setup_source $final_path source/${architecture}_1.3
+    restart_gitea
+;&
+"1.3."* )
+    ynh_setup_source $final_path source/${architecture}_1.4
+    restart_gitea
+;&
+"1.4."* )
+    ynh_setup_source $final_path source/${architecture}_1.5
+    restart_gitea
+;&
+"1.5."* )
+    ynh_setup_source $final_path source/${architecture}_1.6
+    restart_gitea
+;&
+"1.6."* )
+    ynh_setup_source $final_path source/${architecture}_1.7
+    restart_gitea
+;&
+esac
+
+# Install gitea
+ynh_setup_source $final_path source/$architecture
 
 #=================================================
 # SETUP FAIL2BAN
@@ -111,7 +172,36 @@ ynh_add_fail2ban_config "/var/log/$app/$app.log" ".*Failed authentication attemp
 # Set permissions
 set_permission
 
+# Save Version
+ynh_app_setting_set $app upstream_version $(ynh_app_upstream_version)
+
+# Unprotect root from SSO if public
+set_access_settings
+
 # Reload services
-# ynh_check_starting "INFO] Listen: http://0.0.0.0:" "/var/log/$app/gitea.log"
-sleep 20
-systemctl restart gitea
+ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "systemd"
+sleep 1
+
+# Store the checksum with the 'INTERNAL_TOKEN' value.
+# Should be removed when the issue https://github.com/go-gitea/gitea/issues/3246 is fixed
+ynh_store_file_checksum "$final_path/custom/conf/app.ini"
+
+#=================================================
+# FINISH MIGRATION PROCESS
+#=================================================
+
+if [[ $migration_process -eq 1 ]]; then
+    echo "gogs has been successfully migrated to Gitea! \
+A last scheduled operation will run in a couple of minutes to finish the \
+migration in YunoHost side. Do not proceed any application operation while \
+you don't see Gogs as installed." >&2
+
+    # Execute a post migration script after the end of this upgrade.
+    # Mainly for some cleaning
+    script_post_migration=gogs_post_migration.sh
+    ynh_replace_string "__OLD_APP__" "$old_app" ../conf/$script_post_migration
+    ynh_replace_string "__NEW_APP__" "$app" ../conf/$script_post_migration
+    cp ../conf/$script_post_migration /tmp
+    chmod +x /tmp/$script_post_migration
+    (cd /tmp; echo "/tmp/$script_post_migration > /tmp/$script_post_migration.log 2>&1" | at now + 2 minutes)
+fi
