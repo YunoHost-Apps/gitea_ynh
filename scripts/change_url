@@ -51,7 +51,7 @@ config_nginx
 config_gitea
 
 # RELOAD services
-ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log" -a restart
+ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log" -a restart -t 10
 sleep 1
 
 # Store the checksum with the 'INTERNAL_TOKEN' value.

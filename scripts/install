@@ -117,7 +117,7 @@ ynh_use_logrotate "/var/log/$app"
 ynh_app_setting_set $app upstream_version $upstream_version
 
 # Reload services
-ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log"
+ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log" -t 10
 sleep 1
 
 # Store the checksum with the 'INTERNAL_TOKEN' value.
