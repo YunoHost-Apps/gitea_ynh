@@ -70,5 +70,5 @@ yunohost service add "$app" --log /var/log/"$app"/"$app".log
 
 # Reload services
 systemctl reload nginx.service
-ynh_systemd_action -l "Gitea v$upstream_version built with GNU Make .*, go.* : bindata, sqlite, sqlite_unlock_notify" -p "systemd" -t 5
+ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log"
 sleep 1
