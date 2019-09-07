@@ -9,7 +9,7 @@
     },
     "url": "http://gitea.io",
     "license": "MIT",
-    "version": "1.8.0~ynh1",
+    "version": "1.9.0~ynh1",
     "maintainer": {
         "name": "rafi59",
         "email": "rafi59_dev@srvmaison.fr.nf"
@@ -20,7 +20,7 @@
         "mysql"
     ],
     "requirements": {
-        "yunohost": ">= 3.5.2.2"
+        "yunohost": ">= 3.6.4"
     },
     "arguments": {
         "install" : [

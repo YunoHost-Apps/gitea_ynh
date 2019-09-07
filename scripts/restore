@@ -20,6 +20,7 @@ path_url=$(ynh_app_setting_get --app $app --key path)
 dbpass=$(ynh_app_setting_get --app $app --key mysqlpwd)
 admin=$(ynh_app_setting_get --app $app --key adminusername)
 port=$(ynh_app_setting_get --app $app --key web_port)
+upstream_version=$(ynh_app_setting_get $app upstream_version)
 
 # Check domain/path availability with app helper
 ynh_webpath_available $domain $path_url || ynh_die --message "$domain is not available as domain, please use an other domain."
@@ -54,6 +55,9 @@ ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ./db.sql
 systemctl daemon-reload
 systemctl enable "$app".service
 
+# SETUP FAIL2BAN
+ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
+
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
@@ -65,9 +69,9 @@ set_permission
 ynh_use_logrotate "/var/log/$app"
 
 # Add gitea to YunoHost's monitored services
-yunohost service add "$app" --log /var/log/"$app"/"$app".log
+yunohost service add "$app" --log /var/log/"$app"/gitea.log
 
 # Reload services
 systemctl reload nginx.service
-ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "systemd"
+ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log" -t 10
 sleep 1

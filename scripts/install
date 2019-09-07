@@ -19,6 +19,7 @@ domain=$YNH_APP_ARG_DOMAIN
 path_url=$(ynh_normalize_url_path $YNH_APP_ARG_PATH)
 admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
+upstream_version=$(ynh_app_upstream_version)
 
 # Register (book) web path
 ynh_webpath_register --app $app --domain $domain --path_url $path_url
@@ -98,6 +99,9 @@ ynh_replace_string "__ADMIN__" "$admin" ../conf/login_source.sql
 ynh_replace_string "__APP__" "$app" ../conf/login_source.sql
 ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ../conf/login_source.sql
 
+# SETUP FAIL2BAN
+ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
+
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
@@ -106,7 +110,7 @@ ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ../conf/login_source.sql
 set_access_settings
 
 # Add gitea to YunoHost's monitored services
-yunohost service add "$app" --log "/var/log/$app/$app.log"
+yunohost service add "$app" --log "/var/log/$app/gitea.log"
 
 # Configure logrotate
 ynh_use_logrotate "/var/log/$app"
@@ -115,7 +119,7 @@ ynh_use_logrotate "/var/log/$app"
 ynh_app_setting_set --app $app --key upstream_version --value $(ynh_app_upstream_version)
 
 # Reload services
-ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "systemd"
+ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log" -t 10
 sleep 1
 
 # Store the checksum with the 'INTERNAL_TOKEN' value.

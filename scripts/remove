@@ -45,4 +45,7 @@ ynh_remove_systemd_config
 # Remove monitor
 yunohost service remove "$app"
 
+# Remove fail2ban config
+ynh_remove_fail2ban_config
+
 true # Do not fail if remove after install error

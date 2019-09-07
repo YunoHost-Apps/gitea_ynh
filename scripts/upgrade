@@ -155,10 +155,17 @@ case $upstream_version in
     ynh_setup_source $final_path source/${architecture}_1.7
     restart_gitea
 ;&
+"1.7."* )
+    ynh_setup_source $final_path source/${architecture}_1.8
+    restart_gitea
+;&
 esac
 
-# Install gitea
+# Install gitea source
 ynh_setup_source $final_path source/$architecture
+
+# SETUP FAIL2BAN
+ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
 
 #=================================================
 # GENERIC FINALIZATION
@@ -174,7 +181,7 @@ ynh_app_setting_set --app $app --key upstream_version --value $(ynh_app_upstream
 set_access_settings
 
 # Reload services
-ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "systemd"
+ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log" -t 10
 sleep 1
 
 # Store the checksum with the 'INTERNAL_TOKEN' value.
