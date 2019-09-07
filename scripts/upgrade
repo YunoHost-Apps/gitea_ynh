@@ -155,6 +155,10 @@ case $upstream_version in
     ynh_setup_source $final_path source/${architecture}_1.7
     restart_gitea
 ;&
+"1.7."* )
+    ynh_setup_source $final_path source/${architecture}_1.8
+    restart_gitea
+;&
 esac
 
 # Install gitea source
@@ -177,7 +181,7 @@ ynh_app_setting_set $app upstream_version $(ynh_app_upstream_version)
 set_access_settings
 
 # Reload services
-ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "systemd"
+ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log" -t 10
 sleep 1
 
 # Store the checksum with the 'INTERNAL_TOKEN' value.

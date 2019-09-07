@@ -20,6 +20,7 @@ path_url=$(ynh_app_setting_get "$app" path)
 dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
 admin=$(ynh_app_setting_get "$app" adminusername)
 port=$(ynh_app_setting_get "$app" web_port)
+upstream_version=$(ynh_app_setting_get $app upstream_version)
 
 # Check domain/path availability with app helper
 ynh_webpath_available $domain $path_url || ynh_die "$domain is not available as domain, please use an other domain."
@@ -68,9 +69,9 @@ set_permission
 ynh_use_logrotate "/var/log/$app"
 
 # Add gitea to YunoHost's monitored services
-yunohost service add "$app" --log /var/log/"$app"/"$app".log
+yunohost service add "$app" --log /var/log/"$app"/gitea.log
 
 # Reload services
 systemctl reload nginx.service
-ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "systemd"
+ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log" -t 10
 sleep 1
