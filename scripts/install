@@ -108,7 +108,7 @@ ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ../conf/login_source.sql
 set_access_settings
 
 # Add gitea to YunoHost's monitored services
-yunohost service add "$app" --log "/var/log/$app/$app.log"
+yunohost service add "$app" --log "/var/log/$app/gitea.log"
 
 # Configure logrotate
 ynh_use_logrotate "/var/log/$app"
