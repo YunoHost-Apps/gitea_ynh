@@ -393,3 +393,39 @@ ynh_handle_app_migration ()  {
     migration_process=1
   fi
 }
+
+# Verify the checksum and backup the file if it's different
+# This helper is primarily meant to allow to easily backup personalised/manually
+# modified config files.
+#
+# $app should be defined when calling this helper
+#
+# usage: ynh_backup_if_checksum_is_different --file=file
+# | arg: -f, --file - The file on which the checksum test will be perfomed.
+# | ret: the name of a backup file, or nothing
+#
+# Requires YunoHost version 2.6.4 or higher.
+ynh_backup_if_checksum_is_different () {
+    # Declare an array to define the options of this helper.
+    local legacy_args=f
+    declare -Ar args_array=( [f]=file= )
+    local file
+    # Manage arguments with getopts
+    ynh_handle_getopts_args "$@"
+
+    local checksum_setting_name=checksum_${file//[\/ ]/_}    # Replace all '/' and ' ' by '_'
+    local checksum_value=$(ynh_app_setting_get --app=$app --key=$checksum_setting_name)
+    # backup_file_checksum isn't declare as local, so it can be reuse by ynh_store_file_checksum
+    backup_file_checksum=""
+    if [ -n "$checksum_value" ]
+    then    # Proceed only if a value was stored into the app settings
+        if [ -e $file ] && ! echo "$checksum_value $file" | sudo md5sum -c --status
+        then    # If the checksum is now different
+            backup_file_checksum="/home/yunohost.conf/backup/$file.backup.$(date '+%Y%m%d.%H%M%S')"
+            sudo mkdir -p "$(dirname "$backup_file_checksum")"
+            sudo cp -a "$file" "$backup_file_checksum"    # Backup the current file
+            ynh_print_warn "File $file has been manually modified since the installation or last upgrade. So it has been duplicated in $backup_file_checksum"
+            echo "$backup_file_checksum"    # Return the name of the backup file
+        fi
+    fi
+}
