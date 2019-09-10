@@ -14,6 +14,8 @@ ynh_abort_if_errors
 source ./experimental_helper.sh
 source ./_common.sh
 
+ynh_script_progression --message="Validating installation parameters..."
+
 # Retrieve arguments
 domain=$YNH_APP_ARG_DOMAIN
 path_url=$(ynh_normalize_url_path $YNH_APP_ARG_PATH)
@@ -32,6 +34,7 @@ ynh_user_exists "$admin" \
 test ! -e "$final_path" || ynh_die --message "This path already contains a folder"
 
 # Generate random password and key
+ynh_script_progression --message="Defining db password and key..."
 dbpass=$(ynh_string_random)
 key=$(ynh_string_random)
 
@@ -39,6 +42,7 @@ key=$(ynh_string_random)
 port=$(ynh_find_port 6000)
 
 # Store Settings
+ynh_script_progression --message="Storing installation settings..."
 ynh_app_setting_set --app $app --key mysqlpwd --value $dbpass
 ynh_app_setting_set --app $app --key adminusername --value $admin
 ynh_app_setting_set --app $app --key is_public --value $is_public
@@ -49,41 +53,39 @@ ynh_app_setting_set --app $app --key web_port --value $port
 # STANDARD MODIFICATIONS
 #=================================================
 
-
-# Configure init script
-ynh_add_systemd_config
-
-# Modify Nginx configuration file and copy it to Nginx conf directory
-config_nginx
-
 # Initialize database and store mysql password for upgrade
+ynh_script_progression --message="Configuring MySQL database..."
 ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
 
 # Add users
-# We can't use the official helper (for now) because we need to set the shell for the login
-test getent passwd "$app" &>/dev/null || \
-    useradd -d "$DATADIR" --system --user-group "$app" --shell /bin/bash || \
-        ynh_die --message "Unable to create $app system account"
-# Should be replaced by this when getops is available in the helper ynh_system_user_create (probably in Yunohost 3.5)
-# ynh_system_user_create --username= $app --home_dir=/opt/yunohost/$app --use_shell
+ynh_script_progression --message="Configuring system user..."
+ynh_system_user_create --username= $app --home_dir=/opt/yunohost/$app --use_shell
 
 # create needed directories
 create_dir
 
 # Configure init script
+ynh_script_progression --message="Configuring a systemd service..." --weight=2
 ynh_add_systemd_config
 
 # Modify Nginx configuration file and copy it to Nginx conf directory
+ynh_script_progression --message="Configuring nginx..." --weight=1
 config_nginx
 
 # Configure gitea with app.ini file
+ynh_script_progression --message="Configuring application, step 1/2..."
 config_gitea
+
+ynh_script_progression --message="Installing sources files..." --weight=10
 
 # Install gitea
 ynh_setup_source $final_path source/$architecture
 
 # Set permissions
+ynh_script_progression --message="Protecting directory"
 set_permission
+
+ynh_script_progression --message="Configuring application, step 2/2..."
 
 # Start gitea for building mysql tables
 systemctl start "$app".service
@@ -100,6 +102,7 @@ ynh_replace_string --match_string "__APP__" --replace_string "$app" --target_fil
 ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ../conf/login_source.sql
 
 # SETUP FAIL2BAN
+ynh_script_progression --message="Configuring fail2ban..."
 ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
 
 #=================================================
@@ -107,18 +110,22 @@ ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Faile
 #=================================================
 
 # Unprotect root from SSO if public
+ynh_script_progression --message="Protecting directory"
 set_access_settings
 
 # Add gitea to YunoHost's monitored services
+ynh_script_progression --message="Register gitea service..."
 yunohost service add "$app" --log "/var/log/$app/gitea.log"
 
 # Configure logrotate
+ynh_script_progression --message="Configuring log rotation..."
 ynh_use_logrotate "/var/log/$app"
 
 # Save Version
 ynh_app_setting_set --app $app --key upstream_version --value $(ynh_app_upstream_version)
 
 # Reload services
+ynh_script_progression --message="Starting gitea services..." --weight=3
 ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log" -t 10
 sleep 1
 

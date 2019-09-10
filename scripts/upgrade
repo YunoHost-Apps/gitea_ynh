@@ -15,6 +15,7 @@ source ./experimental_helper.sh
 source ./_common.sh
 
 # Retrieve app settings
+ynh_script_progression --message="Loading installation settings..."
 domain=$(ynh_app_setting_get --app $app --key domain)
 path_url=$(ynh_normalize_url_path $(ynh_app_setting_get --app $app --key path))
 dbpass=$(ynh_app_setting_get --app $app --key mysqlpwd)
@@ -25,12 +26,14 @@ port=$(ynh_app_setting_get --app $app --key web_port)
 upstream_version=$(ynh_app_setting_get --app $app --key upstream_version)
 
 # Backup the current version of the app
+ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=10
 ynh_backup_before_upgrade
 ynh_clean_setup () {
     ynh_restore_upgradebackup
 }
 
 # Stop service
+ynh_script_progression --message="Stoping services..."
 systemctl stop "$app".service
 
 #=================================================
@@ -83,6 +86,8 @@ fi
 # STANDARD UPGRADE STEPS
 #=================================================
 
+ynh_script_progression --message="Configuring application..."
+
 # Clean template to fix issue : https://github.com/gogits/gogs/issues/4585
 ynh_secure_remove --file="/opt/$app/templates"
 
@@ -90,14 +95,18 @@ ynh_secure_remove --file="/opt/$app/templates"
 config_gitea
 
 # Configure init script
+ynh_script_progression --message="Updating systemd units..."
 ynh_add_systemd_config
 
 # Modify Nginx configuration file and copy it to Nginx conf directory
+ynh_script_progression --message="Configuring nginx..." --weight=1
 config_nginx
 
 #=================================================
 # DB migration
 #=================================================
+
+ynh_script_progression --message="Upgrading database and sources..." --weight=6
 
 # Before the version 1.7 the upstream version was not stored
 # The way to find the version for the install < 1.7 is to parse the binary file to find which version is installed
@@ -165,6 +174,7 @@ esac
 ynh_setup_source $final_path source/$architecture
 
 # SETUP FAIL2BAN
+ynh_script_progression --message="Configuring fail2ban..."
 ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
 
 #=================================================
@@ -172,15 +182,18 @@ ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Faile
 #=================================================
 
 # Set permissions
+ynh_script_progression --message="Protecting directory"
 set_permission
 
 # Save Version
 ynh_app_setting_set --app $app --key upstream_version --value $(ynh_app_upstream_version)
 
 # Unprotect root from SSO if public
+ynh_script_progression --message="Configuring permissions..."
 set_access_settings
 
 # Reload services
+ynh_script_progression --message="Starting gitea services..." --weight=3
 ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log" -t 10
 sleep 1
 

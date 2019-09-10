@@ -14,7 +14,7 @@ ynh_abort_if_errors
 source ./experimental_helper.sh
 source ./_common.sh
 
-cp -r  /etc/yunohost/apps/${app}/conf ../ # Quick hack for https://github.com/YunoHost/yunohost/pull/427
+ynh_script_progression --message="Loading installation settings..."
 
 # RETRIEVE ARGUMENTS
 old_domain=$YNH_APP_OLD_DOMAIN
@@ -32,6 +32,8 @@ upstream_version=$(ynh_app_setting_get $app upstream_version)
 # STANDARD MODIFICATIONS
 #=================================================
 
+ynh_script_progression --message="Updating nginx configuration..."
+
 # MODIFY URL IN NGINX CONF
 nginx_conf_path=/etc/nginx/conf.d/$old_domain.d/$app.conf
 
@@ -48,9 +50,11 @@ fi
 config_nginx
 
 # Update gitea config
+ynh_script_progression --message="Updating gitea configuration..."
 config_gitea
 
 # RELOAD services
+ynh_script_progression --message="Starting services..."
 ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log" -a restart -t 10
 sleep 1
 
