@@ -62,8 +62,8 @@ if [[ $migration_process -eq 1 ]]; then
     ynh_secure_remove --file=$final_path/custom/conf/auth.d
 
     # Restore authentication from SQL database
-    ynh_replace_string "__ADMIN__" "$admin" ../conf/login_source.sql
-    ynh_replace_string "__APP__" "$app" ../conf/login_source.sql
+    ynh_replace_string --match_string __ADMIN__ --replace_string "$admin" --target_file ../conf/login_source.sql
+    ynh_replace_string --match_string __APP__ --replace_string "$app" --target_file ../conf/login_source.sql
     ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ../conf/login_source.sql
 
     # Fix hooks
@@ -201,8 +201,8 @@ you don't see Gogs as installed." >&2
     # Execute a post migration script after the end of this upgrade.
     # Mainly for some cleaning
     script_post_migration=gogs_post_migration.sh
-    ynh_replace_string "__OLD_APP__" "$old_app" ../conf/$script_post_migration
-    ynh_replace_string "__NEW_APP__" "$app" ../conf/$script_post_migration
+    ynh_replace_string --match_string __OLD_APP__ --replace_string "$old_app" --target_file ../conf/$script_post_migration
+    ynh_replace_string --match_string __NEW_APP__ --replace_string "$app" --target_file ../conf/$script_post_migration
     cp ../conf/$script_post_migration /tmp
     chmod +x /tmp/$script_post_migration
     (cd /tmp; echo "/tmp/$script_post_migration > /tmp/$script_post_migration.log 2>&1" | at now + 2 minutes)

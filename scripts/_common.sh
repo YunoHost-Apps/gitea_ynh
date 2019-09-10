@@ -42,7 +42,7 @@ create_dir() {
 config_nginx() {
     if [ "$path_url" != "/" ]
     then
-        ynh_replace_string "^#sub_path_only" "" "../conf/nginx.conf"
+        ynh_replace_string --match_string "^#sub_path_only" --replace_string "" --target_file "../conf/nginx.conf"
     fi
     ynh_add_nginx_config
 }
@@ -58,7 +58,7 @@ config_gitea() {
     then
         ynh_replace_string --match_string __URL__ --replace_string "$domain" --target_file "$final_path/custom/conf/app.ini"
     else
-        ynh_replace_string "__URL__" "$domain${path_url%/}" "$final_path/custom/conf/app.ini"
+        ynh_replace_string --match_string __URL__ --replace_string "$domain${path_url%/}" --target_file "$final_path/custom/conf/app.ini"
     fi
 
     ynh_replace_string --match_string __REPOS_PATH__ --replace_string "$REPO_PATH" --target_file "$final_path/custom/conf/app.ini"
