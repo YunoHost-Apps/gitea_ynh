@@ -19,7 +19,7 @@ ynh_script_progression --message="Loading installation settings..."
 # RETRIEVE ARGUMENTS
 old_domain=$YNH_APP_OLD_DOMAIN
 domain=$YNH_APP_NEW_DOMAIN
-path_url=$(ynh_normalize_url_path ${YNH_APP_NEW_PATH:-'/'})
+path_url=$(ynh_normalize_url_path --path_url ${YNH_APP_NEW_PATH:-'/'})
 app=$YNH_APP_INSTANCE_NAME
 
 dbpass=$(ynh_app_setting_get --app $app --key mysqlpwd)

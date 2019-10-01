@@ -25,7 +25,7 @@ port=$(ynh_app_setting_get --app $app --key web_port)
 upstream_version=$(ynh_app_setting_get $app upstream_version)
 
 # Check domain/path availability with app helper
-ynh_webpath_available $domain $path_url || ynh_die --message "$domain is not available as domain, please use an other domain."
+ynh_webpath_available --domain $domain --path_url $path_url || ynh_die --message "$domain is not available as domain, please use an other domain."
 
 # Check user parameter
 ynh_user_exists "$admin" \
@@ -69,7 +69,7 @@ set_permission
 
 # Configure logrotate
 ynh_script_progression --message="Configuring log rotation..."
-ynh_use_logrotate "/var/log/$app"
+ynh_use_logrotate --logfile "/var/log/$app"
 
 # Add gitea to YunoHost's monitored services
 ynh_script_progression --message="Register gitea service..."

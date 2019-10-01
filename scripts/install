@@ -18,7 +18,7 @@ ynh_script_progression --message="Validating installation parameters..."
 
 # Retrieve arguments
 domain=$YNH_APP_ARG_DOMAIN
-path_url=$(ynh_normalize_url_path $YNH_APP_ARG_PATH)
+path_url=$(ynh_normalize_url_path --path_url $YNH_APP_ARG_PATH)
 admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
 upstream_version=$(ynh_app_upstream_version)
@@ -39,7 +39,7 @@ dbpass=$(ynh_string_random)
 key=$(ynh_string_random)
 
 # Find available ports
-port=$(ynh_find_port 6000)
+port=$(ynh_find_port --port 6000)
 
 # Store Settings
 ynh_script_progression --message="Storing installation settings..."
@@ -119,7 +119,7 @@ yunohost service add "$app" --log "/var/log/$app/gitea.log"
 
 # Configure logrotate
 ynh_script_progression --message="Configuring log rotation..."
-ynh_use_logrotate "/var/log/$app"
+ynh_use_logrotate --logfile "/var/log/$app"
 
 # Save Version
 ynh_app_setting_set --app $app --key upstream_version --value $(ynh_app_upstream_version)

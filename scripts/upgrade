@@ -17,7 +17,7 @@ source ./_common.sh
 # Retrieve app settings
 ynh_script_progression --message="Loading installation settings..."
 domain=$(ynh_app_setting_get --app $app --key domain)
-path_url=$(ynh_normalize_url_path $(ynh_app_setting_get --app $app --key path))
+path_url=$(ynh_normalize_url_path --path_url $(ynh_app_setting_get --app $app --key path))
 dbpass=$(ynh_app_setting_get --app $app --key mysqlpwd)
 admin=$(ynh_app_setting_get --app $app --key adminusername)
 key=$(ynh_app_setting_get --app $app --key secret_key)
