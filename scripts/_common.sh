@@ -91,15 +91,6 @@ set_access_settings() {
     then
         ynh_app_setting_set --app $app --key unprotected_uris --value "/"
     else
-        # For an access to the git server by https in private mode we need to allow the access to theses URL :
-        #  - "DOMAIN/PATH/USER/REPOSITORY/info/refs"
-        #  - "DOMAIN/PATH/USER/REPOSITORY/git-upload-pack"
-        #  - "DOMAIN/PATH/USER/REPOSITORY/git-receive-pack"
-
-        excaped_domain=${domain//'.'/'%.'}
-        excaped_domain=${excaped_domain//'-'/'%-'}
-        excaped_path=${path_url//'.'/'%.'}
-        excaped_path=${excaped_path//'-'/'%-'}
-        ynh_app_setting_set --app $app --key skipped_regex --value "$excaped_domain$excaped_path/[%w-.]*/[%w-.]*/git%-receive%-pack,$excaped_domain$excaped_path/[%w-.]*/[%w-.]*/git%-upload%-pack,$excaped_domain$excaped_path/[%w-.]*/[%w-.]*/info/refs"
+        ynh_app_setting_delete --app $app --key skipped_regex
     fi
 }
