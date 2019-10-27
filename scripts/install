@@ -132,3 +132,5 @@ sleep 1
 # Store the checksum with the 'INTERNAL_TOKEN' value.
 # Should be removed when the issue https://github.com/go-gitea/gitea/issues/3246 is fixed
 ynh_store_file_checksum --file "$final_path/custom/conf/app.ini"
+
+ynh_script_progression --message="Installation of $app completed" --last
