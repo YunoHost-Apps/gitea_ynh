@@ -1,14 +1,3 @@
-# Delete a file checksum from the app settings
-#
-# $app should be defined when calling this helper
-#
-# usage: ynh_remove_file_checksum file
-# | arg: file - The file for which the checksum will be deleted
-ynh_delete_file_checksum () {
-	local checksum_setting_name=checksum_${1//[\/ ]/_}	# Replace all '/' and ' ' by '_'
-	ynh_app_setting_delete $app $checksum_setting_name
-} 
-
 # Start (or other actions) a service,  print a log in case of failure and optionnaly wait until the service is completely started
 #
 # usage: ynh_systemd_action [-n service_name] [-a action] [ [-l "line to match"] [-p log_path] [-t timeout] [-e length] ]
@@ -86,56 +75,6 @@ ynh_systemd_action() {
         echo ""
         ynh_clean_check_starting
     fi
-}
-
-# Clean temporary process and file used by ynh_check_starting
-# (usually used in ynh_clean_setup scripts)
-#
-# usage: ynh_clean_check_starting
-ynh_clean_check_starting () {
-	# Stop the execution of tail.
-	kill -s 15 $pid_tail 2>&1
-	ynh_secure_remove "$templog" 2>&1
-}
-
-# Read the value of a key in a ynh manifest file
-#
-# usage: ynh_read_manifest manifest key
-# | arg: -m, --manifest= - Path of the manifest to read
-# | arg: -k, --key= - Name of the key to find
-ynh_read_manifest () {
-	# Declare an array to define the options of this helper.
-        declare -Ar args_array=( [m]=manifest= [k]=manifest_key= )
-        local manifest
-        local manifest_key
-	# Manage arguments with getopts
-	ynh_handle_getopts_args "$@"
-
-	if [ ! -e "$manifest" ]; then
-		# If the manifest isn't found, try the common place for backup and restore script.
-		manifest="../settings/manifest.json"
-	fi
-
-	jq ".$manifest_key" "$manifest" --raw-output
-}
-
-# Read the upstream version from the manifest
-# The version number in the manifest is defined by <upstreamversion>~ynh<packageversion>
-# For example : 4.3-2~ynh3
-# This include the number before ~ynh
-# In the last example it return 4.3-2
-#
-# usage: ynh_app_upstream_version [-m manifest]
-# | arg: -m, --manifest= - Path of the manifest to read
-ynh_app_upstream_version () {
-    declare -Ar args_array=( [m]=manifest= )
-    local manifest
-    # Manage arguments with getopts
-    ynh_handle_getopts_args "$@"
-
-    manifest="${manifest:-../manifest.json}"
-    version_key=$(ynh_read_manifest --manifest="$manifest" --manifest_key="version")
-    echo "${version_key/~ynh*/}"
 }
 
 # Execute a command as another user
@@ -242,7 +181,7 @@ ynh_handle_app_migration ()  {
     if [ "$old_app_id" != "$migration_id" ]
     then
         # If the new app is not the authorized id, fail.
-        ynh_die "Incompatible application for migration from $old_app_id to $new_app_id"
+        ynh_die --message "Incompatible application for migration from $old_app_id to $new_app_id"
     fi
 
     echo "Migrate from $old_app_id to $new_app_id" >&2
@@ -352,7 +291,7 @@ ynh_handle_app_migration ()  {
         # Remove the old database
         ynh_mysql_remove_db $db_name $db_name
         # And the dump
-        ynh_secure_remove "$sql_dump"
+        ynh_secure_remove --file="$sql_dump"
 
         # Update the value of $db_name
         db_name=$new_db_name
@@ -392,4 +331,40 @@ ynh_handle_app_migration ()  {
     # Set migration_process to 1 to inform that an upgrade has been made
     migration_process=1
   fi
+}
+
+# Verify the checksum and backup the file if it's different
+# This helper is primarily meant to allow to easily backup personalised/manually
+# modified config files.
+#
+# $app should be defined when calling this helper
+#
+# usage: ynh_backup_if_checksum_is_different --file=file
+# | arg: -f, --file - The file on which the checksum test will be perfomed.
+# | ret: the name of a backup file, or nothing
+#
+# Requires YunoHost version 2.6.4 or higher.
+ynh_backup_if_checksum_is_different () {
+    # Declare an array to define the options of this helper.
+    local legacy_args=f
+    declare -Ar args_array=( [f]=file= )
+    local file
+    # Manage arguments with getopts
+    ynh_handle_getopts_args "$@"
+
+    local checksum_setting_name=checksum_${file//[\/ ]/_}    # Replace all '/' and ' ' by '_'
+    local checksum_value=$(ynh_app_setting_get --app=$app --key=$checksum_setting_name)
+    # backup_file_checksum isn't declare as local, so it can be reuse by ynh_store_file_checksum
+    backup_file_checksum=""
+    if [ -n "$checksum_value" ]
+    then    # Proceed only if a value was stored into the app settings
+        if [ -e $file ] && ! echo "$checksum_value $file" | sudo md5sum -c --status
+        then    # If the checksum is now different
+            backup_file_checksum="/home/yunohost.conf/backup/$file.backup.$(date '+%Y%m%d.%H%M%S')"
+            sudo mkdir -p "$(dirname "$backup_file_checksum")"
+            sudo cp -a "$file" "$backup_file_checksum"    # Backup the current file
+            ynh_print_warn "File $file has been manually modified since the installation or last upgrade. So it has been duplicated in $backup_file_checksum"
+            echo "$backup_file_checksum"    # Return the name of the backup file
+        fi
+    fi
 }

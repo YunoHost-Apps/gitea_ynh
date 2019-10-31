@@ -20,7 +20,7 @@
         "mysql"
     ],
     "requirements": {
-        "yunohost": ">= 2.7.9"
+        "yunohost": ">= 3.6.4"
     },
     "arguments": {
         "install" : [
@@ -56,9 +56,13 @@
                 "name": "is_public",
                 "type": "boolean",
                 "ask": {
-                    "en": "Is it a public site ?",
+                    "en": "Is it a public site ? ",
                     "fr": "Est-ce un site public ?"
                 },
+				"help": { 
+					"en": "A public server means that everybody is able to access to the pain page of the forge, on the public profile of the user and on the public repository. But you still can limit the access to each repository if you set it as private. Note that to be able to use the remote git command (clone, pull, push) with http and to use the API by (by example with a smartphone), you need to set this application as public.",
+					"fr": "Un serveur publique signifie que n'importe qui peut accéder à la page principale de la forge, au profil publique des utilisateur et au dépots publiques Mais vous pouvez définir les dépot en tant que privé. Notez que pour pouvoir utiliser les commandes git distante  (clone, pull, push) avec http et pour pouvoir utiliser l'API (par exemple avec un smartphone), vous devez mettre cette application en tant que publique."
+				},
                 "default": true
             }
         ]

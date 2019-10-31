@@ -14,23 +14,25 @@ ynh_abort_if_errors
 source ./experimental_helper.sh
 source ./_common.sh
 
-cp -r  /etc/yunohost/apps/${app}/conf ../ # Quick hack for https://github.com/YunoHost/yunohost/pull/427
+ynh_script_progression --message="Loading installation settings..."
 
 # RETRIEVE ARGUMENTS
 old_domain=$YNH_APP_OLD_DOMAIN
 domain=$YNH_APP_NEW_DOMAIN
-path_url=$(ynh_normalize_url_path ${YNH_APP_NEW_PATH:-'/'})
+path_url=$(ynh_normalize_url_path --path_url ${YNH_APP_NEW_PATH:-'/'})
 app=$YNH_APP_INSTANCE_NAME
 
-dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
-admin=$(ynh_app_setting_get "$app" adminusername)
-key=$(ynh_app_setting_get "$app" secret_key)
-port=$(ynh_app_setting_get "$app" web_port)
+dbpass=$(ynh_app_setting_get --app $app --key mysqlpwd)
+admin=$(ynh_app_setting_get --app $app --key adminusername)
+key=$(ynh_app_setting_get --app $app --key secret_key)
+port=$(ynh_app_setting_get --app $app --key web_port)
 upstream_version=$(ynh_app_setting_get $app upstream_version)
 
 #=================================================
 # STANDARD MODIFICATIONS
 #=================================================
+
+ynh_script_progression --message="Updating nginx configuration..."
 
 # MODIFY URL IN NGINX CONF
 nginx_conf_path=/etc/nginx/conf.d/$old_domain.d/$app.conf
@@ -39,21 +41,23 @@ nginx_conf_path=/etc/nginx/conf.d/$old_domain.d/$app.conf
 # Change the domain for nginx
 if [[ "$old_domain" != "$domain" ]]; then
     # Delete file checksum for the old conf file location
-    ynh_delete_file_checksum "$nginx_conf_path"
+    ynh_delete_file_checksum --file "$nginx_conf_path"
     mv $nginx_conf_path /etc/nginx/conf.d/$domain.d/$app.conf
     # Store file checksum for the new config file location
-    ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
+    ynh_store_file_checksum --file "/etc/nginx/conf.d/$domain.d/$app.conf"
 fi
 
 config_nginx
 
 # Update gitea config
+ynh_script_progression --message="Updating gitea configuration..."
 config_gitea
 
 # RELOAD services
+ynh_script_progression --message="Starting services..."
 ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log" -a restart -t 10
 sleep 1
 
 # Store the checksum with the 'INTERNAL_TOKEN' value.
 # Should be removed when the issue https://github.com/go-gitea/gitea/issues/3246 is fixed
-ynh_store_file_checksum "$final_path/custom/conf/app.ini"
+ynh_store_file_checksum --file "$final_path/custom/conf/app.ini"
