@@ -15,24 +15,31 @@ source ../settings/scripts/experimental_helper.sh
 source ../settings/scripts/_common.sh
 
 # Retrieve app settings
-domain=$(ynh_app_setting_get "$app" domain)
+ynh_script_progression --message="Loading installation settings..."
+domain=$(ynh_app_setting_get --app $app --key domain)
 
 #=================================================
 # STANDARD BACKUP STEPS
 #=================================================
 
 # Copy the app source files
-ynh_backup "$final_path"
+ynh_script_progression --message="Backing up code..." --weight=3
+ynh_backup --src_path "$final_path"
 
 # Copy the data files
-ynh_backup "$DATADIR"
+ynh_script_progression --message="Backing up user data..." --weight=10
+ynh_backup --src_path "$DATADIR"
+
+ynh_script_progression --message="Backing up configuration..."
 
 # Copy the conf files
-ynh_backup "/etc/nginx/conf.d/${domain}.d/${app}.conf"
-ynh_backup "/etc/systemd/system/${app}.service"
+ynh_backup --src_path "/etc/nginx/conf.d/${domain}.d/${app}.conf"
+ynh_backup --src_path "/etc/systemd/system/${app}.service"
 
 # Backup logs
-ynh_backup "/var/log/$app"
+ynh_script_progression --message="Backing up logs..."
+ynh_backup --src_path "/var/log/$app"
 
 # Dump the database
+ynh_script_progression --message="Backing up database"
 ynh_mysql_dump_db "$dbname" > ./db.sql

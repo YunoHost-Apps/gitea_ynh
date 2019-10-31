@@ -11,38 +11,53 @@ source /usr/share/yunohost/helpers
 source ./experimental_helper.sh
 source ./_common.sh
 
+ynh_script_progression --message="Loading installation settings..."
+
+# Retrieve domain from app settings
+domain=$(ynh_app_setting_get --app $app --key domain)
+
 #=================================================
 # STANDARD REMOVE
 #=================================================
 
 # Stop gitea
+ynh_script_progression --message="Stoping services..."
 systemctl stop "$app".service
 
 # Drop MySQL database and user
+ynh_script_progression --message="Removing databases..."
 ynh_mysql_drop_db "$dbname" 2>/dev/null
 ynh_mysql_drop_user "$dbuser" 2>/dev/null
 
-# Retrieve domain from app settings
-domain=$(ynh_app_setting_get "$app" domain)
-
 # Delete app directory and configurations
-ynh_secure_remove "$final_path"
-ynh_secure_remove "$DATADIR"
-ynh_secure_remove "/var/log/$app"
+ynh_script_progression --message="Removing code..."
+ynh_secure_remove --file="$final_path"
+ynh_script_progression --message="Removing user data..."
+ynh_secure_remove --file="$DATADIR"
+ynh_script_progression --message="Removing logs..."
+ynh_secure_remove --file="/var/log/$app"
 
 # Remove the app-specific logrotate config
 ynh_remove_logrotate
 
 # Remove nginx config
+ynh_script_progression --message="Removing nginx configuration..."
 ynh_remove_nginx_config
 
 # Remove gitea user and data
+ynh_script_progression --message="Removing the dedicated system user..."
 ynh_system_user_delete $app
 
 # Remove init script
+ynh_script_progression --message="Removing systemd units..."
 ynh_remove_systemd_config
 
 # Remove monitor
+ynh_script_progression --message="Removing gitea service..."
 yunohost service remove "$app"
+
+# Remove fail2ban config
+ynh_script_progression --message="Removing fail2ban configuration..."
+ynh_remove_fail2ban_config
 
 true # Do not fail if remove after install error
