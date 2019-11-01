@@ -43,3 +43,5 @@ ynh_backup --src_path "/var/log/$app"
 # Dump the database
 ynh_script_progression --message="Backing up database"
 ynh_mysql_dump_db "$dbname" > ./db.sql
+
+ynh_script_progression --message="Backup script completed for $app. (YunoHost will then actually copy those files to the archive)." --last

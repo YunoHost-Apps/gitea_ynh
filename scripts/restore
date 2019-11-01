@@ -80,3 +80,5 @@ ynh_script_progression --message="Reloading services..."
 systemctl reload nginx.service
 ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log" -t 10
 sleep 1
+
+ynh_script_progression --message="Restoration completed for $app" --last

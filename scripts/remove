@@ -60,4 +60,4 @@ yunohost service remove "$app"
 ynh_script_progression --message="Removing fail2ban configuration..."
 ynh_remove_fail2ban_config
 
-true # Do not fail if remove after install error
+ynh_script_progression --message="Removal of $app completed" --last

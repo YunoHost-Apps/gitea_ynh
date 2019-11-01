@@ -220,3 +220,5 @@ you don't see Gogs as installed." >&2
     chmod +x /tmp/$script_post_migration
     (cd /tmp; echo "/tmp/$script_post_migration > /tmp/$script_post_migration.log 2>&1" | at now + 2 minutes)
 fi
+
+ynh_script_progression --message="Upgrade of $app completed" --last
