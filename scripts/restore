@@ -14,39 +14,40 @@ ynh_abort_if_errors
 source ../settings/scripts/experimental_helper.sh
 source ../settings/scripts/_common.sh
 
+ynh_script_progression --message="Loading settings..."
+
 # Retrieve old app settings
-domain=$(ynh_app_setting_get "$app" domain)
-path_url=$(ynh_app_setting_get "$app" path)
-dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
-admin=$(ynh_app_setting_get "$app" adminusername)
-port=$(ynh_app_setting_get "$app" web_port)
+domain=$(ynh_app_setting_get --app $app --key domain)
+path_url=$(ynh_app_setting_get --app $app --key path)
+dbpass=$(ynh_app_setting_get --app $app --key mysqlpwd)
+admin=$(ynh_app_setting_get --app $app --key adminusername)
+port=$(ynh_app_setting_get --app $app --key web_port)
+upstream_version=$(ynh_app_setting_get $app upstream_version)
 
 # Check domain/path availability with app helper
-ynh_webpath_available $domain $path_url || ynh_die "$domain is not available as domain, please use an other domain."
+ynh_webpath_available --domain $domain --path_url $path_url || ynh_die --message "$domain is not available as domain, please use an other domain."
 
 # Check user parameter
 ynh_user_exists "$admin" \
-  || ynh_die "The chosen admin user does not exist."
+  || ynh_die --message "The chosen admin user does not exist."
 
 # Check Final Path availability
-test ! -e "$final_path" || ynh_die "This path already contains a folder"
+test ! -e "$final_path" || ynh_die --message "This path already contains a folder"
 
 #=================================================
 # STANDARD RESTORATION STEPS
 #=================================================
 
 # Add users
-# We can't use the official helper (for now) because we need to set the shell for the login
-test getent passwd "$app" &>/dev/null || \
-    useradd -d "$DATADIR" --system --user-group "$app" --shell /bin/bash || \
-        ynh_die "Unable to create $app system account"
-# Should be replaced by this when getops is available in the helper ynh_system_user_create (probably in Yunohost 3.5)
-# ynh_system_user_create --username= $app --home_dir=/opt/yunohost/$app --use_shell
+ynh_script_progression --message="Configuring system user..."
+ynh_system_user_create --username= $app --home_dir=/opt/yunohost/$app --use_shell
 
 # Restore all files
+ynh_script_progression --message="Restoring files..." --weight=10
 ynh_restore
 
 # Create and restore the database
+ynh_script_progression --message="Restoring database..." --weight=3
 ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
 ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ./db.sql
 
@@ -54,20 +55,30 @@ ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ./db.sql
 systemctl daemon-reload
 systemctl enable "$app".service
 
+# SETUP FAIL2BAN
+ynh_script_progression --message="Configuring fail2ban..."
+ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
+
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
 
 # Set permissions
+ynh_script_progression --message="Protecting directory..."
 set_permission
 
 # Configure logrotate
-ynh_use_logrotate "/var/log/$app"
+ynh_script_progression --message="Configuring log rotation..."
+ynh_use_logrotate --logfile "/var/log/$app"
 
 # Add gitea to YunoHost's monitored services
-yunohost service add "$app" --log /var/log/"$app"/"$app".log
+ynh_script_progression --message="Register gitea service..."
+yunohost service add "$app" --log /var/log/"$app"/gitea.log
 
 # Reload services
+ynh_script_progression --message="Reloading services..."
 systemctl reload nginx.service
-ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "systemd"
+ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log" -t 10
 sleep 1
+
+ynh_script_progression --message="Restoration completed for $app" --last

@@ -1,27 +1,54 @@
-# Gitea package for YunoHost
+Gitea package for YunoHost
+==========================
+
+[![Integration level](https://dash.yunohost.org/integration/gitea.svg)](https://ci-apps.yunohost.org/ci/apps/gitea%20%28Community%29/lastBuild/consoleFull)  
+[![Install gitea with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=gitea)
+
+> *This package allow you to install gitea quickly and simply on a YunoHost server.  
+If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to know how to install and enjoy it.*
+
+Overview
+--------
 
 Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to Github.
-- [Gitea website](http://gitea.io)
 
-[![Integration level](https://dash.yunohost.org/integration/gitea.svg)](https://ci-apps.yunohost.org/jenkins/job/gitea%20%28Community%29/lastBuild/consoleFull) 
+**Shipped version:** 1.9.5
 
-[![Install Gitea with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=gitea)
+Screenshots
+-----------
 
 ![](https://gitea.io/images/screenshot.png)
-## Requirements
-A functional instance of [YunoHost](https://yunohost.org)
 
-## Installation
-From the command-line:
+Documentation
+-------------
 
-`sudo yunohost app install https://framagit.org/YunoHost-Apps/gitea_ynh`
+ * Official documentation: https://docs.gitea.io/
+ * YunoHost documentation: There no other documentations, feel free to contribute.
 
-## Upgrade
-From the command-line:
+YunoHost specific features
+--------------------------
 
-`sudo yunohost app upgrade gitea -u https://framagit.org/YunoHost-Apps/gitea_ynh`
+### Multi-users support
 
-## Notes on SSH usage
+LDAP and HTTP auth are supported.
+
+### Supported architectures
+
+* x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/gitea%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/gitea/)
+
+* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/gitea%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/gitea/)
+
+<!--Limitations
+------------
+
+* Any known limitations.
+-->
+
+Additional informations
+-----------------------
+
+### Notes on SSH usage
+
 If you want to use Gitea with ssh and be able to pull/push with you ssh key, your ssh daemon must be properly configured to use private/public keys. Here is a sample configuration of `/etc/ssh/sshd_config` that works with Gitea:
 
 ```bash
@@ -44,12 +71,40 @@ Host domain.tld
 
 Architecture: this package is compatible with amd64, i386 and arm. The package will try to detect it with the command uname -m and fail if it can't detect the architecture. If that happens please open an issue describing your hardware and the result of the command `uname -m`.
 
-## Issue
+### Git command access with HTTPS
 
-Any issue is welcome here : https://framagit.org/YunoHost-Apps/gitea_ynh/issues
+If you want to use the git command (like `git clone`, `git pull`, `git push`), you need to set this app as **public**.
 
-## License
+Links
+-----
+
+ * Report a bug: https://framagit.org/YunoHost-Apps/gitea_ynh/issues
+ * App website: http://gitea.io
+ * YunoHost website: https://yunohost.org/
+
+---
+
+Install
+-------
+
+From command line:
+
+`sudo yunohost app install -l gitea https://github.com/YunoHost-Apps/gitea_ynh`
+
+Upgrade
+-------
+
+From command line:
+
+`sudo yunohost app upgrade gitea -u https://github.com/YunoHost-Apps/gitea_ynh`
+
+License
+-------
+
 Gitea is published under the MIT License:
 https://github.com/go-gitea/gitea/blob/master/LICENSE
 
 This package is published under the MIT License.
+
+Todo
+----

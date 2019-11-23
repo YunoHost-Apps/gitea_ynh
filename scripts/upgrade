@@ -15,22 +15,25 @@ source ./experimental_helper.sh
 source ./_common.sh
 
 # Retrieve app settings
-domain=$(ynh_app_setting_get "$app" domain)
-path_url=$(ynh_normalize_url_path $(ynh_app_setting_get "$app" path))
-dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
-admin=$(ynh_app_setting_get "$app" adminusername)
-key=$(ynh_app_setting_get "$app" secret_key)
-is_public=$(ynh_app_setting_get "$app" is_public)
-port=$(ynh_app_setting_get "$app" web_port)
-upstream_version=$(ynh_app_setting_get $app upstream_version)
+ynh_script_progression --message="Loading installation settings..."
+domain=$(ynh_app_setting_get --app $app --key domain)
+path_url=$(ynh_normalize_url_path --path_url $(ynh_app_setting_get --app $app --key path))
+dbpass=$(ynh_app_setting_get --app $app --key mysqlpwd)
+admin=$(ynh_app_setting_get --app $app --key adminusername)
+key=$(ynh_app_setting_get --app $app --key secret_key)
+is_public=$(ynh_app_setting_get --app $app --key is_public)
+port=$(ynh_app_setting_get --app $app --key web_port)
+upstream_version=$(ynh_app_setting_get --app $app --key upstream_version)
 
 # Backup the current version of the app
+ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=10
 ynh_backup_before_upgrade
 ynh_clean_setup () {
     ynh_restore_upgradebackup
 }
 
 # Stop service
+ynh_script_progression --message="Stoping services..."
 systemctl stop "$app".service
 
 #=================================================
@@ -39,7 +42,7 @@ systemctl stop "$app".service
 
 [[ $YNH_APP_ID == "gogs" ]] \
     && [[ "$(cat "/opt/$app/templates/.VERSION")" != 0.11.79.1211 ]] \
-    && ynh_die "It look like that you have an old gogs install. You need first upgrade gogs instance (id : $gogs_migrate_id) and after migrate to gitea."
+    && ynh_die --message "It look like that you have an old gogs install. You need first upgrade gogs instance (id : $gogs_migrate_id) and after migrate to gitea."
 ynh_handle_app_migration gogs gogs_migrations
 
 if [[ $migration_process -eq 1 ]]; then
@@ -55,24 +58,24 @@ if [[ $migration_process -eq 1 ]]; then
     ynh_system_user_delete $old_app
     test getent passwd "$app" &>/dev/null || \
         useradd -d "$DATADIR" --system --user-group "$app" --shell /bin/bash || \
-            ynh_die "Unable to create $app system account"
+            ynh_die --message "Unable to create $app system account"
 
     # Clean old binary
-    ynh_secure_remove $final_path/gogs
-    ynh_secure_remove $final_path/custom/conf/auth.d
+    ynh_secure_remove --file=$final_path/gogs
+    ynh_secure_remove --file=$final_path/custom/conf/auth.d
 
     # Restore authentication from SQL database
-    ynh_replace_string "__ADMIN__" "$admin" ../conf/login_source.sql
-    ynh_replace_string "__APP__" "$app" ../conf/login_source.sql
+    ynh_replace_string --match_string __ADMIN__ --replace_string "$admin" --target_file ../conf/login_source.sql
+    ynh_replace_string --match_string __APP__ --replace_string "$app" --target_file ../conf/login_source.sql
     ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ../conf/login_source.sql
 
     # Fix hooks
     if [[ -e $REPO_PATH ]];then
         ls $REPO_PATH/*/*.git/hooks/pre-receive | while read p; do
-            ynh_secure_remove $p
+            ynh_secure_remove --file=$p
         done
         ls $REPO_PATH/*/*.git/hooks/post-receive | while read p; do
-            ynh_secure_remove $p
+            ynh_secure_remove --file=$p
         done
     fi
 
@@ -83,21 +86,27 @@ fi
 # STANDARD UPGRADE STEPS
 #=================================================
 
+ynh_script_progression --message="Configuring application..."
+
 # Clean template to fix issue : https://github.com/gogits/gogs/issues/4585
-ynh_secure_remove "/opt/$app/templates"
+ynh_secure_remove --file="/opt/$app/templates"
 
 # Configure gitea with app.ini file
 config_gitea
 
 # Configure init script
+ynh_script_progression --message="Updating systemd units..."
 ynh_add_systemd_config
 
 # Modify Nginx configuration file and copy it to Nginx conf directory
+ynh_script_progression --message="Configuring nginx..." --weight=1
 config_nginx
 
 #=================================================
 # DB migration
 #=================================================
+
+ynh_script_progression --message="Upgrading database and sources..." --weight=6
 
 # Before the version 1.7 the upstream version was not stored
 # The way to find the version for the install < 1.7 is to parse the binary file to find which version is installed
@@ -155,31 +164,42 @@ case $upstream_version in
     ynh_setup_source $final_path source/${architecture}_1.7
     restart_gitea
 ;&
+"1.7."* )
+    ynh_setup_source $final_path source/${architecture}_1.8
+    restart_gitea
+;&
 esac
 
-# Install gitea
+# Install gitea source
 ynh_setup_source $final_path source/$architecture
+
+# SETUP FAIL2BAN
+ynh_script_progression --message="Configuring fail2ban..."
+ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
 
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
 
 # Set permissions
+ynh_script_progression --message="Protecting directory"
 set_permission
 
 # Save Version
-ynh_app_setting_set $app upstream_version $(ynh_app_upstream_version)
+ynh_app_setting_set --app $app --key upstream_version --value $(ynh_app_upstream_version)
 
 # Unprotect root from SSO if public
+ynh_script_progression --message="Configuring permissions..."
 set_access_settings
 
 # Reload services
-ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "systemd"
+ynh_script_progression --message="Starting gitea services..." --weight=3
+ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log" -t 10
 sleep 1
 
 # Store the checksum with the 'INTERNAL_TOKEN' value.
 # Should be removed when the issue https://github.com/go-gitea/gitea/issues/3246 is fixed
-ynh_store_file_checksum "$final_path/custom/conf/app.ini"
+ynh_store_file_checksum --file "$final_path/custom/conf/app.ini"
 
 #=================================================
 # FINISH MIGRATION PROCESS
@@ -194,9 +214,11 @@ you don't see Gogs as installed." >&2
     # Execute a post migration script after the end of this upgrade.
     # Mainly for some cleaning
     script_post_migration=gogs_post_migration.sh
-    ynh_replace_string "__OLD_APP__" "$old_app" ../conf/$script_post_migration
-    ynh_replace_string "__NEW_APP__" "$app" ../conf/$script_post_migration
+    ynh_replace_string --match_string __OLD_APP__ --replace_string "$old_app" --target_file ../conf/$script_post_migration
+    ynh_replace_string --match_string __NEW_APP__ --replace_string "$app" --target_file ../conf/$script_post_migration
     cp ../conf/$script_post_migration /tmp
     chmod +x /tmp/$script_post_migration
     (cd /tmp; echo "/tmp/$script_post_migration > /tmp/$script_post_migration.log 2>&1" | at now + 2 minutes)
 fi
+
+ynh_script_progression --message="Upgrade of $app completed" --last
