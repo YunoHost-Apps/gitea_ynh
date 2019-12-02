@@ -1,7 +1,7 @@
 Gitea package for YunoHost
 ==========================
 
-[![Integration level](https://dash.yunohost.org/integration/gitea.svg)](https://ci-apps.yunohost.org/ci/apps/gitea%20%28Community%29/lastBuild/consoleFull)  
+[![Integration level](https://dash.yunohost.org/integration/gitea.svg)](https://dash.yunohost.org/appci/app/gitea)  
 [![Install gitea with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=gitea)
 
 > *This package allow you to install gitea quickly and simply on a YunoHost server.  
