@@ -40,7 +40,7 @@ test ! -e "$final_path" || ynh_die --message "This path already contains a folde
 
 # Add users
 ynh_script_progression --message="Configuring system user..."
-ynh_system_user_create --username= $app --home_dir=/opt/yunohost/$app --use_shell
+ynh_system_user_create --username=$app --home_dir=/home/$app --use_shell
 
 # Restore all files
 ynh_script_progression --message="Restoring files..." --weight=10
