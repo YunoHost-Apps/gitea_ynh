@@ -65,7 +65,6 @@ if [[ $migration_process -eq 1 ]]; then
     ynh_secure_remove --file=$final_path/custom/conf/auth.d
 
     # Restore authentication from SQL database
-    ynh_replace_string --match_string __ADMIN__ --replace_string "$admin" --target_file ../conf/login_source.sql
     ynh_replace_string --match_string __APP__ --replace_string "$app" --target_file ../conf/login_source.sql
     ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ../conf/login_source.sql
 
@@ -188,6 +187,20 @@ ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Faile
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
+
+# Set all permissions
+ynh_script_progression --message="Update permission..."
+if ! ynh_permission_exists --permission admin; then
+    ynh_app_setting_delete --app $app --key unprotected_uris
+    ynh_permission_create --permission 'admin' --allowed "$admin"
+    # Update ldap config
+    ynh_replace_string --match_string "__APP__" --replace_string "$app" --target_file ../conf/login_source.sql
+    ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ../conf/login_source.sql
+fi
+if [ "$is_public" == '1' ];
+then
+    ynh_permission_update --permission "main" --add "visitors"
+fi
 
 # Set permissions
 ynh_script_progression --message="Protecting directory"

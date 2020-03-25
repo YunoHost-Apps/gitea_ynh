@@ -87,10 +87,8 @@ set_permission() {
 }
 
 set_access_settings() {
-    if [ "$is_public" = '1' ]
+    if [ "$is_public" == '1' ];
     then
-        ynh_app_setting_set --app $app --key unprotected_uris --value "/"
-    else
-        ynh_app_setting_delete --app $app --key skipped_regex
+        ynh_permission_update --permission "main" --add "visitors"
     fi
 }
