@@ -126,7 +126,7 @@ ynh_app_setting_set --app $app --key upstream_version --value $(ynh_app_upstream
 
 # Reload services
 ynh_script_progression --message="Starting gitea services..." --weight=3
-ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log" -t 10
+ynh_systemd_action -l "Starting new server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 10
 sleep 1
 
 # Store the checksum with the 'INTERNAL_TOKEN' value.
