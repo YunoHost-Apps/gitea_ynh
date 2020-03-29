@@ -237,6 +237,9 @@ ynh_handle_app_migration ()  {
         new_label=$(echo $new_app_id | cut -c1 | tr [:lower:] [:upper:])$(echo $new_app_id | cut -c2-)
         ynh_app_setting_set $new_app label $new_label
     fi
+    
+    yunohost tools shell -c "from yunohost.permission import permission_delete; permission_delete('$old_app.main', force=True, sync_perm=False)"
+    yunohost tools shell -c "from yunohost.permission import permission_create; permission_create('$new_app.main', url='/' , sync_perm=True)"
 
     #=================================================
     # MOVE FILES TO THE NEW DESTINATION
@@ -326,7 +329,6 @@ ynh_handle_app_migration ()  {
     #=================================================
 
     app=$new_app
-
 
     # Set migration_process to 1 to inform that an upgrade has been made
     migration_process=1
