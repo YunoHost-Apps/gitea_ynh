@@ -40,7 +40,7 @@ test ! -e "$final_path" || ynh_die --message "This path already contains a folde
 
 # Add users
 ynh_script_progression --message="Configuring system user..."
-ynh_system_user_create --username= $app --home_dir=/opt/yunohost/$app --use_shell
+ynh_system_user_create --username=$app --home_dir=/home/$app --use_shell
 
 # Restore all files
 ynh_script_progression --message="Restoring files..." --weight=10
@@ -78,7 +78,7 @@ yunohost service add "$app" --log /var/log/"$app"/gitea.log
 # Reload services
 ynh_script_progression --message="Reloading services..."
 systemctl reload nginx.service
-ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log" -t 10
+ynh_systemd_action -l "Starting new server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 10
 sleep 1
 
 ynh_script_progression --message="Restoration completed for $app" --last
