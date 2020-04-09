@@ -12,7 +12,7 @@ Overview
 
 Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to Github.
 
-**Shipped version:** 1.10.3
+**Shipped version:** 1.11.3
 
 Screenshots
 -----------
@@ -53,7 +53,7 @@ If you want to use Gitea with ssh and be able to pull/push with you ssh key, you
 
 ```bash
 PubkeyAuthentication yes
-AuthorizedKeysFile %h/.ssh/authorized_keys
+AuthorizedKeysFile /home/%u/.ssh/authorized_keys
 ChallengeResponseAuthentication no
 PasswordAuthentication no
 UsePAM no

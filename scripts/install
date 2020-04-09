@@ -59,7 +59,7 @@ ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
 
 # Add users
 ynh_script_progression --message="Configuring system user..."
-ynh_system_user_create --username= $app --home_dir=/opt/yunohost/$app --use_shell
+ynh_system_user_create --username=$app --home_dir=/home/$app --use_shell
 
 # create needed directories
 create_dir
@@ -126,7 +126,7 @@ ynh_app_setting_set --app $app --key upstream_version --value $(ynh_app_upstream
 
 # Reload services
 ynh_script_progression --message="Starting gitea services..." --weight=3
-ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "/var/log/$app/gitea.log" -t 10
+ynh_systemd_action -l "Starting new server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 10
 sleep 1
 
 # Store the checksum with the 'INTERNAL_TOKEN' value.
