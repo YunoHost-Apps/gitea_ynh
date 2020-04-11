@@ -71,6 +71,19 @@ Host domain.tld
 
 Architecture: this package is compatible with amd64, i386 and arm. The package will try to detect it with the command uname -m and fail if it can't detect the architecture. If that happens please open an issue describing your hardware and the result of the command `uname -m`.
 
+### LFS setup
+To use a repository with an `LFS` setup, you need to activate-it on `/opt/gitea/custom/conf/app.ini`
+```bash
+[server]
+LFS_START_SERVER = true
+LFS_HTTP_AUTH_EXPIRY = 20m
+```
+By default Nginx is setup with a max value to updload files at 200 Mo. It's possible to change this value on `/etc/nginx/conf.d/my.domain.tld.d/gitea.conf`.
+```bash
+client_max_body_size 200M;
+```
+Don't forget to restart Gitea `sudo systemctl restart gitea.service`.
+
 ### Git command access with HTTPS
 
 If you want to use the git command (like `git clone`, `git pull`, `git push`), you need to set this app as **public**.
