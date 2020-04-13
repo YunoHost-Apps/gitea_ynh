@@ -79,7 +79,7 @@ LFS_START_SERVER = true
 LFS_HTTP_AUTH_EXPIRY = 20m
 ```
 By default Nginx is setup with a max value to updload files at 200 Mo. It's possible to change this value on `/etc/nginx/conf.d/my.domain.tld.d/gitea.conf`.
-```ini
+```
 client_max_body_size 200M;
 ```
 Don't forget to restart Gitea `sudo systemctl restart gitea.service`.
