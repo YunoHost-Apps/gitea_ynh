@@ -84,7 +84,7 @@ client_max_body_size 200M;
 ```
 Don't forget to restart Gitea `sudo systemctl restart gitea.service`.
 
-> This settings are restore to default when Gitea is update. Don't forget to restore your setup after all updates.
+> This settings are restored to the default config when Gitea is updated. Don't forget to restore your setup after all updates.
 
 ### Git command access with HTTPS
 
