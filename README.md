@@ -73,16 +73,18 @@ Architecture: this package is compatible with amd64, i386 and arm. The package w
 
 ### LFS setup
 To use a repository with an `LFS` setup, you need to activate-it on `/opt/gitea/custom/conf/app.ini`
-```bash
+```ini
 [server]
 LFS_START_SERVER = true
 LFS_HTTP_AUTH_EXPIRY = 20m
 ```
 By default Nginx is setup with a max value to updload files at 200 Mo. It's possible to change this value on `/etc/nginx/conf.d/my.domain.tld.d/gitea.conf`.
-```bash
+```ini
 client_max_body_size 200M;
 ```
 Don't forget to restart Gitea `sudo systemctl restart gitea.service`.
+
+> This settings are restore to default when Gitea is update. Don't forget to restore your setup after all updates.
 
 ### Git command access with HTTPS
 
