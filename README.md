@@ -12,7 +12,7 @@ Overview
 
 Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to Github.
 
-**Shipped version:** 1.11.3
+**Shipped version:** 1.11.4
 
 Screenshots
 -----------
@@ -70,6 +70,21 @@ Host domain.tld
 
 
 Architecture: this package is compatible with amd64, i386 and arm. The package will try to detect it with the command uname -m and fail if it can't detect the architecture. If that happens please open an issue describing your hardware and the result of the command `uname -m`.
+
+### LFS setup
+To use a repository with an `LFS` setup, you need to activate-it on `/opt/gitea/custom/conf/app.ini`
+```ini
+[server]
+LFS_START_SERVER = true
+LFS_HTTP_AUTH_EXPIRY = 20m
+```
+By default Nginx is setup with a max value to updload files at 200 Mo. It's possible to change this value on `/etc/nginx/conf.d/my.domain.tld.d/gitea.conf`.
+```
+client_max_body_size 200M;
+```
+Don't forget to restart Gitea `sudo systemctl restart gitea.service`.
+
+> This settings are restored to the default config when Gitea is updated. Don't forget to restore your setup after all updates.
 
 ### Git command access with HTTPS
 

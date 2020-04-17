@@ -90,14 +90,13 @@ ynh_script_progression --message="Configuring application, step 2/2..."
 # Start gitea for building mysql tables
 systemctl start "$app".service
 
-# Wait till login_source mysql table is created
+# Wait untill login_source mysql table is created
 while ! $(ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname"  <<< "SELECT * FROM login_source;" &>/dev/null)
 do
     sleep 2
 done
 
 # Add ldap config
-ynh_replace_string --match_string "__ADMIN__" --replace_string "$admin" --target_file ../conf/login_source.sql
 ynh_replace_string --match_string "__APP__" --replace_string "$app" --target_file ../conf/login_source.sql
 ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ../conf/login_source.sql
 
@@ -112,6 +111,10 @@ ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Faile
 # Unprotect root from SSO if public
 ynh_script_progression --message="Protecting directory"
 set_access_settings
+
+# Create permission
+ynh_script_progression --message="Configuring permissions"
+ynh_permission_create --permission="admin" --allowed=$admin
 
 # Add gitea to YunoHost's monitored services
 ynh_script_progression --message="Register gitea service..."
