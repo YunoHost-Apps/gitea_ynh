@@ -9,6 +9,7 @@ final_path="/opt/$app"
 DATADIR="/home/$app"
 REPO_PATH="$DATADIR/repositories"
 DATA_PATH="$DATADIR/data"
+SSH_PATH="$DATADIR/.ssh"
 
 # Detect the system architecture to download the right tarball
 # NOTE: `uname -m` is more accurate and universal than `arch`
@@ -33,6 +34,7 @@ fi
 create_dir() {
     mkdir -p "$final_path/data"
     mkdir -p "$final_path/custom/conf"
+    mkdir -p "$SSH_PATH"
     mkdir -p "$REPO_PATH"
     mkdir -p "$DATA_PATH/avatars"
     mkdir -p "$DATA_PATH/attachments"
