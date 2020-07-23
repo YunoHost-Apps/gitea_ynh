@@ -1,7 +1,8 @@
 Gitea package for YunoHost
 ==========================
 
-[![Integration level](https://dash.yunohost.org/integration/gitea.svg)](https://ci-apps.yunohost.org/ci/apps/gitea%20%28Community%29/lastBuild/consoleFull)  
+
+[![Integration level](https://dash.yunohost.org/integration/gitea.svg)](https://dash.yunohost.org/appci/app/gitea) ![](https://ci-apps.yunohost.org/ci/badges/gitea.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/gitea.maintain.svg) 
 [![Install gitea with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=gitea)
 
 > *This package allow you to install gitea quickly and simply on a YunoHost server.  
@@ -34,8 +35,7 @@ LDAP and HTTP auth are supported.
 
 ### Supported architectures
 
-* x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/gitea%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/gitea/)
-
+* x86-64 - [![Build Status](https://ci-apps.yunohost.org/ci/logs/gitea%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/gitea/)
 * ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/gitea%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/gitea/)
 
 <!--Limitations
