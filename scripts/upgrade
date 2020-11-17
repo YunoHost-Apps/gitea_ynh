@@ -4,15 +4,15 @@
 # GENERIC START
 #=================================================
 
+# Load common variables and helpers
+source ./experimental_helper.sh
+source ./_common.sh
+
 # IMPORT GENERIC HELPERS
 source /usr/share/yunohost/helpers
 
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
-
-# Load common variables and helpers
-source ./experimental_helper.sh
-source ./_common.sh
 
 # Retrieve app settings
 ynh_script_progression --message="Loading installation settings..."
@@ -43,7 +43,7 @@ systemctl stop "$app".service
 [[ $YNH_APP_ID == "gogs" ]] \
     && [[ "$(cat "/opt/$app/templates/.VERSION")" != 0.11.79.1211 ]] \
     && ynh_die --message "It look like that you have an old gogs install. You need first upgrade gogs instance (id : $gogs_migrate_id) and after migrate to gitea."
-ynh_handle_app_migration gogs gogs_migrations
+ynh_handle_app_migration --migration_id=gogs --migration_list=gogs_migrations
 
 if [[ $migration_process -eq 1 ]]; then
     # Reload variables
@@ -205,6 +205,10 @@ if [ "$is_public" == '1' ];
 then
     ynh_permission_update --permission "main" --add "visitors"
 fi
+
+# Add gitea to YunoHost's monitored services
+ynh_script_progression --message="Register gitea service..."
+yunohost service add "$app" --log "/var/log/$app/gitea.log"
 
 # Set permissions
 ynh_script_progression --message="Protecting directory"

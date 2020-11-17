@@ -4,12 +4,12 @@
 # GENERIC START
 #=================================================
 
-# IMPORT GENERIC HELPERS
-source /usr/share/yunohost/helpers
-
 # Load common variables and helpers
 source ./experimental_helper.sh
 source ./_common.sh
+
+# IMPORT GENERIC HELPERS
+source /usr/share/yunohost/helpers
 
 ynh_script_progression --message="Loading installation settings..."
 
