@@ -121,7 +121,7 @@ fi
 restart_gitea() {
     # Set permissions
     set_permission
-    ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "systemd"
+    ynh_systemd_action -l "Starting new server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 30
     # Leave the time to update the database schema
     sleep 5
     systemctl stop $app
