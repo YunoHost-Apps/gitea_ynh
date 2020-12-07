@@ -68,8 +68,38 @@ Host domain.tld
     port 2222 # change this with the port you use
 ```
 
-
 Architecture: this package is compatible with amd64, i386 and arm. The package will try to detect it with the command uname -m and fail if it can't detect the architecture. If that happens please open an issue describing your hardware and the result of the command `uname -m`.
+
+### Upgrade
+
+By default a backup is made before the upgrade. To avoid this you have theses following possibilites:
+- Pass the `NO_BACKUP_UPGRADE` env variable with `1` at each upgrade. By example `NO_BACKUP_UPGRADE=1 yunohost app upgrade gitea`.
+- Set the settings `disable_backup_before_upgrade` to `1`. You can set this with this command:
+
+`yunohost app setting gitea disable_backup_before_upgrade -v 1`
+
+After this settings will be applied for all next upgrade.
+
+### Backup
+
+This app use now the core-only feature of the backup. To keep the integrity of the data and to have a better guarantee of the restoration is recommended to proceed like this:
+
+- Stop gitea service with theses following command:
+
+`systemctl stop gitea.service`
+
+- Launch the backup of gitea with this following command:
+
+`yunohost backup create --app gitea`
+
+- Do a backup of your data with your specific strategy (could be with rsync, borg backup or just cp). The data is generally stored in `/home/gitea`.
+- Restart the gitea service with theses command:
+
+`systemctl start gitea.service`
+
+### Remove
+
+Due of the backup core only feature the data directory in `/home/gitea` **is not removed**. It need to be removed manually to purge app user data.
 
 ### LFS setup
 To use a repository with an `LFS` setup, you need to activate-it on `/opt/gitea/custom/conf/app.ini`

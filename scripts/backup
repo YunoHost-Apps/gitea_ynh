@@ -18,6 +18,10 @@ ynh_abort_if_errors
 ynh_script_progression --message="Loading installation settings..."
 domain=$(ynh_app_setting_get --app $app --key domain)
 
+if [[ ! "$(systemctl status $app.service)" =~ "Active: inactive (dead)" ]]; then
+    ynh_print_warn --message="It's hightly recommended to make your backup when the service is stopped. Please stop $app service and with this command before to run the backup 'systemctl stop $app.service'"
+fi
+
 #=================================================
 # STANDARD BACKUP STEPS
 #=================================================
@@ -28,7 +32,7 @@ ynh_backup --src_path "$final_path"
 
 # Copy the data files
 ynh_script_progression --message="Backing up user data..." --weight=10
-ynh_backup --src_path "$DATADIR"
+ynh_backup --src_path "$DATADIR" --is_big=1
 
 ynh_script_progression --message="Backing up configuration..."
 

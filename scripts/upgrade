@@ -25,16 +25,24 @@ is_public=$(ynh_app_setting_get --app $app --key is_public)
 port=$(ynh_app_setting_get --app $app --key web_port)
 upstream_version=$(ynh_app_setting_get --app $app --key upstream_version)
 
-# Backup the current version of the app
+#=================================================
+# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
+#=================================================
 ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=10
-ynh_backup_before_upgrade
-ynh_clean_setup () {
-    ynh_restore_upgradebackup
-}
 
-# Stop service
-ynh_script_progression --message="Stoping services..."
-systemctl stop "$app".service
+# We stop the service before to set ynh_clean_setup
+ynh_systemd_action --service_name=$app.service --action=stop
+
+# Backup the current version of the app
+if [ "0$(ynh_app_setting_get --app=$app --key=disable_backup_before_upgrade)" -ne 1 ]
+then
+    ynh_backup_before_upgrade
+    ynh_clean_setup () {
+        # Clean installation remainings that are not handled by the remove script.
+        ynh_clean_check_starting
+        ynh_restore_upgradebackup
+    }
+fi
 
 #=================================================
 # MIGRATION FROM GOGS
