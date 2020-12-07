@@ -61,3 +61,4 @@ ynh_remove_fail2ban_config
 ynh_print_info --message="Due of the backup core only feature the data directory in '$DATADIR' was not removed. It need to be removed manually to purge app user data."
 
 ynh_script_progression --message="Removal of $app completed" --last
+sleep 1
