@@ -15,7 +15,7 @@ source /usr/share/yunohost/helpers
 ynh_abort_if_errors
 
 # Retrieve app settings
-ynh_script_progression --message="Loading installation settings..."
+ynh_print_info --message="Loading installation settings..."
 domain=$(ynh_app_setting_get --app $app --key domain)
 
 if [[ ! "$(systemctl status $app.service)" =~ "Active: inactive (dead)" ]]; then
@@ -27,25 +27,25 @@ fi
 #=================================================
 
 # Copy the app source files
-ynh_script_progression --message="Backing up code..." --weight=3
+ynh_print_info --message="Backing up code..."
 ynh_backup --src_path "$final_path"
 
 # Copy the data files
-ynh_script_progression --message="Backing up user data..." --weight=10
+ynh_print_info --message="Backing up user data..."
 ynh_backup --src_path "$DATADIR" --is_big=1
 
-ynh_script_progression --message="Backing up configuration..."
+ynh_print_info --message="Backing up configuration..."
 
 # Copy the conf files
 ynh_backup --src_path "/etc/nginx/conf.d/${domain}.d/${app}.conf"
 ynh_backup --src_path "/etc/systemd/system/${app}.service"
 
 # Backup logs
-ynh_script_progression --message="Backing up logs..."
+ynh_print_info --message="Backing up logs..."
 ynh_backup --src_path "/var/log/$app"
 
 # Dump the database
-ynh_script_progression --message="Backing up database"
+ynh_print_info --message="Backing up database"
 ynh_mysql_dump_db "$dbname" > ./db.sql
 
-ynh_script_progression --message="Backup script completed for $app. (YunoHost will then actually copy those files to the archive)." --last
+ynh_print_info --message="Backup script completed for $app. (YunoHost will then actually copy those files to the archive)."
