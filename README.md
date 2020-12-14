@@ -78,7 +78,11 @@ By default a backup is made before the upgrade. To avoid this you have theses fo
 
 `yunohost app setting gitea disable_backup_before_upgrade -v 1`
 
-After this settings will be applied for all next upgrade.
+After this settings will be applied for **all** next upgrade.
+
+From command line:
+
+`yunohost app upgrade seafile`
 
 ### Backup
 
