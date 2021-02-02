@@ -13,7 +13,7 @@ Overview
 
 Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to Github.
 
-**Shipped version:** 1.13.1
+**Shipped version:** 1.13.2
 
 Screenshots
 -----------
