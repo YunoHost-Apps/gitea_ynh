@@ -4,15 +4,15 @@
 # GENERIC START
 #=================================================
 
+# Load common variables and helpers
+source ./experimental_helper.sh
+source ./_common.sh
+
 # IMPORT GENERIC HELPERS
 source /usr/share/yunohost/helpers
 
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
-
-# Load common variables and helpers
-source ./experimental_helper.sh
-source ./_common.sh
 
 # Retrieve app settings
 ynh_script_progression --message="Loading installation settings..."
@@ -25,16 +25,24 @@ is_public=$(ynh_app_setting_get --app $app --key is_public)
 port=$(ynh_app_setting_get --app $app --key web_port)
 upstream_version=$(ynh_app_setting_get --app $app --key upstream_version)
 
-# Backup the current version of the app
+#=================================================
+# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
+#=================================================
 ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=10
-ynh_backup_before_upgrade
-ynh_clean_setup () {
-    ynh_restore_upgradebackup
-}
 
-# Stop service
-ynh_script_progression --message="Stoping services..."
-systemctl stop "$app".service
+# We stop the service before to set ynh_clean_setup
+ynh_systemd_action --service_name=$app.service --action=stop
+
+# Backup the current version of the app
+if [ "0$(ynh_app_setting_get --app=$app --key=disable_backup_before_upgrade)" -ne 1 ]
+then
+    ynh_backup_before_upgrade
+    ynh_clean_setup () {
+        # Clean installation remainings that are not handled by the remove script.
+        ynh_clean_check_starting
+        ynh_restore_upgradebackup
+    }
+fi
 
 #=================================================
 # MIGRATION FROM GOGS
@@ -43,7 +51,7 @@ systemctl stop "$app".service
 [[ $YNH_APP_ID == "gogs" ]] \
     && [[ "$(cat "/opt/$app/templates/.VERSION")" != 0.11.79.1211 ]] \
     && ynh_die --message "It look like that you have an old gogs install. You need first upgrade gogs instance (id : $gogs_migrate_id) and after migrate to gitea."
-ynh_handle_app_migration gogs gogs_migrations
+ynh_handle_app_migration --migration_id=gogs --migration_list=gogs_migrations
 
 if [[ $migration_process -eq 1 ]]; then
     # Reload variables
@@ -121,7 +129,7 @@ fi
 restart_gitea() {
     # Set permissions
     set_permission
-    ynh_systemd_action -l "Serving \[::\]:$port with pid" -p "systemd"
+    ynh_systemd_action -l "Starting new server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 30
     # Leave the time to update the database schema
     sleep 5
     systemctl stop $app
@@ -179,6 +187,10 @@ case $upstream_version in
     ynh_setup_source $final_path source/${architecture}_1.11
     restart_gitea
 ;&
+"1.11."* )
+    ynh_setup_source $final_path source/${architecture}_1.12
+    restart_gitea
+;&
 esac
 
 # Install gitea source
@@ -205,6 +217,10 @@ if [ "$is_public" == '1' ];
 then
     ynh_permission_update --permission "main" --add "visitors"
 fi
+
+# Add gitea to YunoHost's monitored services
+ynh_script_progression --message="Register gitea service..."
+yunohost service add "$app" --log "/var/log/$app/gitea.log"
 
 # Set permissions
 ynh_script_progression --message="Protecting directory"

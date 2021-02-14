@@ -4,15 +4,15 @@
 # GENERIC START
 #=================================================
 
+# Load common variables and helpers
+source ../settings/scripts/experimental_helper.sh
+source ../settings/scripts/_common.sh
+
 # IMPORT GENERIC HELPERS
 source /usr/share/yunohost/helpers
 
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
-
-# Load common variables and helpers
-source ../settings/scripts/experimental_helper.sh
-source ../settings/scripts/_common.sh
 
 ynh_script_progression --message="Loading settings..."
 
@@ -53,7 +53,7 @@ ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ./db.sql
 
 # Restore systemd files
 systemctl daemon-reload
-systemctl enable "$app".service
+systemctl enable "$app".service --quiet
 
 # SETUP FAIL2BAN
 ynh_script_progression --message="Configuring fail2ban..."

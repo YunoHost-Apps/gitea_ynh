@@ -4,12 +4,12 @@
 # GENERIC START
 #=================================================
 
-# IMPORT GENERIC HELPERS
-source /usr/share/yunohost/helpers
-
 # Load common variables and helpers
 source ./experimental_helper.sh
 source ./_common.sh
+
+# IMPORT GENERIC HELPERS
+source /usr/share/yunohost/helpers
 
 ynh_script_progression --message="Loading installation settings..."
 
@@ -32,8 +32,6 @@ ynh_mysql_drop_user "$dbuser" 2>/dev/null
 # Delete app directory and configurations
 ynh_script_progression --message="Removing code..."
 ynh_secure_remove --file="$final_path"
-ynh_script_progression --message="Removing user data..."
-ynh_secure_remove --file="$DATADIR"
 ynh_script_progression --message="Removing logs..."
 ynh_secure_remove --file="/var/log/$app"
 
@@ -60,4 +58,7 @@ yunohost service remove "$app"
 ynh_script_progression --message="Removing fail2ban configuration..."
 ynh_remove_fail2ban_config
 
+ynh_print_info --message="Due of the backup core only feature the data directory in '$DATADIR' was not removed. It need to be removed manually to purge app user data."
+
 ynh_script_progression --message="Removal of $app completed" --last
+sleep 1

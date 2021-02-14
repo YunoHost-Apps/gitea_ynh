@@ -4,21 +4,21 @@
 # GENERIC START
 #=================================================
 
+# Load common variables and helpers
+source ./experimental_helper.sh
+source ./_common.sh
+
 # IMPORT GENERIC HELPERS
 source /usr/share/yunohost/helpers
 
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
 
-# Load common variables and helpers
-source ./experimental_helper.sh
-source ./_common.sh
-
 ynh_script_progression --message="Validating installation parameters..."
 
 # Retrieve arguments
 domain=$YNH_APP_ARG_DOMAIN
-path_url=$(ynh_normalize_url_path --path_url $YNH_APP_ARG_PATH)
+path_url=$YNH_APP_ARG_PATH
 admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
 upstream_version=$(ynh_app_upstream_version)
@@ -32,6 +32,12 @@ ynh_user_exists "$admin" \
 
 # Check Final Path availability
 test ! -e "$final_path" || ynh_die --message "This path already contains a folder"
+
+if [ -e "$DATADIR" ]; then
+    old_data_dir_path="$DATADIR$(date '+%Y%m%d.%H%M%S')"
+    ynh_print_warn "A data directory already exist. Data was renamed to $old_data_dir_path"
+    mv "$DATADIR" "$old_data_dir_path"
+fi
 
 # Generate random password and key
 ynh_script_progression --message="Defining db password and key..."

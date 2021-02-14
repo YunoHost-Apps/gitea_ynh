@@ -19,18 +19,6 @@
         incorrect_path=0
         port_already_use=1 (6000)
         change_url=1
-;;; Levels
-    Level 1=auto
-    Level 2=auto
-    Level 3=auto
-    # https://github.com/YunoHost-Apps/gitea_ynh/blob/master/conf/login_source.sql
-    Level 4=1
-    Level 5=auto
-    Level 6=auto
-    Level 7=auto
-    Level 8=0
-    Level 9=0
-    Level 10=0
 ;;; Upgrade options
 	; commit=349992d4f3921e4e1adb37a0cace4a5a9eb67099
 		name=First package version
