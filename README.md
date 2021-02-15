@@ -82,7 +82,7 @@ After this settings will be applied for **all** next upgrade.
 
 From command line:
 
-`yunohost app upgrade seafile`
+`yunohost app upgrade gitea`
 
 ### Backup
 
