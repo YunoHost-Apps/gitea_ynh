@@ -13,7 +13,7 @@ Overview
 
 Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to Github.
 
-**Shipped version:** 1.13.1
+**Shipped version:** 1.13.4
 
 Screenshots
 -----------
@@ -82,7 +82,7 @@ After this settings will be applied for **all** next upgrade.
 
 From command line:
 
-`yunohost app upgrade seafile`
+`yunohost app upgrade gitea`
 
 ### Backup
 
