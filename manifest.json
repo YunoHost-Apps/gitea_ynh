@@ -8,8 +8,12 @@
     },
     "url": "http://gitea.io",
     "license": "MIT",
-    "version": "1.13.4~ynh1",
+    "version": "1.13.7~ynh1",
     "maintainer": {
+        "name": "Josué Tille",
+        "email": "josue@tille.ch"
+    },
+    "previous_maintainers": {
         "name": "rafi59",
         "email": "rafi59_dev@srvmaison.fr.nf"
     },
