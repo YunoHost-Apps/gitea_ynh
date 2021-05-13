@@ -45,6 +45,7 @@ ynh_remove_nginx_config
 # Remove gitea user and data
 ynh_script_progression --message="Removing the dedicated system user..."
 ynh_system_user_delete $app
+ynh_secure_remove --file="$DATADIR"
 
 # Remove init script
 ynh_script_progression --message="Removing systemd units..."
