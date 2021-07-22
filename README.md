@@ -68,7 +68,15 @@ Host domain.tld
     port 2222 # change this with the port you use
 ```
 
-Architecture: this package is compatible with amd64, i386 and arm. The package will try to detect it with the command uname -m and fail if it can't detect the architecture. If that happens please open an issue describing your hardware and the result of the command `uname -m`.
+You will also need to add the `gitea` user in the ssh permission with this command:
+
+```
+sudo adduser gitea ssh.app
+```
+
+### Architecture
+
+This package is compatible with amd64, i386 and arm. The package will try to detect it with the command uname -m and fail if it can't detect the architecture. If that happens please open an issue describing your hardware and the result of the command `uname -m`.
 
 ### Upgrade
 
