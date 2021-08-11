@@ -59,6 +59,13 @@ PasswordAuthentication no
 UsePAM no
 ```
 
+For users that⁠—for [security reasons](https://yunohost.org/en/security#ssh-authentication-via-key)⁠—disabled the admin password and now perform SSH authentication via key, keep `UsePAM yes` and add `AllowUsers gitea`:
+
+```bash
+UsePAM yes
+AllowUsers gitea
+```
+
 You also need to add your public key to your Gitea profile.
 
 If you use ssh on another port than 22, you need to add theses lines to your ssh config in `~/.ssh/config`:
