@@ -49,14 +49,10 @@ Additional informations
 
 ### Notes on SSH usage
 
-If you want to use Gitea with ssh and be able to pull/push with you ssh key, your ssh daemon must be properly configured to use private/public keys. Here is a sample configuration of `/etc/ssh/sshd_config` that works with Gitea:
+If you want to use Gitea with ssh and be able to pull/push with you ssh key, you will need to add the `gitea` user in the ssh permission with this command:
 
-```bash
-PubkeyAuthentication yes
-AuthorizedKeysFile /home/%u/.ssh/authorized_keys
-ChallengeResponseAuthentication no
-PasswordAuthentication no
-UsePAM no
+```
+sudo adduser gitea ssh.app
 ```
 
 You also need to add your public key to your Gitea profile.
@@ -68,11 +64,6 @@ Host domain.tld
     port 2222 # change this with the port you use
 ```
 
-You will also need to add the `gitea` user in the ssh permission with this command:
-
-```
-sudo adduser gitea ssh.app
-```
 
 ### Architecture
 
