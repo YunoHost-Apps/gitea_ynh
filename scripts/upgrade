@@ -195,6 +195,10 @@ case $upstream_version in
     ynh_setup_source $final_path source/${architecture}_1.13
     restart_gitea
 ;&
+"1.13."* )
+    ynh_setup_source $final_path source/${architecture}_1.14
+    restart_gitea
+;&
 esac
 
 # Install gitea source
