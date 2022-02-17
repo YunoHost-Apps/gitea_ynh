@@ -234,8 +234,8 @@ fi
 ynh_script_progression --message="Register gitea service..."
 yunohost service add "$app" --log "/var/log/$app/gitea.log"
 
-# Add ssh permission for user gitea
-adduser gitea ssh.app
+# Add ssh permission for gitea user
+adduser $app ssh.app
 
 # Set permissions
 ynh_script_progression --message="Protecting directory"
