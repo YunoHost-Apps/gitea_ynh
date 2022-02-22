@@ -207,6 +207,7 @@ esac
 
 # Install gitea source
 ynh_setup_source $final_path source/$architecture
+restart_gitea
 
 # SETUP FAIL2BAN
 ynh_script_progression --message="Configuring fail2ban..."
