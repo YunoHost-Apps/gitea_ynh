@@ -19,13 +19,10 @@ ynh_script_progression --message="Loading settings..."
 # Retrieve old app settings
 domain=$(ynh_app_setting_get --app $app --key domain)
 path_url=$(ynh_app_setting_get --app $app --key path)
-dbpass=$(ynh_app_setting_get --app $app --key mysqlpwd)
+DB_PASSWORD=$(ynh_app_setting_get --app $app --key mysqlpwd)
 admin=$(ynh_app_setting_get --app $app --key adminusername)
 port=$(ynh_app_setting_get --app $app --key web_port)
 upstream_version=$(ynh_app_setting_get $app upstream_version)
-
-# Check domain/path availability with app helper
-ynh_webpath_available --domain $domain --path_url $path_url || ynh_die --message "$domain is not available as domain, please use an other domain."
 
 # Check user parameter
 ynh_user_exists "$admin" \
@@ -48,8 +45,8 @@ ynh_restore
 
 # Create and restore the database
 ynh_script_progression --message="Restoring database..." --weight=3
-ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
-ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ./db.sql
+ynh_mysql_create_db "$dbname" "$db_user" "$DB_PASSWORD"
+ynh_mysql_connect_as "$db_user" "$DB_PASSWORD" "$dbname" < ./db.sql
 
 # Restore systemd files
 systemctl daemon-reload
