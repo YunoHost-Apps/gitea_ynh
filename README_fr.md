@@ -33,7 +33,7 @@ If you want to use Gitea with ssh and be able to pull/push with you ssh key, you
 
 ```bash
 PubkeyAuthentication yes
-AuthorizedKeysFile /home/%u/.ssh/authorized_keys
+AuthorizedKeysFile /home/yunohost.app/%u/.ssh/authorized_keys
 ChallengeResponseAuthentication no
 PasswordAuthentication no
 UsePAM no
@@ -74,14 +74,14 @@ This app use now the core-only feature of the backup. To keep the integrity of t
 
 `yunohost backup create --app gitea`
 
-- Do a backup of your data with your specific strategy (could be with rsync, borg backup or just cp). The data is generally stored in `/home/gitea`.
+- Do a backup of your data with your specific strategy (could be with rsync, borg backup or just cp). The data is generally stored in `/home/yunohost.app/gitea`.
 - Restart the gitea service with theses command:
 
 `systemctl start gitea.service`
 
 ### Remove
 
-Due of the backup core only feature the data directory in `/home/gitea` **is not removed**. It need to be removed manually to purge app user data.
+Due of the backup core only feature the data directory in `/home/yunohost.app/gitea` **is not removed**. It need to be removed manually to purge app user data.
 
 ### LFS setup
 To use a repository with an `LFS` setup, you need to activate-it on `/opt/gitea/custom/conf/app.ini`

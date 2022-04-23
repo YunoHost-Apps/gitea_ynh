@@ -32,7 +32,7 @@ ynh_backup --src_path "$final_path"
 
 # Copy the data files
 ynh_print_info --message="Backing up user data..."
-ynh_backup --src_path "$DATADIR" --is_big=1
+ynh_backup --src_path "$datadir" --is_big=1
 
 ynh_print_info --message="Backing up configuration..."
 

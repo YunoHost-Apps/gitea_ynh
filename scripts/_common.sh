@@ -6,10 +6,10 @@ app=$YNH_APP_INSTANCE_NAME
 dbname=$app
 db_user=$app
 final_path="/opt/$app"
-DATADIR="/home/$app"
-REPO_PATH="$DATADIR/repositories"
-DATA_PATH="$DATADIR/data"
-SSH_PATH="$DATADIR/.ssh"
+datadir="/home/yunohost.app/$app"
+repos_path="$datadir/repositories"
+data_path="$datadir/data"
+ssh_path="$datadir/.ssh"
 
 # Detect the system architecture to download the right tarball
 # NOTE: `uname -m` is more accurate and universal than `arch`
@@ -36,10 +36,10 @@ fi
 create_dir() {
     mkdir -p "$final_path/data"
     mkdir -p "$final_path/custom/conf"
-    mkdir -p "$SSH_PATH"
-    mkdir -p "$REPO_PATH"
-    mkdir -p "$DATA_PATH/avatars"
-    mkdir -p "$DATA_PATH/attachments"
+    mkdir -p "$ssh_path"
+    mkdir -p "$repos_path"
+    mkdir -p "$data_path/avatars"
+    mkdir -p "$data_path/attachments"
     mkdir -p "/var/log/$app"
 }
 
@@ -58,12 +58,12 @@ config_gitea() {
 
 set_permission() {
     chown -R $app:$app "$final_path"
-    chown -R $app:$app "/home/$app"
+    chown -R $app:$app "$datadir"
     chown -R $app:$app "/var/log/$app"
 
     chmod u=rwX,g=rX,o= "$final_path"
     chmod u=rwx,g=rx,o= "$final_path/gitea"
     chmod u=rwx,g=rx,o= "$final_path/custom/conf/app.ini"
-    chmod u=rwX,g=rX,o= "/home/$app"
+    chmod u=rwX,g=rX,o= "$datadir"
     chmod u=rwX,g=rX,o= "/var/log/$app"
 }
