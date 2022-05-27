@@ -5,7 +5,7 @@ It shall NOT be edited by hand.
 
 # Gitea for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/gitea.svg)](https://dash.yunohost.org/appci/app/gitea) ![](https://ci-apps.yunohost.org/ci/badges/gitea.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/gitea.maintain.svg)  
+[![Integration level](https://dash.yunohost.org/integration/gitea.svg)](https://dash.yunohost.org/appci/app/gitea) ![Working status](https://ci-apps.yunohost.org/ci/badges/gitea.status.svg) ![Maintenance status](https://ci-apps.yunohost.org/ci/badges/gitea.maintain.svg)  
 [![Install Gitea with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=gitea)
 
 *[Lire ce readme en français.](./README_fr.md)*
@@ -20,11 +20,9 @@ Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to 
 
 **Shipped version:** 1.16.6~ynh1
 
-
-
 ## Screenshots
 
-![](./doc/screenshots/screenshot.png)
+![Screenshot of Gitea](./doc/screenshots/screenshot.png)
 
 ## Disclaimers / important information
 
@@ -108,21 +106,22 @@ If you want to use the git command (like `git clone`, `git pull`, `git push`), y
 
 ## Documentation and resources
 
-* Official app website: https://gitea.io/
-* Official admin documentation: https://docs.gitea.io/
-* Upstream app code repository: https://github.com/go-gitea/gitea
-* YunoHost documentation for this app: https://yunohost.org/app_gitea
-* Report a bug: https://github.com/YunoHost-Apps/gitea_ynh/issues
+* Official app website: <https://gitea.io/>
+* Official admin documentation: <https://docs.gitea.io/>
+* Upstream app code repository: <https://github.com/go-gitea/gitea>
+* YunoHost documentation for this app: <https://yunohost.org/app_gitea>
+* Report a bug: <https://github.com/YunoHost-Apps/gitea_ynh/issues>
 
 ## Developer info
 
 Please send your pull request to the [testing branch](https://github.com/YunoHost-Apps/gitea_ynh/tree/testing).
 
 To try the testing branch, please proceed like that.
-```
+
+``` bash
 sudo yunohost app install https://github.com/YunoHost-Apps/gitea_ynh/tree/testing --debug
 or
 sudo yunohost app upgrade gitea -u https://github.com/YunoHost-Apps/gitea_ynh/tree/testing --debug
 ```
 
-**More info regarding app packaging:** https://yunohost.org/packaging_apps
+**More info regarding app packaging:** <https://yunohost.org/packaging_apps>
