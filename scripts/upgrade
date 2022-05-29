@@ -89,7 +89,7 @@ if [[ $migration_process -eq 1 ]]; then
 
     # Restore authentication from SQL database
     ynh_replace_string --match_string __APP__ --replace_string "$app" --target_file ../conf/login_source.sql
-    ynh_mysql_connect_as "$db_user" "$db_password" "$dbname" < ../conf/login_source.sql
+    ynh_mysql_connect_as --user=$db_user --password=$db_pwd --database=$db_name < ../conf/login_source.sql
 
     # Fix hooks
     if [[ -e $datadir/repositories ]];then
@@ -117,7 +117,7 @@ if ! ynh_permission_exists --permission admin; then
     ynh_permission_create --permission 'admin' --allowed "$admin"
     # Update ldap config
     ynh_replace_string --match_string "__APP__" --replace_string "$app" --target_file ../conf/login_source.sql
-    ynh_mysql_connect_as "$db_user" "$db_password" "$dbname" < ../conf/login_source.sql
+    ynh_mysql_connect_as --user=$db_user --password=$db_pwd --database=$db_name < ../conf/login_source.sql
 fi
 
 #=================================================
@@ -126,7 +126,7 @@ fi
 ynh_script_progression --message="Making sure dedicated system user exists..."
 
 # Create a dedicated user (if not existing)
-ynh_system_user_create --username=$app --home_dir="$final_path" --home_dir=$datadir --use_shell
+ynh_system_user_create --username=$app --home_dir="$final_path" --use_shell
 
 # Add ssh permission for gitea user
 adduser $app ssh.app
@@ -214,7 +214,7 @@ yunohost service add $app --log="/var/log/$app/gitea.log"
 ynh_script_progression --message="Starting a systemd service..."
 
 # Start a systemd service
-ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/gitea.log" --line_match="Starting new Web server: tcp:127.0.0.1:" --timeout=10
+ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/gitea.log" --line_match="AppURL"
 sleep 1
 
 #=================================================

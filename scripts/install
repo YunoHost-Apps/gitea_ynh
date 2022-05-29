@@ -52,8 +52,7 @@ ynh_script_progression --message="Storing installation settings..."
 ynh_app_setting_set --app=$app --key=domain --value=$domain
 ynh_app_setting_set --app=$app --key=path --value=$path_url
 ynh_app_setting_set --app=$app --key=admin --value=$admin
-ynh_app_setting_set --app=$app --key=mysqlpwd --value=$db_password
-ynh_app_setting_set --app=$app --key=secret_key --value=$key
+ynh_app_setting_set --app=$app --key=secret_key --value=$secret_key
 ynh_app_setting_set --app=$app --key=upstream_version --value=$upstream_version
 
 #=================================================
@@ -73,7 +72,7 @@ ynh_app_setting_set --app=$app --key=port --value=$port
 ynh_script_progression --message="Configuring system user..."
 
 # Create a system user
-ynh_system_user_create --username=$app --home_dir="$final_path" --home_dir=$datadir --use_shell
+ynh_system_user_create --username=$app --home_dir="$final_path" --use_shell
 # Add ssh permission for gitea user
 adduser $app ssh.app
 
@@ -104,7 +103,6 @@ chmod 750 "$final_path"
 chmod -R o-rwx "$final_path"
 chmod u=rwX,g=rX,o= "$final_path"
 chmod u=rwx,g=rx,o= "$final_path/gitea"
-chmod u=rwx,g=rx,o= "$final_path/custom/conf/app.ini"
 chown -R $app:$app "$final_path"
 
 mkdir -p "/var/log/$app"
@@ -145,7 +143,8 @@ ynh_script_progression --message="Adding a configuration file..."
 ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
 ynh_add_config --template="app.ini" --destination="$final_path/custom/conf/app.ini"
 
-chmod 400 "$final_path/custom/conf/app.ini"
+chmod u=rwx,g=rx,o= "$final_path/custom/conf/app.ini"
+chmod 600 "$final_path/custom/conf/app.ini"
 chown $app:$app "$final_path/custom/conf/app.ini"
 
 #=================================================
@@ -161,17 +160,19 @@ ynh_add_systemd_config
 #=================================================
 ynh_script_progression --message="Setuping application..."
 
-ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/gitea.log"
+ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/gitea.log" --line_match="AppURL"
 
 # Wait until login_source mysql table is created
-while ! $(ynh_mysql_connect_as "$db_user" "$db_password" "$dbname"  <<< "SELECT * FROM login_source;" &>/dev/null)
+while ! $(ynh_mysql_connect_as --user=$db_user --password=$db_pwd --database=$db_name  <<< "SELECT * FROM login_source;" &>/dev/null)
 do
     sleep 2
 done
 
 # Add ldap config
 ynh_replace_string --match_string "__APP__" --replace_string "$app" --target_file ../conf/login_source.sql
-ynh_mysql_connect_as "$db_user" "$db_password" "$dbname" < ../conf/login_source.sql
+ynh_mysql_connect_as --user=$db_user --password=$db_pwd --database=$db_name < ../conf/login_source.sql
+
+ynh_systemd_action --service_name=$app --action="stop"
 
 #=================================================
 # GENERIC FINALIZATION
@@ -196,7 +197,7 @@ yunohost service add $app --log="/var/log/$app/gitea.log"
 ynh_script_progression --message="Starting a systemd service..."
 
 # Start a systemd service
-ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/gitea.log" --line_match="Starting new Web server: tcp:127.0.0.1:" --timeout=10
+ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/gitea.log" --line_match="AppURL"
 sleep 1
 
 #=================================================
