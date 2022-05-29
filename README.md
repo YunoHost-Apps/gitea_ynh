@@ -13,7 +13,7 @@ Overview
 
 Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to Github.
 
-**Shipped version:** 1.14.5
+**Shipped version:** 1.16.4
 
 Screenshots
 -----------
@@ -66,12 +66,6 @@ If you use ssh on another port than 22, you need to add theses lines to your ssh
 ```bash
 Host domain.tld
     port 2222 # change this with the port you use
-```
-
-You will also need to add the `gitea` user in the ssh permission with this command:
-
-```
-sudo adduser gitea ssh.app
 ```
 
 ### Architecture

@@ -195,10 +195,19 @@ case $upstream_version in
     ynh_setup_source $final_path source/${architecture}_1.13
     restart_gitea
 ;&
+"1.13."* )
+    ynh_setup_source $final_path source/${architecture}_1.14
+    restart_gitea
+;&
+"1.14."* )
+    ynh_setup_source $final_path source/${architecture}_1.15
+    restart_gitea
+;&
 esac
 
 # Install gitea source
 ynh_setup_source $final_path source/$architecture
+restart_gitea
 
 # SETUP FAIL2BAN
 ynh_script_progression --message="Configuring fail2ban..."
@@ -225,6 +234,9 @@ fi
 # Add gitea to YunoHost's monitored services
 ynh_script_progression --message="Register gitea service..."
 yunohost service add "$app" --log "/var/log/$app/gitea.log"
+
+# Add ssh permission for gitea user
+adduser $app ssh.app
 
 # Set permissions
 ynh_script_progression --message="Protecting directory"

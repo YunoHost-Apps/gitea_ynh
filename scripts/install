@@ -66,6 +66,8 @@ ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
 # Add users
 ynh_script_progression --message="Configuring system user..."
 ynh_system_user_create --username=$app --home_dir=/home/$app --use_shell
+# Add ssh permission for gitea user
+adduser $app ssh.app
 
 # create needed directories
 create_dir
