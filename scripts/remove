@@ -27,7 +27,7 @@ systemctl stop "$app".service
 # Drop MySQL database and user
 ynh_script_progression --message="Removing databases..."
 ynh_mysql_drop_db "$dbname" 2>/dev/null
-ynh_mysql_drop_user "$dbuser" 2>/dev/null
+ynh_mysql_drop_user "$db_user" 2>/dev/null
 
 # Delete app directory and configurations
 ynh_script_progression --message="Removing code..."
@@ -58,7 +58,7 @@ yunohost service remove "$app"
 ynh_script_progression --message="Removing fail2ban configuration..."
 ynh_remove_fail2ban_config
 
-ynh_print_info --message="Due of the backup core only feature the data directory in '$DATADIR' was not removed. It need to be removed manually to purge app user data."
+ynh_print_info --message="Due of the backup core only feature the data directory in '$datadir' was not removed. It need to be removed manually to purge app user data."
 
 ynh_script_progression --message="Removal of $app completed" --last
 sleep 1

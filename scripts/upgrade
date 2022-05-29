@@ -18,10 +18,9 @@ ynh_abort_if_errors
 ynh_script_progression --message="Loading installation settings..."
 domain=$(ynh_app_setting_get --app $app --key domain)
 path_url=$(ynh_normalize_url_path --path_url $(ynh_app_setting_get --app $app --key path))
-dbpass=$(ynh_app_setting_get --app $app --key mysqlpwd)
+db_password=$(ynh_app_setting_get --app $app --key mysqlpwd)
 admin=$(ynh_app_setting_get --app $app --key adminusername)
 key=$(ynh_app_setting_get --app $app --key secret_key)
-is_public=$(ynh_app_setting_get --app $app --key is_public)
 port=$(ynh_app_setting_get --app $app --key web_port)
 upstream_version=$(ynh_app_setting_get --app $app --key upstream_version)
 
@@ -56,16 +55,16 @@ ynh_handle_app_migration --migration_id=gogs --migration_list=gogs_migrations
 if [[ $migration_process -eq 1 ]]; then
     # Reload variables
     dbname=$app
-    dbuser=$app
+    db_user=$app
     final_path="/opt/$app"
-    DATADIR="/home/$app"
-    REPO_PATH="$DATADIR/repositories"
-    DATA_PATH="$DATADIR/data"
+    datadir="/home/""$app"
+    repos_path="$datadir/repositories"
+    data_path="$datadir/data"
 
     # Replace the user
     ynh_system_user_delete $old_app
     test getent passwd "$app" &>/dev/null || \
-        useradd -d "$DATADIR" --system --user-group "$app" --shell /bin/bash || \
+        useradd -d "$datadir" --system --user-group "$app" --shell /bin/bash || \
             ynh_die --message "Unable to create $app system account"
 
     # Clean old binary
@@ -74,19 +73,24 @@ if [[ $migration_process -eq 1 ]]; then
 
     # Restore authentication from SQL database
     ynh_replace_string --match_string __APP__ --replace_string "$app" --target_file ../conf/login_source.sql
-    ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ../conf/login_source.sql
+    ynh_mysql_connect_as "$db_user" "$db_password" "$dbname" < ../conf/login_source.sql
 
     # Fix hooks
-    if [[ -e $REPO_PATH ]];then
-        ls $REPO_PATH/*/*.git/hooks/pre-receive | while read p; do
+    if [[ -e $repos_path ]];then
+        ls $repos_path/*/*.git/hooks/pre-receive | while read p; do
             ynh_secure_remove --file=$p
         done
-        ls $REPO_PATH/*/*.git/hooks/post-receive | while read p; do
+        ls $repos_path/*/*.git/hooks/post-receive | while read p; do
             ynh_secure_remove --file=$p
         done
     fi
 
     upstream_version="0.0.1"
+fi
+
+# Move data directory
+if [ -e "/home/""$app" ] && [ ! -e $datadir ]; then
+    mv "/home/""$app" "$datadir"
 fi
 
 #=================================================
@@ -224,11 +228,7 @@ if ! ynh_permission_exists --permission admin; then
     ynh_permission_create --permission 'admin' --allowed "$admin"
     # Update ldap config
     ynh_replace_string --match_string "__APP__" --replace_string "$app" --target_file ../conf/login_source.sql
-    ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ../conf/login_source.sql
-fi
-if [ "$is_public" == '1' ];
-then
-    ynh_permission_update --permission "main" --add "visitors"
+    ynh_mysql_connect_as "$db_user" "$db_password" "$dbname" < ../conf/login_source.sql
 fi
 
 # Add gitea to YunoHost's monitored services
@@ -245,13 +245,9 @@ set_permission
 # Save Version
 ynh_app_setting_set --app $app --key upstream_version --value $(ynh_app_upstream_version)
 
-# Unprotect root from SSO if public
-ynh_script_progression --message="Configuring permissions..."
-set_access_settings
-
 # Reload services
 ynh_script_progression --message="Starting gitea services..." --weight=3
-ynh_systemd_action -l "Starting new server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 10
+ynh_systemd_action -l "Starting new Web server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 10
 sleep 1
 
 # Store the checksum with the 'INTERNAL_TOKEN' value.
