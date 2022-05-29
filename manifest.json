@@ -6,9 +6,15 @@
         "en": "Lightweight Git forge",
         "fr": "Forge Git légère"
     },
+    "upstream": {
+        "license": "free",
+        "website": "https://gitea.io/",
+        "admindoc": "https://docs.gitea.io/",
+        "code": "https://github.com/go-gitea/gitea"
+    },
     "url": "http://gitea.io",
     "license": "MIT",
-    "version": "1.16.4~ynh1",
+    "version": "1.16.8~ynh1",
     "maintainer": {
         "name": "Josué Tille",
         "email": "josue@tille.ch"
@@ -29,39 +35,20 @@
         "install" : [
             {
                 "name": "domain",
-                "type": "domain",
-                "ask": {
-                    "en": "Choose a domain for Gitea",
-                    "fr": "Choisissez un domaine pour Gitea"
-                },
-                "example": "domain.org"
+                "type": "domain"
             },
             {
                 "name": "path",
                 "type": "path",
-                "ask": {
-                    "en": "Choose a path for Gitea",
-                    "fr": "Choisissez un chemin pour Gitea"
-                },
-                "example": "/gitea",
                 "default": "/gitea"
             },
             {
                 "name": "admin",
-                "type": "user",
-                "ask": {
-                    "en": "Choose the Gitea administrator (must be an existing YunoHost user)",
-                    "fr": "Choisissez l'administrateur de Gitea (doit être un utilisateur YunoHost existant)"
-                },
-                "example": "johndoe"
+                "type": "user"
             },
             {
                 "name": "is_public",
                 "type": "boolean",
-                "ask": {
-                    "en": "Is it a public site?",
-                    "fr": "Est-ce un site public ?"
-                },
 				"help": { 
 					"en": "A public server means that everybody is able to access to the main page of the forge, on the public profile of the user and on the public repository. But you still can limit the access to each repository if you set it as private. Note that to be able to use the remote Git command (clone, pull, push) with HTTP and to use the API by (by example with a smartphone), you need to set this application as public.",
 					"fr": "Un serveur public signifie que tout le monde peut accéder à la page principale de la forge, au profil public des utilisateurs et aux dépôts publics. Vous pouvez également définir les dépôts comme étant privés. Notez que pour pouvoir utiliser les commandes Git distantes (clone, pull, push) avec HTTP et pour pouvoir utiliser l'API (par exemple avec un smartphone), vous devez paramétrer cette application comme étant publique."

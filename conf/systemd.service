@@ -15,10 +15,10 @@ After=slapd.service
 Type=simple
 User=__APP__
 Group=__APP__
-WorkingDirectory=/home/__APP__
+WorkingDirectory=/home/yunohost.app/__APP__
 ExecStart=/opt/__APP__/gitea web
 Restart=always
-Environment=USER=__APP__ HOME=/home/__APP__
+Environment=USER=__APP__ HOME=/home/yunohost.app/__APP__
 
 # Sandboxing options to harden security
 # Depending on specificities of your service/app, you may need to tweak these 
