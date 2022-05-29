@@ -3,45 +3,61 @@
 #=================================================
 # GENERIC START
 #=================================================
-
-# Load common variables and helpers
-source ./experimental_helper.sh
-source ./_common.sh
-
 # IMPORT GENERIC HELPERS
+#=================================================
+
+source _common.sh
 source /usr/share/yunohost/helpers
 
-# Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
-
-# Retrieve app settings
+#=================================================
+# LOAD SETTINGS
+#=================================================
 ynh_script_progression --message="Loading installation settings..."
-domain=$(ynh_app_setting_get --app $app --key domain)
-path_url=$(ynh_normalize_url_path --path_url $(ynh_app_setting_get --app $app --key path))
-db_password=$(ynh_app_setting_get --app $app --key mysqlpwd)
-admin=$(ynh_app_setting_get --app $app --key adminusername)
-key=$(ynh_app_setting_get --app $app --key secret_key)
-port=$(ynh_app_setting_get --app $app --key web_port)
+
+app=$YNH_APP_INSTANCE_NAME
+
+domain=$(ynh_app_setting_get --app=$app --key=domain)
+path_url=$(ynh_app_setting_get --app=$app --key=path)
+admin=$(ynh_app_setting_get --app=$app --key=admin)
+final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+db_user=$db_name
+db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+port=$(ynh_app_setting_get --app=$app --key=port)
+secret_key=$(ynh_app_setting_get --app=$app --key=secret_key)
+
 upstream_version=$(ynh_app_setting_get --app $app --key upstream_version)
+
+#=================================================
+# CHECK VERSION
+#=================================================
+ynh_script_progression --message="Checking version..."
+
+upgrade_type=$(ynh_check_app_version_changed)
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
-ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=10
-
-# We stop the service before to set ynh_clean_setup
-ynh_systemd_action --service_name=$app.service --action=stop
+ynh_script_progression --message="Backing up the app before upgrading (may take a while)..."
 
 # Backup the current version of the app
-if [ "0$(ynh_app_setting_get --app=$app --key=disable_backup_before_upgrade)" -ne 1 ]
-then
-    ynh_backup_before_upgrade
-    ynh_clean_setup () {
-        # Clean installation remainings that are not handled by the remove script.
-        ynh_clean_check_starting
-        ynh_restore_upgradebackup
-    }
-fi
+ynh_backup_before_upgrade
+ynh_clean_setup () {
+	ynh_clean_check_starting
+	# Restore it if the upgrade fails
+	ynh_restore_upgradebackup
+}
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+#=================================================
+# STANDARD UPGRADE STEPS
+#=================================================
+# STOP SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message="Stopping a systemd service..."
+
+ynh_systemd_action --service_name=$app --action="stop"
 
 #=================================================
 # MIGRATION FROM GOGS
@@ -76,11 +92,11 @@ if [[ $migration_process -eq 1 ]]; then
     ynh_mysql_connect_as "$db_user" "$db_password" "$dbname" < ../conf/login_source.sql
 
     # Fix hooks
-    if [[ -e $repos_path ]];then
-        ls $repos_path/*/*.git/hooks/pre-receive | while read p; do
+    if [[ -e $datadir/repositories ]];then
+        ls $datadir/repositories/*/*.git/hooks/pre-receive | while read p; do
             ynh_secure_remove --file=$p
         done
-        ls $repos_path/*/*.git/hooks/post-receive | while read p; do
+        ls $datadir/repositories/*/*.git/hooks/post-receive | while read p; do
             ynh_secure_remove --file=$p
         done
     fi
@@ -89,137 +105,10 @@ if [[ $migration_process -eq 1 ]]; then
 fi
 
 # Move data directory
-if [ -e "/home/""$app" ] && [ ! -e $datadir ]; then
-    mv "/home/""$app" "$datadir"
+if [ -e "/home/$app" ] && [ ! -e $datadir ]; then
+    mv "/home/$app" "$datadir"
 fi
 
-#=================================================
-# STANDARD UPGRADE STEPS
-#=================================================
-
-ynh_script_progression --message="Configuring application..."
-
-# Clean template to fix issue : https://github.com/gogits/gogs/issues/4585
-ynh_secure_remove --file="/opt/$app/templates"
-
-# Configure gitea with app.ini file
-config_gitea
-
-# Configure init script
-ynh_script_progression --message="Updating systemd units..."
-ynh_add_systemd_config
-
-# Modify Nginx configuration file and copy it to Nginx conf directory
-ynh_script_progression --message="Configuring nginx..." --weight=1
-config_nginx
-
-#=================================================
-# DB migration
-#=================================================
-
-ynh_script_progression --message="Upgrading database and sources..." --weight=6
-
-# Before the version 1.7 the upstream version was not stored
-# The way to find the version for the install < 1.7 is to parse the binary file to find which version is installed
-if [ -z ${upstream_version:-} ]; then
-    for version in "0.0." "1.0." "1.1." "1.2." "1.3." "1.4." "1.5." "1.6." "1.7."; do
-        if strings $final_path/gitea | grep -P "^${version//./\\.}\d"; then
-            upstream_version="${version}0"
-            break
-        fi
-    done
-fi
-
-restart_gitea() {
-    # Set permissions
-    set_permission
-    ynh_systemd_action -l "Starting new server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 30
-    # Leave the time to update the database schema
-    sleep 5
-    systemctl stop $app
-}
-
-case $upstream_version in
-"0.0."* )
-    ynh_setup_source $final_path source/${architecture}_1.0
-    set_permission
-    systemctl start $app
-    sleep 20
-    systemctl stop $app
-;&
-"1.0."* )
-    ynh_setup_source $final_path source/${architecture}_1.1
-    restart_gitea
-;&
-"1.1."* )
-    ynh_setup_source $final_path source/${architecture}_1.2
-    restart_gitea
-;&
-"1.2."* )
-    ynh_setup_source $final_path source/${architecture}_1.3
-    restart_gitea
-;&
-"1.3."* )
-    ynh_setup_source $final_path source/${architecture}_1.4
-    restart_gitea
-;&
-"1.4."* )
-    ynh_setup_source $final_path source/${architecture}_1.5
-    restart_gitea
-;&
-"1.5."* )
-    ynh_setup_source $final_path source/${architecture}_1.6
-    restart_gitea
-;&
-"1.6."* )
-    ynh_setup_source $final_path source/${architecture}_1.7
-    restart_gitea
-;&
-"1.7."* )
-    ynh_setup_source $final_path source/${architecture}_1.8
-    restart_gitea
-;&
-"1.8."* )
-    ynh_setup_source $final_path source/${architecture}_1.9
-    restart_gitea
-;&
-"1.9."* )
-    ynh_setup_source $final_path source/${architecture}_1.10
-    restart_gitea
-;&
-"1.10."* )
-    ynh_setup_source $final_path source/${architecture}_1.11
-    restart_gitea
-;&
-"1.11."* )
-    ynh_setup_source $final_path source/${architecture}_1.12
-    restart_gitea
-;&
-"1.12."* )
-    ynh_setup_source $final_path source/${architecture}_1.13
-    restart_gitea
-;&
-"1.13."* )
-    ynh_setup_source $final_path source/${architecture}_1.14
-    restart_gitea
-;&
-"1.14."* )
-    ynh_setup_source $final_path source/${architecture}_1.15
-    restart_gitea
-;&
-esac
-
-# Install gitea source
-ynh_setup_source $final_path source/$architecture
-restart_gitea
-
-# SETUP FAIL2BAN
-ynh_script_progression --message="Configuring fail2ban..."
-ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
-
-#=================================================
-# GENERIC FINALIZATION
-#=================================================
 
 # Set all permissions
 ynh_script_progression --message="Update permission..."
@@ -231,35 +120,124 @@ if ! ynh_permission_exists --permission admin; then
     ynh_mysql_connect_as "$db_user" "$db_password" "$dbname" < ../conf/login_source.sql
 fi
 
-# Add gitea to YunoHost's monitored services
-ynh_script_progression --message="Register gitea service..."
-yunohost service add "$app" --log "/var/log/$app/gitea.log"
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
+ynh_script_progression --message="Making sure dedicated system user exists..."
+
+# Create a dedicated user (if not existing)
+ynh_system_user_create --username=$app --home_dir="$final_path" --home_dir=$datadir --use_shell
 
 # Add ssh permission for gitea user
 adduser $app ssh.app
 
-# Set permissions
-ynh_script_progression --message="Protecting directory"
-set_permission
+#=================================================
+# DOWNLOAD, CHECK AND UNPACK SOURCE
+#=================================================
+
+if [ "$upgrade_type" == "UPGRADE_APP" ]
+then
+	ynh_script_progression --message="Upgrading source files..."
+
+	# Download, check integrity, uncompress and patch the source from app.src
+	ynh_setup_source --dest_dir="$final_path" --source_id="$YNH_ARCH" --keep="custom/conf/app.ini"
+fi
+
+# create needed directories
+mkdir -p "$final_path/data"
+mkdir -p "$final_path/custom/conf"
+
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chmod u=rwX,g=rX,o= "$final_path"
+chmod u=rwx,g=rx,o= "$final_path/gitea"
+chmod u=rwx,g=rx,o= "$final_path/custom/conf/app.ini"
+chown -R $app:$app "$final_path"
+
+mkdir -p "/var/log/$app"
+chown -R $app:$app "/var/log/$app"
+chmod u=rwX,g=rX,o= "/var/log/$app"
 
 # Save Version
-ynh_app_setting_set --app $app --key upstream_version --value $(ynh_app_upstream_version)
+ynh_app_setting_set --app=$app --key=upstream_version --value=$upstream_version
 
-# Reload services
-ynh_script_progression --message="Starting gitea services..." --weight=3
-ynh_systemd_action -l "Starting new Web server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 10
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+ynh_script_progression --message="Upgrading NGINX web server configuration..."
+
+# Create a dedicated NGINX config
+ynh_add_nginx_config
+
+#=================================================
+# SPECIFIC UPGRADE
+#=================================================
+# UPDATE A CONFIG FILE
+#=================================================
+ynh_script_progression --message="Updating a configuration file..."
+
+# Clean template to fix issue : https://github.com/gogits/gogs/issues/4585
+ynh_secure_remove --file="$final_path/templates"
+
+# Configure gitea with app.ini file
+ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
+ynh_add_config --template="app.ini" --destination="$final_path/custom/conf/app.ini"
+
+#=================================================
+# SETUP SYSTEMD
+#=================================================
+ynh_script_progression --message="Upgrading systemd configuration..."
+
+# Create a dedicated systemd config
+ynh_add_systemd_config
+
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+# SETUP LOGROTATE
+#=================================================
+ynh_script_progression --message="Upgrading logrotate configuration..."
+
+# Use logrotate to manage app-specific logfile(s)
+ynh_use_logrotate --non-append
+
+#=================================================
+# INTEGRATE SERVICE IN YUNOHOST
+#=================================================
+ynh_script_progression --message="Integrating service in YunoHost..."
+
+yunohost service add $app --log="/var/log/$app/gitea.log"
+
+#=================================================
+# START SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message="Starting a systemd service..."
+
+# Start a systemd service
+ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/gitea.log" --line_match="Starting new Web server: tcp:127.0.0.1:" --timeout=10
 sleep 1
 
-# Store the checksum with the 'INTERNAL_TOKEN' value.
-# Should be removed when the issue https://github.com/go-gitea/gitea/issues/3246 is fixed
-ynh_store_file_checksum --file "$final_path/custom/conf/app.ini"
+#=================================================
+# UPGRADE FAIL2BAN
+#=================================================
+ynh_script_progression --message="Reconfiguring Fail2Ban..."
+
+# Create a dedicated Fail2Ban config
+ynh_add_fail2ban_config --logpath="/var/log/$app/gitea.log" --failregex=".*Failed authentication attempt for .* from <HOST>" --max_retry=5
+
+#=================================================
+# RELOAD NGINX
+#=================================================
+ynh_script_progression --message="Reloading NGINX web server..."
+
+ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
 # FINISH MIGRATION PROCESS
 #=================================================
 
 if [[ $migration_process -eq 1 ]]; then
-    echo "gogs has been successfully migrated to Gitea! \
+    ynh_script_progression --message="gogs has been successfully migrated to Gitea! \
 A last scheduled operation will run in a couple of minutes to finish the \
 migration in YunoHost side. Do not proceed any application operation while \
 you don't see Gogs as installed." >&2
@@ -274,4 +252,8 @@ you don't see Gogs as installed." >&2
     (cd /tmp; echo "/tmp/$script_post_migration > /tmp/$script_post_migration.log 2>&1" | at now + 2 minutes)
 fi
 
-ynh_script_progression --message="Upgrade of $app completed" --last
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_script_progression --message="Upgrade of $app completed"

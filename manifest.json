@@ -6,15 +6,15 @@
         "en": "Lightweight Git forge",
         "fr": "Forge Git légère"
     },
+    "version": "1.16.8~ynh1",
+    "url": "https://gitea.io",
     "upstream": {
         "license": "free",
         "website": "https://gitea.io/",
         "admindoc": "https://docs.gitea.io/",
         "code": "https://github.com/go-gitea/gitea"
     },
-    "url": "http://gitea.io",
     "license": "MIT",
-    "version": "1.16.8~ynh1",
     "maintainer": {
         "name": "Josué Tille",
         "email": "josue@tille.ch"
@@ -23,16 +23,16 @@
         "name": "rafi59",
         "email": "rafi59_dev@srvmaison.fr.nf"
     },
+    "requirements": {
+        "yunohost": ">= 4.3.0"
+    },
     "multi_instance": true,
     "services": [
         "nginx",
         "mysql"
     ],
-    "requirements": {
-        "yunohost": ">= 4.2.6.1"
-    },
     "arguments": {
-        "install" : [
+        "install": [
             {
                 "name": "domain",
                 "type": "domain"
@@ -40,11 +40,8 @@
             {
                 "name": "path",
                 "type": "path",
+                "example": "/gitea",
                 "default": "/gitea"
-            },
-            {
-                "name": "admin",
-                "type": "user"
             },
             {
                 "name": "is_public",
@@ -54,6 +51,10 @@
 					"fr": "Un serveur public signifie que tout le monde peut accéder à la page principale de la forge, au profil public des utilisateurs et aux dépôts publics. Vous pouvez également définir les dépôts comme étant privés. Notez que pour pouvoir utiliser les commandes Git distantes (clone, pull, push) avec HTTP et pour pouvoir utiliser l'API (par exemple avec un smartphone), vous devez paramétrer cette application comme étant publique."
 				},
                 "default": true
+            },
+            {
+                "name": "admin",
+                "type": "user"
             }
         ]
     }

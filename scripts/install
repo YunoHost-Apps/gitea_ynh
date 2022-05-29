@@ -3,101 +3,167 @@
 #=================================================
 # GENERIC START
 #=================================================
-
-# Load common variables and helpers
-source ./experimental_helper.sh
-source ./_common.sh
-
 # IMPORT GENERIC HELPERS
+#=================================================
+
+source _common.sh
 source /usr/share/yunohost/helpers
 
+#=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
+
+ynh_clean_setup () {
+	ynh_clean_check_starting
+}
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
 
-ynh_script_progression --message="Validating installation parameters..."
+#=================================================
+# RETRIEVE ARGUMENTS FROM THE MANIFEST
+#=================================================
 
-# Retrieve arguments
 domain=$YNH_APP_ARG_DOMAIN
 path_url=$YNH_APP_ARG_PATH
-admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
+admin=$YNH_APP_ARG_ADMIN
+
+app=$YNH_APP_INSTANCE_NAME
+
 upstream_version=$(ynh_app_upstream_version)
+secret_key=$(ynh_string_random)
+
+#=================================================
+# CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
+#=================================================
+ynh_script_progression --message="Validating installation parameters..."
+
+final_path=/opt/$app
+test ! -e "$final_path" || ynh_die --message="This path already contains a folder"
 
 # Register (book) web path
-ynh_webpath_register --app $app --domain $domain --path_url $path_url
+ynh_webpath_register --app=$app --domain=$domain --path_url=$path_url
 
-# Check user parameter
-ynh_user_exists "$admin" \
-  || ynh_die --message "The chosen admin user does not exist."
-
-# Check Final Path availability
-test ! -e "$final_path" || ynh_die --message "This path already contains a folder"
-
-if [ -e "$datadir" ]; then
-    old_data_dir_path="$datadir$(date '+%Y%m%d.%H%M%S')"
-    ynh_print_warn "A data directory already exist. Data was renamed to $old_data_dir_path"
-    mv "$datadir" "$old_data_dir_path"
-fi
-
-# Generate random password and key
-ynh_script_progression --message="Defining db password and key..."
-db_password=$(ynh_string_random)
-key=$(ynh_string_random)
-
-# Find available ports
-port=$(ynh_find_port --port 6000)
-
-# Store Settings
+#=================================================
+# STORE SETTINGS FROM MANIFEST
+#=================================================
 ynh_script_progression --message="Storing installation settings..."
-ynh_app_setting_set --app $app --key mysqlpwd --value $db_password
-ynh_app_setting_set --app $app --key adminusername --value $admin
-ynh_app_setting_set --app $app --key secret_key --value $key
-ynh_app_setting_set --app $app --key web_port --value $port
+
+ynh_app_setting_set --app=$app --key=domain --value=$domain
+ynh_app_setting_set --app=$app --key=path --value=$path_url
+ynh_app_setting_set --app=$app --key=admin --value=$admin
+ynh_app_setting_set --app=$app --key=mysqlpwd --value=$db_password
+ynh_app_setting_set --app=$app --key=secret_key --value=$key
+ynh_app_setting_set --app=$app --key=upstream_version --value=$upstream_version
 
 #=================================================
 # STANDARD MODIFICATIONS
 #=================================================
+# FIND AND OPEN A PORT
+#=================================================
+ynh_script_progression --message="Finding an available port..."
 
-# Initialize database and store mysql password for upgrade
-ynh_script_progression --message="Configuring MySQL database..."
-ynh_mysql_create_db "$dbname" "$db_user" "$db_password"
+# Find an available port
+port=$(ynh_find_port --port=6000)
+ynh_app_setting_set --app=$app --key=port --value=$port
 
-# Add users
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
 ynh_script_progression --message="Configuring system user..."
-ynh_system_user_create --username=$app --home_dir=$datadir --use_shell
+
+# Create a system user
+ynh_system_user_create --username=$app --home_dir="$final_path" --home_dir=$datadir --use_shell
 # Add ssh permission for gitea user
 adduser $app ssh.app
 
-# create needed directories
-create_dir
+#=================================================
+# CREATE A MYSQL DATABASE
+#=================================================
+ynh_script_progression --message="Creating a MySQL database..."
 
-# Configure init script
+db_name=$(ynh_sanitize_dbid --db_name=$app)
+db_user=$db_name
+ynh_app_setting_set --app=$app --key=db_name --value=$db_name
+ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
+
+#=================================================
+# DOWNLOAD, CHECK AND UNPACK SOURCE
+#=================================================
+ynh_script_progression --message="Setting up source files..."
+
+ynh_app_setting_set --app=$app --key=final_path --value=$final_path
+# Download, check integrity, uncompress and patch the source from app.src
+ynh_setup_source --dest_dir="$final_path" --source_id="$YNH_ARCH"
+
+# create needed directories
+mkdir -p "$final_path/data"
+mkdir -p "$final_path/custom/conf"
+
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chmod u=rwX,g=rX,o= "$final_path"
+chmod u=rwx,g=rx,o= "$final_path/gitea"
+chmod u=rwx,g=rx,o= "$final_path/custom/conf/app.ini"
+chown -R $app:$app "$final_path"
+
+mkdir -p "/var/log/$app"
+chown -R $app:$app "/var/log/$app"
+chmod u=rwX,g=rX,o= "/var/log/$app"
+
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+ynh_script_progression --message="Configuring NGINX web server..." --weight=1
+
+# Create a dedicated NGINX config
+ynh_add_nginx_config
+
+#=================================================
+# CREATE DATA DIRECTORY
+#=================================================
+ynh_script_progression --message="Creating a data directory..."
+
+datadir=/home/yunohost.app/$app
+ynh_app_setting_set --app=$app --key=datadir --value=$datadir
+
+mkdir -p $datadir
+mkdir -p "$datadir/.ssh"
+mkdir -p "$datadir/repositories"
+mkdir -p "$datadir/data/avatars"
+mkdir -p "$datadir/data/attachments"
+
+chmod 750 "$datadir"
+chmod -R o-rwx "$datadir"
+chown -R $app:www-data "$datadir"
+
+#=================================================
+# ADD A CONFIGURATION
+#=================================================
+ynh_script_progression --message="Adding a configuration file..."
+
+ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
+ynh_add_config --template="app.ini" --destination="$final_path/custom/conf/app.ini"
+
+chmod 400 "$final_path/custom/conf/app.ini"
+chown $app:$app "$final_path/custom/conf/app.ini"
+
+#=================================================
+# SETUP SYSTEMD
+#=================================================
 ynh_script_progression --message="Configuring a systemd service..." --weight=2
+
+# Create a dedicated systemd config
 ynh_add_systemd_config
 
-# Modify Nginx configuration file and copy it to Nginx conf directory
-ynh_script_progression --message="Configuring nginx..." --weight=1
-config_nginx
+#=================================================
+# SETUP APPLICATION
+#=================================================
+ynh_script_progression --message="Setuping application..."
 
-# Configure gitea with app.ini file
-ynh_script_progression --message="Configuring application, step 1/2..."
-config_gitea
+ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/gitea.log"
 
-ynh_script_progression --message="Installing sources files..." --weight=10
-
-# Install gitea
-ynh_setup_source $final_path source/$architecture
-
-# Set permissions
-ynh_script_progression --message="Protecting directory"
-set_permission
-
-ynh_script_progression --message="Configuring application, step 2/2..."
-
-# Start gitea for building mysql tables
-systemctl start "$app".service
-
-# Wait untill login_source mysql table is created
+# Wait until login_source mysql table is created
 while ! $(ynh_mysql_connect_as "$db_user" "$db_password" "$dbname"  <<< "SELECT * FROM login_source;" &>/dev/null)
 do
     sleep 2
@@ -107,43 +173,64 @@ done
 ynh_replace_string --match_string "__APP__" --replace_string "$app" --target_file ../conf/login_source.sql
 ynh_mysql_connect_as "$db_user" "$db_password" "$dbname" < ../conf/login_source.sql
 
-# SETUP FAIL2BAN
-ynh_script_progression --message="Configuring fail2ban..."
-ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
-
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
-
-# Unprotect root from SSO if public
-ynh_script_progression --message="Configuring permissions..."
-if [ "$is_public" == '1' ];
-then
-    ynh_permission_update --permission "main" --add "visitors"
-fi
-
-# Create permission
-ynh_script_progression --message="Configuring permissions"
-ynh_permission_create --permission="admin" --allowed=$admin
-
-# Add gitea to YunoHost's monitored services
-ynh_script_progression --message="Register gitea service..."
-yunohost service add "$app" --log "/var/log/$app/gitea.log"
-
-# Configure logrotate
+# SETUP LOGROTATE
+#=================================================
 ynh_script_progression --message="Configuring log rotation..."
+
+# Use logrotate to manage application logfile(s)
 ynh_use_logrotate --logfile "/var/log/$app"
 
-# Save Version
-ynh_app_setting_set --app $app --key upstream_version --value $(ynh_app_upstream_version)
+#=================================================
+# INTEGRATE SERVICE IN YUNOHOST
+#=================================================
+ynh_script_progression --message="Integrating service in YunoHost..."
 
-# Reload services
-ynh_script_progression --message="Starting gitea services..." --weight=3
-ynh_systemd_action -l "Starting new Web server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 10
+yunohost service add $app --log="/var/log/$app/gitea.log"
+
+#=================================================
+# START SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message="Starting a systemd service..."
+
+# Start a systemd service
+ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/gitea.log" --line_match="Starting new Web server: tcp:127.0.0.1:" --timeout=10
 sleep 1
 
-# Store the checksum with the 'INTERNAL_TOKEN' value.
-# Should be removed when the issue https://github.com/go-gitea/gitea/issues/3246 is fixed
-ynh_store_file_checksum --file "$final_path/custom/conf/app.ini"
+#=================================================
+# SETUP FAIL2BAN
+#=================================================
+ynh_script_progression --message="Configuring Fail2Ban..."
+
+# Create a dedicated Fail2Ban config
+ynh_add_fail2ban_config --logpath="/var/log/$app/gitea.log" --failregex=".*Failed authentication attempt for .* from <HOST>" --max_retry=5
+
+#=================================================
+# SETUP SSOWAT
+#=================================================
+ynh_script_progression --message="Configuring permissions..."
+
+# Make app public if necessary
+if [ $is_public -eq 1 ]
+then
+	# Everyone can access the app.
+	# The "main" permission is automatically created before the install script.
+	ynh_permission_update --permission="main" --add="visitors"
+fi
+
+ynh_permission_create --permission="admin" --allowed=$admin
+
+#=================================================
+# RELOAD NGINX
+#=================================================
+ynh_script_progression --message="Reloading NGINX web server..."
+
+ynh_systemd_action --service_name=nginx --action=reload
+
+#=================================================
+# END OF SCRIPT
+#=================================================
 
 ynh_script_progression --message="Installation of $app completed" --last
