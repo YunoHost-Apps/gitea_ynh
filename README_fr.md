@@ -15,7 +15,7 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 ## Vue d'ensemble
 
-Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to Github.
+Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to GitHub.
 
 
 **Version incluse :** 1.16.8~ynh1
@@ -26,12 +26,11 @@ Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to 
 
 ## Avertissements / informations importantes
 
-Additional informations
------------------------
+## Additional informations
 
 ### Notes on SSH usage
 
-If you want to use Gitea with ssh and be able to pull/push with you ssh key, your ssh daemon must be properly configured to use private/public keys. Here is a sample configuration of `/etc/ssh/sshd_config` that works with Gitea:
+If you want to use Gitea with SSH and be able to pull/push with your SSH key, your SSH daemon must be properly configured to use private/public keys. Here is a sample configuration `/etc/ssh/sshd_config` that works with Gitea:
 
 ```bash
 PubkeyAuthentication yes
@@ -41,9 +40,9 @@ PasswordAuthentication no
 UsePAM no
 ```
 
-You also need to add your public key to your Gitea profile.
+You must also add your public key to your Gitea profile.
 
-If you use ssh on another port than 22, you need to add theses lines to your ssh config in `~/.ssh/config`:
+When using SSH on any port other than 22, you need to add these lines to your SSH configuration `~/.ssh/config`:
 
 ```bash
 Host domain.tld
@@ -52,13 +51,13 @@ Host domain.tld
 
 ### Upgrade
 
-By default a backup is made before the upgrade. To avoid this you have theses following possibilites:
-- Pass the `NO_BACKUP_UPGRADE` env variable with `1` at each upgrade. By example `NO_BACKUP_UPGRADE=1 yunohost app upgrade gitea`.
-- Set the settings `disable_backup_before_upgrade` to `1`. You can set this with this command:
+By default, a backup is performed before upgrading. To avoid this, you have the following options:
+- Pass the `NO_BACKUP_UPGRADE` env variable with `1` at each upgrade. For example `NO_BACKUP_UPGRADE=1 yunohost app upgrade gitea`.
+- Set `disable_backup_before_upgrade` to `1`. You can set it with this command:
 
 `yunohost app setting gitea disable_backup_before_upgrade -v 1`
 
-After this settings will be applied for **all** next upgrade.
+After that, the settings will be applied for **all** the next updates.
 
 From command line:
 
@@ -66,43 +65,44 @@ From command line:
 
 ### Backup
 
-This app use now the core-only feature of the backup. To keep the integrity of the data and to have a better guarantee of the restoration is recommended to proceed like this:
+This application now uses the core-only feature of the backup. To keep the integrity of the data and to have a better guarantee of the restoration it is recommended to proceed as follows:
 
-- Stop gitea service with theses following command:
+- Stop Gitea service with this command:
 
 `systemctl stop gitea.service`
 
-- Launch the backup of gitea with this following command:
+- Launch Gitea backup with this command:
 
 `yunohost backup create --app gitea`
 
-- Do a backup of your data with your specific strategy (could be with rsync, borg backup or just cp). The data is generally stored in `/home/yunohost.app/gitea`.
-- Restart the gitea service with theses command:
+- Backup your data with your specific strategy (could be with rsync, borg backup or just cp). The data is generally stored in `/home/yunohost.app/gitea`.
+- Restart Gitea service with theses command:
 
 `systemctl start gitea.service`
 
 ### Remove
 
-Due of the backup core only feature the data directory in `/home/yunohost.app/gitea` **is not removed**. It need to be removed manually to purge app user data.
+Due of the backup core only feature the data directory in `/home/yunohost.app/gitea` **is not removed**. It must be manually deleted to purge user data from the app.
 
 ### LFS setup
-To use a repository with an `LFS` setup, you need to activate-it on `/opt/gitea/custom/conf/app.ini`
+To use a repository with an `LFS` setup, you need to activate it on `/opt/gitea/custom/conf/app.ini`
+
 ```ini
 [server]
 LFS_START_SERVER = true
 LFS_HTTP_AUTH_EXPIRY = 20m
 ```
-By default Nginx is setup with a max value to updload files at 200 Mo. It's possible to change this value on `/etc/nginx/conf.d/my.domain.tld.d/gitea.conf`.
+By default, NGINX is configured with a maximum value for uploading files at 200 MB. It's possible to change this value on `/etc/nginx/conf.d/my.domain.tld.d/gitea.conf`.
 ```
 client_max_body_size 200M;
 ```
 Don't forget to restart Gitea `sudo systemctl restart gitea.service`.
 
-> This settings are restored to the default config when Gitea is updated. Don't forget to restore your setup after all updates.
+> These settings are restored to the default configuration when updating Gitea. Remember to restore your configuration after all updates.
 
 ### Git command access with HTTPS
 
-If you want to use the git command (like `git clone`, `git pull`, `git push`), you need to set this app as **public**.
+If you want to use the Git command (like `git clone`, `git pull`, `git push`), you need to set this app as **public**.
 
 ## Documentations et ressources
 
