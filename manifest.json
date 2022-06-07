@@ -7,7 +7,7 @@
         "fr": "Forge Git légère"
     },
     "upstream": {
-        "license": "free",
+        "license": "MIT",
         "website": "https://gitea.io/",
         "admindoc": "https://docs.gitea.io/",
         "code": "https://github.com/go-gitea/gitea"
