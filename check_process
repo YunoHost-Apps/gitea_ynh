@@ -13,7 +13,8 @@
         setup_private=1
         setup_public=1
         upgrade=1
-        #upgrade=1   from_commit=
+        #1.14.5
+        upgrade=1   from_commit=7ea357724f2371aa1173f15ba5a7502609a0a131
         backup_restore=1
         multi_instance=1
         change_url=1
@@ -21,6 +22,6 @@
 Email=
 Notification=none
 ;;; Upgrade options
-    ; commit=CommitHash
-        name=Name and date of the commit.
+    ; commit=7ea357724f2371aa1173f15ba5a7502609a0a131
+        name=1.14.5
         manifest_arg=domain=DOMAIN&path=PATH&is_public=1&language=fr&admin=USER&password=pass&port=666&
