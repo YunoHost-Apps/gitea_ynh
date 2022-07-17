@@ -169,7 +169,7 @@ yunohost service add $app --description="Lightweight Git forge" --log="/var/log/
 ynh_script_progression --message="Starting a systemd service..." --weight=3
 
 # Start a systemd service
-ynh_systemd_action --service_name=$app --action="start" --log_path="systemd"
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Starting new Web server: tcp:127.0.0.1:"
 
 #=================================================
 # SETUP FAIL2BAN
