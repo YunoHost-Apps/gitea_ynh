@@ -35,6 +35,11 @@ key=$(ynh_app_setting_get --app=$app --key=key)
 
 upgrade_type=$(ynh_check_app_version_changed)
 
+# Move data directory
+if [ -e "/home/$app" ] && [ ! -e $datadir ]; then
+    mv "/home/$app" "$datadir"
+fi
+
 #=================================================
 # STANDARD UPGRADE STEPS
 #=================================================
