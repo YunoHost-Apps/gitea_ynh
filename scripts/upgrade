@@ -196,7 +196,7 @@ yunohost service add $app --description="Lightweight Git forge" --log="/var/log/
 ynh_script_progression --message="Starting a systemd service..." --weight=1
 
 # Start a systemd service
-ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Starting new Web server: tcp:127.0.0.1:"
+ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log" --line_match="Starting new Web server: tcp:127.0.0.1:"
 
 #=================================================
 # RELOAD NGINX
