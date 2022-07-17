@@ -77,7 +77,7 @@ fi
 # If port doesn't exist, create it
 if [ -z "$port" ]; then
 	port=$(ynh_find_port --port=6000)
-ynh_app_setting_set --app=$app --key=port --value=$port
+	ynh_app_setting_set --app=$app --key=port --value=$port
 fi
 
 # If final_path doesn't exist, create it
