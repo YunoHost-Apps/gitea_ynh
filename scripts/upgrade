@@ -145,7 +145,7 @@ chmod +x "$final_path/gitea"
 ynh_script_progression --message="Adding a configuration file..." --weight=1
 
 ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
-ynh_add_config --template="../conf/app.ini" --destination="$final_path/custom/conf/app.ini"
+ynh_add_config --template="../conf/app.ini" --destination="$final_path/custom/conf/app.ini" > /dev/null
 
 chmod 640 "$final_path/custom/conf/app.ini"
 chown $app:$app "$final_path/custom/conf/app.ini"
