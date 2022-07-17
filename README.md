@@ -15,10 +15,25 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 ## Overview
 
-Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to GitHub.
+Gitea is a painless self-hosted Git service. It is similar to GitHub, Bitbucket, and GitLab. Gitea is a fork of Gogs. See the Gitea Announcement blog post to read about the justification for a fork.
+
+### Features
+
+- User dashboard, user profile and activity timeline.
+- User, organization and repository management.
+- Repository and organization webhooks, including Slack, Discord and Dingtalk.
+- Repository Git hooks, deploy keys and Git LFS.
+- Repository issues, pull requests, wiki, protected branches and collaboration.
+- Migrate and mirror repositories with wiki from other code hosts.
+- Web editor for quick editing repository files and wiki.
+- Jupyter Notebook and PDF rendering.
+- Authentication via SMTP, LDAP.
+- Customize HTML templates, static files and many others.
 
 
-**Shipped version:** 1.16.9~ynh1
+**Shipped version:** 1.17.0~ynh1
+
+**Demo:** https://try.gitea.io/
 
 ## Screenshots
 
@@ -28,10 +43,7 @@ Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to 
 
 ## Additional informations
 
-[![Integration level](https://dash.yunohost.org/integration/gogs.svg)](https://dash.yunohost.org/appci/app/gogs) ![](https://ci-apps.yunohost.org/ci/badges/gogs.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/gogs.maintain.svg)  
-[![Install Gogs with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=gogs)
-
-If you want to use Gitea with SSH and be able to pull/push with your SSH key, your SSH daemon must be properly configured to use private/public keys. Here is a sample configuration `/etc/ssh/sshd_config` that works with Gitea:
+If you want to use Gitea with SSH and be able to pull/push with you SSH key, your SSH daemon must be properly configured to use private/public keys. Here is a sample configuration of `/etc/ssh/sshd_config` that works with Gogs:
 
 ```bash
 PubkeyAuthentication yes
@@ -41,7 +53,7 @@ PasswordAuthentication no
 UsePAM no
 ```
 
-You must also add your public key to your Gitea profile.
+You also need to add your public key to your Gitea profile.
 
 When using SSH on any port other than 22, you need to add these lines to your SSH configuration `~/.ssh/config`:
 
@@ -108,7 +120,7 @@ If you want to use the Git command (like `git clone`, `git pull`, `git push`), y
 ## Documentation and resources
 
 * Official app website: <https://gitea.io/>
-* Official admin documentation: <https://docs.gitea.io/>
+* Official admin documentation: <https://docs.gitea.io/en-us/>
 * Upstream app code repository: <https://github.com/go-gitea/gitea>
 * YunoHost documentation for this app: <https://yunohost.org/app_gitea>
 * Report a bug: <https://github.com/YunoHost-Apps/gitea_ynh/issues>

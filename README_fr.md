@@ -15,10 +15,12 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 ## Vue d'ensemble
 
-Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to GitHub.
+Gitea est un service Git auto-hébergé. Il est similaire à GitHub, Bitbucket et GitLab. Gitea est un fork de Gogs.
 
 
-**Version incluse :** 1.16.9~ynh1
+**Version incluse :** 1.17.0~ynh1
+
+**Démo :** https://try.gitea.io/
 
 ## Captures d'écran
 
@@ -28,9 +30,7 @@ Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to 
 
 ## Additional informations
 
-### Notes on SSH usage
-
-If you want to use Gitea with SSH and be able to pull/push with your SSH key, your SSH daemon must be properly configured to use private/public keys. Here is a sample configuration `/etc/ssh/sshd_config` that works with Gitea:
+If you want to use Gitea with SSH and be able to pull/push with you SSH key, your SSH daemon must be properly configured to use private/public keys. Here is a sample configuration of `/etc/ssh/sshd_config` that works with Gogs:
 
 ```bash
 PubkeyAuthentication yes
@@ -40,8 +40,7 @@ PasswordAuthentication no
 UsePAM no
 ```
 
-You must also add your public key to your Gitea profile.
-
+You also need to add your public key to your Gitea profile.
 When using SSH on any port other than 22, you need to add these lines to your SSH configuration `~/.ssh/config`:
 
 ```bash
@@ -107,7 +106,7 @@ If you want to use the Git command (like `git clone`, `git pull`, `git push`), y
 ## Documentations et ressources
 
 * Site officiel de l'app : <https://gitea.io/>
-* Documentation officielle de l'admin : <https://docs.gitea.io/>
+* Documentation officielle de l'admin : <https://docs.gitea.io/en-us/>
 * Dépôt de code officiel de l'app : <https://github.com/go-gitea/gitea>
 * Documentation YunoHost pour cette app : <https://yunohost.org/app_gitea>
 * Signaler un bug : <https://github.com/YunoHost-Apps/gitea_ynh/issues>
