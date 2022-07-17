@@ -89,12 +89,10 @@ if [ -z "/home/yunohost.app/$app" ]; then
 	ynh_app_setting_set --app=$app --key=datadir --value=$datadir
     mkdir -p $datadir
     mkdir -p "$datadir/data/{repositories,avatars,attachments}"
-    mkdir -p "$datadir/.ssh"
 
     chmod 750 "$datadir"
 	chmod -R o-rwx "$datadir"
 	chown -R $app:www-data "$datadir"
-	chown -R $app:$app "$datadir/.ssh"
 	
     mv -a "/home/$app" "$datadir"
     ynh_secure_remove --file="/home/$app"
@@ -149,6 +147,8 @@ ynh_add_config --template="../conf/app.ini" --destination="$final_path/custom/co
 
 chmod 640 "$final_path/custom/conf/app.ini"
 chown $app:$app "$final_path/custom/conf/app.ini"
+
+ynh_store_file_checksum --file "$final_path/custom/conf/app.ini"
 
 #=================================================
 # SETUP SYSTEMD
