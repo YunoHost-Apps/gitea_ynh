@@ -21,6 +21,7 @@ path_url=$(ynh_normalize_url_path --path_url $(ynh_app_setting_get --app $app --
 db_password=$(ynh_app_setting_get --app $app --key mysqlpwd)
 admin=$(ynh_app_setting_get --app $app --key adminusername)
 key=$(ynh_app_setting_get --app $app --key secret_key)
+lfs_key=$(ynh_app_setting_get --app $app --key lfs_key)
 port=$(ynh_app_setting_get --app $app --key web_port)
 upstream_version=$(ynh_app_setting_get --app $app --key upstream_version)
 

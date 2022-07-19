@@ -43,6 +43,7 @@ fi
 ynh_script_progression --message="Defining db password and key..."
 db_password=$(ynh_string_random)
 key=$(ynh_string_random)
+lfs_key=$(ynh_string_random)
 
 # Find available ports
 port=$(ynh_find_port --port 6000)
@@ -52,6 +53,7 @@ ynh_script_progression --message="Storing installation settings..."
 ynh_app_setting_set --app $app --key mysqlpwd --value $db_password
 ynh_app_setting_set --app $app --key adminusername --value $admin
 ynh_app_setting_set --app $app --key secret_key --value $key
+ynh_app_setting_set --app $app --key lfs_key --value $lfs_key
 ynh_app_setting_set --app $app --key web_port --value $port
 
 #=================================================
