@@ -2,15 +2,6 @@
 # SET ALL CONSTANTS
 #=================================================
 
-app=$YNH_APP_INSTANCE_NAME
-dbname=$app
-db_user=$app
-final_path="/opt/$app"
-datadir="/home/yunohost.app/$app"
-repos_path="$datadir/repositories"
-data_path="$datadir/data"
-ssh_path="$datadir/.ssh"
-
 # Detect the system architecture to download the right tarball
 # NOTE: `uname -m` is more accurate and universal than `arch`
 # See https://en.wikipedia.org/wiki/Uname
@@ -36,10 +27,10 @@ fi
 create_dir() {
     mkdir -p "$final_path/data"
     mkdir -p "$final_path/custom/conf"
-    mkdir -p "$ssh_path"
-    mkdir -p "$repos_path"
-    mkdir -p "$data_path/avatars"
-    mkdir -p "$data_path/attachments"
+    mkdir -p "$datadir/.ssh"
+    mkdir -p "$datadir/repositories"
+    mkdir -p "$datadir/data/avatars"
+    mkdir -p "$datadir/data/attachments"
     mkdir -p "/var/log/$app"
 }
 
