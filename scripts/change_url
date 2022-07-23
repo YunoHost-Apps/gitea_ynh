@@ -1,18 +1,13 @@
 #!/bin/bash
 
 #=================================================
-# GENERIC START
+# GENERIC STARTING
+#=================================================
+# IMPORT GENERIC HELPERS
 #=================================================
 
-# Import common cmd
-source ./experimental_helper.sh
-source ./_common.sh
-
-# IMPORT GENERIC HELPERS
+source _common.sh
 source /usr/share/yunohost/helpers
-
-# Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
 
 #=================================================
 # RETRIEVE ARGUMENTS
@@ -31,12 +26,17 @@ app=$YNH_APP_INSTANCE_NAME
 #=================================================
 ynh_script_progression --message="Loading installation settings..." --weight=1
 
+# Needed for helper "ynh_add_nginx_config"
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+port=$(ynh_app_setting_get --app=$app --key=port)
+admin=$(ynh_app_setting_get --app=$app --key=admin)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+db_user=$db_name
 db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
-admin=$(ynh_app_setting_get --app=$app --key=adminusername)
-key=$(ynh_app_setting_get --app=$app --key=secret_key)
+key=$(ynh_app_setting_get --app=$app --key=key)
 lfs_key=$(ynh_app_setting_get --app=$app --key=lfs_key)
-port=$(ynh_app_setting_get --app=$app --key=web_port)
+datadir=$(ynh_app_setting_get --app=$app --key=datadir)
+path_url=$(ynh_app_setting_get --app=$app --key=path)
 upstream_version=$(ynh_app_setting_get --app=$app  --key=upstream_version)
 
 #=================================================
@@ -113,13 +113,16 @@ fi
 #=================================================
 # SPECIFIC MODIFICATIONS
 #=================================================
-ynh_script_progression --message="Updating gitea configuration..."
+ynh_script_progression --message="Adding a configuration file..." --weight=1
 
-config_gitea
+domain=$new_domain
+path_url=$new_path
+ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
 
-# Store the checksum with the 'INTERNAL_TOKEN' value.
-# Should be removed when the issue https://github.com/go-gitea/gitea/issues/3246 is fixed
-ynh_store_file_checksum --file "$final_path/custom/conf/app.ini"
+ynh_exec_warn_less ynh_add_config --template="../conf/app.ini" --destination="$final_path/custom/conf/app.ini"
+
+chmod 640 "$final_path/custom/conf/app.ini"
+chown $app:$app "$final_path/custom/conf/app.ini"
 
 #=================================================
 # GENERIC FINALISATION

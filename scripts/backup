@@ -3,12 +3,10 @@
 #=================================================
 # GENERIC START
 #=================================================
-
-# Load common variables and helpers
-source ../settings/scripts/experimental_helper.sh
-source ../settings/scripts/_common.sh
-
 # IMPORT GENERIC HELPERS
+#=================================================
+
+source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -68,6 +66,14 @@ ynh_backup --src_path="/etc/systemd/system/$app.service"
 
 ynh_backup --src_path="/etc/fail2ban/jail.d/$app.conf"
 ynh_backup --src_path="/etc/fail2ban/filter.d/$app.conf"
+
+#=================================================
+# SPECIFIC BACKUP
+#=================================================
+# BACKUP LOGROTATE
+#=================================================
+
+ynh_backup --src_path="/etc/logrotate.d/$app"
 
 #=================================================
 # BACKUP VARIOUS FILES
