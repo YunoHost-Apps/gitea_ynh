@@ -80,7 +80,7 @@ ynh_app_setting_set --app=$app --key=web_port --value=$port
 #=================================================
 ynh_script_progression --message="Configuring system user..." --weight=1
 
-ynh_system_user_create --username=$app --home_dir=$final_path --use_shell
+ynh_system_user_create --username=$app --home_dir=$datadir --use_shell
 # Add ssh permission for gitea user
 adduser $app ssh.app
 
@@ -107,7 +107,7 @@ mkdir -p "$final_path/custom/conf"
 
 chmod 750 "$final_path"
 chmod -R o-rwx "$final_path"
-chown -R $app:www-data "$final_path"
+chown -R $app:$app "$final_path"
 chmod +x "$final_path/gitea"
 
 #=================================================
@@ -130,7 +130,7 @@ mkdir -p $datadir
 
 chmod 750 "$datadir"
 chmod -R o-rwx "$datadir"
-chown -R $app:www-data "$datadir"
+chown -R $app:$app "$datadir"
 
 #=================================================
 # ADD A CONFIGURATION

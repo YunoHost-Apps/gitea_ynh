@@ -49,7 +49,7 @@ test ! -d $final_path \
 #=================================================
 ynh_script_progression --message="Recreating the dedicated system user..." --weight=1
 
-ynh_system_user_create --username=$app --home_dir=$final_path --use_shell
+ynh_system_user_create --username=$app --home_dir=$datadir --use_shell
 # Add SSH permission for Gitea user
 adduser $app ssh.app
 
