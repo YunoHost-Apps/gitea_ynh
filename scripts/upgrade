@@ -169,7 +169,7 @@ if [ -z ${upstream_version:-} ]; then
 fi
 
 restart_gitea() {
-
+    #set_permission
     ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/gitea.log" --line_match="Starting new Web server: tcp:127.0.0.1:"
     # Leave the time to update the database schema
     sleep 5
@@ -179,7 +179,7 @@ restart_gitea() {
 case $upstream_version in
 "0.0."* )
     ynh_setup_source $final_path source/${architecture}_1.0
-    set_permission
+    #set_permission
     systemctl start $app
     sleep 20
     systemctl stop $app
