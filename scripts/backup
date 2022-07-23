@@ -33,6 +33,11 @@ db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 
 #=================================================
+# DECLARE DATA AND CONF FILES TO BACKUP
+#=================================================
+ynh_print_info --message="Declaring files to be backed up..."
+
+#=================================================
 # BACKUP THE APP MAIN DIR
 #=================================================
 
@@ -51,12 +56,6 @@ ynh_backup --src_path="$datadir" --is_big
 ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
-# BACKUP SYSTEMD
-#=================================================
-
-ynh_backup --src_path="/etc/systemd/system/$app.service"
-
-#=================================================
 # BACKUP FAIL2BAN CONFIGURATION
 #=================================================
 
@@ -70,6 +69,12 @@ ynh_backup --src_path="/etc/fail2ban/filter.d/$app.conf"
 #=================================================
 
 ynh_backup --src_path="/etc/logrotate.d/$app"
+
+#=================================================
+# BACKUP SYSTEMD
+#=================================================
+
+ynh_backup --src_path="/etc/systemd/system/$app.service"
 
 #=================================================
 # BACKUP VARIOUS FILES
