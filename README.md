@@ -15,7 +15,20 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 ## Overview
 
-Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to GitHub.
+Gitea is a painless self-hosted Git service. It is similar to GitHub, Bitbucket, and GitLab. Gitea is a fork of Gogs. See the Gitea Announcement blog post to read about the justification for a fork.
+
+### Features
+
+- User dashboard, user profile and activity timeline.
+- User, organization and repository management.
+- Repository and organization webhooks, including Slack, Discord and Dingtalk.
+- Repository Git hooks, deploy keys and Git LFS.
+- Repository issues, pull requests, wiki, protected branches and collaboration.
+- Migrate and mirror repositories with wiki from other code hosts.
+- Web editor for quick editing repository files and wiki.
+- Jupyter Notebook and PDF rendering.
+- Authentication via SMTP, LDAP.
+- Customize HTML templates, static files and many others.
 
 
 **Shipped version:** 1.16.9~ynh1
@@ -83,22 +96,6 @@ This application now uses the core-only feature of the backup. To keep the integ
 ### Remove
 
 Due of the backup core only feature the data directory in `/home/yunohost.app/gitea` **is not removed**. It must be manually deleted to purge user data from the app.
-
-### LFS setup
-To use a repository with an `LFS` setup, you need to activate it on `/opt/gitea/custom/conf/app.ini`
-
-```ini
-[server]
-LFS_START_SERVER = true
-LFS_HTTP_AUTH_EXPIRY = 20m
-```
-By default, NGINX is configured with a maximum value for uploading files at 200 MB. It's possible to change this value on `/etc/nginx/conf.d/my.domain.tld.d/gitea.conf`.
-```
-client_max_body_size 200M;
-```
-Don't forget to restart Gitea `sudo systemctl restart gitea.service`.
-
-> These settings are restored to the default configuration when updating Gitea. Remember to restore your configuration after all updates.
 
 ### Git command access with HTTPS
 
