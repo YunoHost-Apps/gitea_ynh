@@ -92,7 +92,7 @@ fi
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
-ynh_script_progression --message="Making sure dedicated system user exists..." --time --weight=1
+ynh_script_progression --message="Making sure dedicated system user exists..." --weight=1
 
 ynh_system_user_create --username=$app --home_dir=$datadir --use_shell
 # Add ssh permission for gitea user
@@ -104,7 +104,7 @@ adduser $app ssh.app
 
 [[ $YNH_APP_ID == "gogs" ]] \
     && [[ "$(cat "/opt/$app/templates/.VERSION")" != 0.11.79.1211 ]] \
-    && ynh_die --message "It look like that you have an old gogs install. You need first upgrade gogs instance (id : $gogs_migrate_id) and after migrate to gitea."
+    && ynh_die --message "It look like that you have an old Gogs install. You need first upgrade Gogs instance (id : $gogs_migrate_id) and after migrate to Gitea."
 ynh_handle_app_migration --migration_id=gogs --migration_list=gogs_migrations
 
 if [[ $migration_process -eq 1 ]]; then
@@ -280,27 +280,29 @@ restart_gitea
 
 # Set all permissions
 ynh_script_progression --message="Update permission..."
+
 if ! ynh_permission_exists --permission admin; then
     ynh_app_setting_delete --app $app --key unprotected_uris
     ynh_permission_create --permission 'admin' --allowed "$admin"
     # Update ldap config
     ynh_replace_string --match_string "__APP__" --replace_string "$app" --target_file ../conf/login_source.sql
-    ynh_mysql_connect_as "$db_user" "$db_password" "$dbname" < ../conf/login_source.sql
+    ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name" < ../conf/login_source.sql
 fi
 
 #=================================================
 # INTEGRATE SERVICE IN YUNOHOST
 #=================================================
-ynh_script_progression --message="Integrating service in YunoHost..." --time --weight=1
+ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
 
-yunohost service add $app --description="A short description of the app" --log="/var/log/$app/$app.log"
+yunohost service add $app --description="Lightweight Git forge" --log="/var/log/$app/$app.log"
+
 
 # Set permissions
 ynh_script_progression --message="Protecting directory"
 set_permission
 
 # Save Version
-ynh_app_setting_set --app $app --key upstream_version --value $(ynh_app_upstream_version)
+ynh_app_setting_set --app=$app --key=upstream_version --value=$(ynh_app_upstream_version)
 
 #=================================================
 # START SYSTEMD SERVICE
@@ -318,7 +320,7 @@ ynh_store_file_checksum --file "$final_path/custom/conf/app.ini"
 #=================================================
 
 if [[ $migration_process -eq 1 ]]; then
-    echo "gogs has been successfully migrated to Gitea! \
+    echo "Gogs has been successfully migrated to Gitea! \
 A last scheduled operation will run in a couple of minutes to finish the \
 migration in YunoHost side. Do not proceed any application operation while \
 you don't see Gogs as installed." >&2
@@ -343,7 +345,7 @@ ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Faile
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading NGINX web server..." --time --weight=1
+ynh_script_progression --message="Reloading NGINX web server..." --weight=1
 
 ynh_systemd_action --service_name=nginx --action=reload
 
