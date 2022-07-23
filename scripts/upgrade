@@ -31,7 +31,7 @@ datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
-ynh_script_progression --message="Backing up the app before upgrading (may take a while)..."
+ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=5
 
 if [ "0$(ynh_app_setting_get --app=$app --key=disable_backup_before_upgrade)" -ne 1 ]
 then
@@ -104,7 +104,7 @@ adduser $app ssh.app
 
 [[ $YNH_APP_ID == "gogs" ]] \
     && [[ "$(cat "/opt/$app/templates/.VERSION")" != 0.11.79.1211 ]] \
-    && ynh_die --message "It look like that you have an old Gogs install. You need first upgrade Gogs instance (id : $gogs_migrate_id) and after migrate to Gitea."
+    && ynh_die --message "It look like that you have an old Gogs install. You need first upgrade Gogs instance (id: $gogs_migrate_id) and after migrate to Gitea."
 ynh_handle_app_migration --migration_id=gogs --migration_list=gogs_migrations
 
 if [[ $migration_process -eq 1 ]]; then
@@ -127,8 +127,11 @@ if [[ $migration_process -eq 1 ]]; then
     ynh_secure_remove --file=$final_path/custom/conf/auth.d
 
     # Restore authentication from SQL database
-    ynh_replace_string --match_string __APP__ --replace_string "$app" --target_file ../conf/login_source.sql
-    ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name" < ../conf/login_source.sql
+    #ynh_replace_string --match_string __APP__ --replace_string "$app" --target_file ../conf/login_source.sql
+    #ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name" < ../conf/login_source.sql
+    pushd "$final_path"
+        ynh_exec_as $app ./gitea admin auth add-ldap --security-protocol "Unencrypted" --name "YunoHost LDAP" --host "localhost" --port "389" --skip-tls-verify --user-search-base "ou=users,dc=yunohost,dc=org" --user-filter "(&(uid=%s)(objectClass=posixAccount)(permission=cn=$app.main,ou=permission,dc=yunohost,dc=org))" --firstname-attribute "givenName" --surname-attribute "sn" --email-attribute "mail" --admin-filter "(permission=cn=$app.admin,ou=permission,dc=yunohost,dc=org)"
+    popd
 
     # Fix hooks
     if [[ -e $repos_path ]];then
@@ -278,16 +281,19 @@ restart_gitea
 # GENERIC FINALIZATION
 #=================================================
 
-# Set all permissions
-ynh_script_progression --message="Update permission..."
+# # Set all permissions
+# ynh_script_progression --message="Update permission..."
 
-if ! ynh_permission_exists --permission admin; then
-    ynh_app_setting_delete --app $app --key unprotected_uris
-    ynh_permission_create --permission 'admin' --allowed "$admin"
-    # Update ldap config
-    ynh_replace_string --match_string "__APP__" --replace_string "$app" --target_file ../conf/login_source.sql
-    ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name" < ../conf/login_source.sql
-fi
+# if ! ynh_permission_exists --permission admin; then
+#     ynh_app_setting_delete --app=$app --key=unprotected_uris
+#     ynh_permission_create --permission='admin' --allowed="$admin"
+#     # Update LDAP config
+#     #ynh_replace_string --match_string "__APP__" --replace_string "$app" --target_file ../conf/login_source.sql
+#     #ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name" < ../conf/login_source.sql
+#     pushd "$final_path"
+#         ynh_exec_as $app ./gitea admin auth add-ldap --security-protocol "Unencrypted" --name "YunoHost LDAP" --host "localhost" --port "389" --skip-tls-verify --user-search-base "ou=users,dc=yunohost,dc=org" --user-filter "(&(uid=%s)(objectClass=posixAccount)(permission=cn=$app.main,ou=permission,dc=yunohost,dc=org))" --firstname-attribute "givenName" --surname-attribute "sn" --email-attribute "mail" --admin-filter "(permission=cn=$app.admin,ou=permission,dc=yunohost,dc=org)"
+#     popd
+# fi
 
 #=================================================
 # INTEGRATE SERVICE IN YUNOHOST
@@ -310,10 +316,6 @@ ynh_app_setting_set --app=$app --key=upstream_version --value=$(ynh_app_upstream
 ynh_script_progression --message="Starting a systemd service..." --weight=1
 
 ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log" --line_match="Starting new Web server: tcp:127.0.0.1:"
-
-# Store the checksum with the 'INTERNAL_TOKEN' value.
-# Should be removed when the issue https://github.com/go-gitea/gitea/issues/3246 is fixed
-ynh_store_file_checksum --file "$final_path/custom/conf/app.ini"
 
 #=================================================
 # FINISH MIGRATION PROCESS
