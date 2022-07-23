@@ -28,7 +28,6 @@ domain=$YNH_APP_ARG_DOMAIN
 path_url=$YNH_APP_ARG_PATH
 admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
-upstream_version=$(ynh_app_upstream_version)
 key=$(ynh_string_random --length=24)
 lfs_key=$(ynh_string_random --length=24)
 
@@ -61,6 +60,7 @@ ynh_script_progression --message="Storing installation settings..." --weight=1
 
 ynh_app_setting_set --app=$app --key=domain --value=$domain
 ynh_app_setting_set --app=$app --key=adminusername --value=$admin
+ynh_app_setting_set --app=$app --key=path --value=$path_url
 ynh_app_setting_set --app=$app --key=secret_key --value=$key
 ynh_app_setting_set --app=$app --key=lfs_key --value=$lfs_key
 
@@ -80,7 +80,7 @@ ynh_app_setting_set --app=$app --key=port --value=$port
 #=================================================
 ynh_script_progression --message="Configuring system user..." --weight=1
 
-ynh_system_user_create --username=$app --home_dir=$datadir --use_shell
+ynh_system_user_create --username=$app --home_dir=$final_path --use_shell
 # Add ssh permission for gitea user
 adduser $app ssh.app
 

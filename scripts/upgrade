@@ -95,7 +95,7 @@ fi
 #=================================================
 ynh_script_progression --message="Making sure dedicated system user exists..." --weight=1
 
-ynh_system_user_create --username=$app --home_dir=$datadir --use_shell
+ynh_system_user_create --username=$app --home_dir=$final_path --use_shell
 # Add ssh permission for gitea user
 adduser $app ssh.app
 
