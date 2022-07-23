@@ -37,11 +37,10 @@ create_dir() {
 set_permission() {
     chown -R $app:$app "$datadir"
     chmod u=rwX,g=rX,o= "$datadir"
-    
+
     chown -R $app:$app "/var/log/$app"
     chmod u=rwX,g=rX,o= "/var/log/$app"
 }
-
 
 #=================================================
 # EXPERIMENTAL HELPER
