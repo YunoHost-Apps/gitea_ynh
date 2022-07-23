@@ -73,7 +73,7 @@ ynh_script_progression --message="Finding an available port..." --weight=1
 
 # Find an available port
 port=$(ynh_find_port --port=6000)
-ynh_app_setting_set --app=$app --key=port --value=$port
+ynh_app_setting_set --app=$app --key=web_port --value=$port
 
 #=================================================
 # CREATE DEDICATED USER
