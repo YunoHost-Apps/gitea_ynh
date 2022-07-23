@@ -161,9 +161,9 @@ ynh_script_progression --message="Configuring log rotation..." --weight=1
 # Use logrotate to manage application logfile(s)
 ynh_use_logrotate
 
-mkdir -p "/var/log/$app"
-chmod u=rwX,g=rX,o= "/var/log/$app"
-chown -R $app: "/var/log/$app"
+#mkdir -p "/var/log/$app"
+#chmod u=rwX,g=rX,o= "/var/log/$app"
+#chown -R $app: "/var/log/$app"
 
 #=================================================
 # INTEGRATE SERVICE IN YUNOHOST

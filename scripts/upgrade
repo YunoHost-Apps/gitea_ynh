@@ -286,6 +286,14 @@ ynh_script_progression --message="Upgrading systemd configuration..." --weight=2
 ynh_add_systemd_config
 
 #=================================================
+# SETUP LOGROTATE
+#=================================================
+ynh_script_progression --message="Upgrading logrotate configuration..." --weight=1
+
+# Use logrotate to manage app-specific logfile(s)
+ynh_use_logrotate --non-append
+
+#=================================================
 # GENERIC FINALIZATION
 #=================================================
 
