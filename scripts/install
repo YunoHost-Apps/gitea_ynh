@@ -63,7 +63,6 @@ ynh_app_setting_set --app=$app --key=domain --value=$domain
 ynh_app_setting_set --app=$app --key=adminusername --value=$admin
 ynh_app_setting_set --app=$app --key=secret_key --value=$key
 ynh_app_setting_set --app=$app --key=lfs_key --value=$lfs_key
-ynh_app_setting_set --app=$app --key=web_port --value=$port
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -98,7 +97,7 @@ ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression --message="Setting up source files..." --time --weight=1
+ynh_script_progression --message="Setting up source files..." --weight=5
 
 ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # Download, check integrity, uncompress and patch the source from app.src
@@ -114,7 +113,7 @@ chmod +x "$final_path/gitea"
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Configuring NGINX web server..." --time --weight=1
+ynh_script_progression --message="Configuring NGINX web server..." --weight=2
 
 # Create a dedicated NGINX config
 ynh_add_nginx_config
@@ -122,7 +121,7 @@ ynh_add_nginx_config
 #=================================================
 # CREATE DATA DIRECTORY
 #=================================================
-ynh_script_progression --message="Creating a data directory..." --time --weight=1
+ynh_script_progression --message="Creating a data directory..." --weight=2
 
 mkdir -p $datadir
 
@@ -147,7 +146,7 @@ chown $app:$app "$final_path/custom/conf/app.ini"
 #=================================================
 # SETUP SYSTEMD
 #=================================================
-ynh_script_progression --message="Configuring a systemd service..." --time --weight=1
+ynh_script_progression --message="Configuring a systemd service..." --weight=1
 
 # Create a dedicated systemd config
 ynh_add_systemd_config

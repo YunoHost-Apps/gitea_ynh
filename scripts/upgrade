@@ -79,8 +79,17 @@ fi
 
 if ! ynh_permission_exists --permission="admin"; then
     # Create the required permissions
-    ynh_permission_create --permission="admin" --url="/admin" --allowed=$admin
+    ynh_permission_create --permission="admin" --allowed=$admin
 fi
+
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
+ynh_script_progression --message="Making sure dedicated system user exists..." --time --weight=1
+
+ynh_system_user_create --username=$app --home_dir=$datadir --use_shell
+# Add ssh permission for gitea user
+adduser $app ssh.app
 
 #=================================================
 # MIGRATION FROM GOGS
@@ -128,8 +137,8 @@ if [[ $migration_process -eq 1 ]]; then
 fi
 
 # Move data directory
-if [ -e "/home/""$app" ] && [ ! -e $datadir ]; then
-    mv "/home/""$app" "$datadir"
+if [ -e "/home/$app" ] && [ ! -e $datadir ]; then
+    mv "/home/$app" "$datadir"
 fi
 
 #=================================================
@@ -146,7 +155,7 @@ chown $app:$app "$final_path/custom/conf/app.ini"
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Upgrading NGINX web server configuration..." --time --weight=1
+ynh_script_progression --message="Upgrading NGINX web server configuration..." --weight=2
 
 # Create a dedicated NGINX config
 ynh_add_nginx_config
@@ -154,7 +163,7 @@ ynh_add_nginx_config
 #=================================================
 # SETUP SYSTEMD
 #=================================================
-ynh_script_progression --message="Upgrading systemd configuration..." --time --weight=1
+ynh_script_progression --message="Upgrading systemd configuration..." --weight=2
 
 # Create a dedicated systemd config
 ynh_add_systemd_config
@@ -255,12 +264,8 @@ case $upstream_version in
 esac
 
 # Install gitea source
-ynh_setup_source $final_path source/$architecture
+ynh_setup_source --dest_dir="$final_path" --source_id="../conf/source/$architecture"
 restart_gitea
-
-# SETUP FAIL2BAN
-ynh_script_progression --message="Configuring fail2ban..."
-ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
 
 #=================================================
 # GENERIC FINALIZATION
@@ -276,12 +281,12 @@ if ! ynh_permission_exists --permission admin; then
     ynh_mysql_connect_as "$db_user" "$db_password" "$dbname" < ../conf/login_source.sql
 fi
 
-# Add gitea to YunoHost's monitored services
-ynh_script_progression --message="Register gitea service..."
-yunohost service add "$app" --log "/var/log/$app/gitea.log"
+#=================================================
+# INTEGRATE SERVICE IN YUNOHOST
+#=================================================
+ynh_script_progression --message="Integrating service in YunoHost..." --time --weight=1
 
-# Add ssh permission for gitea user
-adduser $app ssh.app
+yunohost service add $app --description="A short description of the app" --log="/var/log/$app/$app.log"
 
 # Set permissions
 ynh_script_progression --message="Protecting directory"
@@ -320,6 +325,20 @@ you don't see Gogs as installed." >&2
     chmod +x /tmp/$script_post_migration
     (cd /tmp; echo "/tmp/$script_post_migration > /tmp/$script_post_migration.log 2>&1" | at now + 2 minutes)
 fi
+
+#=================================================
+# UPGRADE FAIL2BAN
+#=================================================
+ynh_script_progression --message="Reconfiguring Fail2Ban..." --weight=1
+
+ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
+
+#=================================================
+# RELOAD NGINX
+#=================================================
+ynh_script_progression --message="Reloading NGINX web server..." --time --weight=1
+
+ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
 # END OF SCRIPT
