@@ -126,7 +126,7 @@ ynh_script_progression --message="Creating a data directory..." --weight=2
 mkdir -p $datadir
 
 # create needed directories
-mkdir -p "$datadir/data/{repositories,avatars,attachments}"
+#mkdir -p "$datadir/data/{repositories,avatars,attachments}"
 
 chmod 750 "$datadir"
 chmod -R o-rwx "$datadir"
