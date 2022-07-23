@@ -34,12 +34,6 @@ create_dir() {
     mkdir -p "/var/log/$app"
 }
 
-
-config_gitea() {
-    ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
-    ynh_add_config --template="app.ini" --destination="$final_path/custom/conf/app.ini"
-}
-
 set_permission() {
     chown -R $app:$app "$final_path"
     chown -R $app:$app "$datadir"
