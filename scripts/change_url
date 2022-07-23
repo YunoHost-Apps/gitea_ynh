@@ -37,7 +37,7 @@ key=$(ynh_app_setting_get --app=$app --key=key)
 lfs_key=$(ynh_app_setting_get --app=$app --key=lfs_key)
 datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 path_url=$(ynh_app_setting_get --app=$app --key=path)
-upstream_version=$(ynh_app_setting_get --app=$app  --key=upstream_version)
+upstream_version=$(ynh_app_setting_get --app=$app --key=upstream_version)
 
 #=================================================
 # BACKUP BEFORE CHANGE URL THEN ACTIVE TRAP
