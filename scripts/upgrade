@@ -3,12 +3,10 @@
 #=================================================
 # GENERIC START
 #=================================================
-
-# Load common variables and helpers
-source ./experimental_helper.sh
-source ./_common.sh
-
 # IMPORT GENERIC HELPERS
+#=================================================
+
+source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -26,7 +24,8 @@ lfs_key=$(ynh_app_setting_get --app=$app --key=lfs_key)
 port=$(ynh_app_setting_get --app=$app --key=web_port)
 upstream_version=$(ynh_app_setting_get --app=$app --key=upstream_version)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-db_password=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+db_user=$db_name
+db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
@@ -52,7 +51,7 @@ ynh_abort_if_errors
 ynh_script_progression --message="Stopping a systemd service..." --weight=1
 
 # We stop the service before to set ynh_clean_setup
-ynh_systemd_action --service_name=$app --action="stop"
+ynh_systemd_action --service_name=$app --action="stop" --log_path="/var/log/$app/$app.log"
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
@@ -134,15 +133,15 @@ if [ -e "/home/""$app" ] && [ ! -e $datadir ]; then
 fi
 
 #=================================================
-# STANDARD UPGRADE STEPS
+# ADD A CONFIGURATION
 #=================================================
-ynh_script_progression --message="Configuring application..."
+ynh_script_progression --message="Adding a configuration file..." --weight=1
 
-# Clean template to fix issue : https://github.com/gogits/gogs/issues/4585
-ynh_secure_remove --file="/opt/$app/templates"
+ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
+ynh_add_config --template="../conf/app.ini" --destination="$final_path/custom/conf/app.ini"
 
-# Configure gitea with app.ini file
-config_gitea
+chmod 640 "$final_path/custom/conf/app.ini"
+chown $app:$app "$final_path/custom/conf/app.ini"
 
 #=================================================
 # NGINX CONFIGURATION
@@ -161,9 +160,8 @@ ynh_script_progression --message="Upgrading systemd configuration..." --time --w
 ynh_add_systemd_config
 
 #=================================================
-# DB migration
+# DATA BASE MIGRATION
 #=================================================
-
 ynh_script_progression --message="Upgrading database and sources..." --weight=6
 
 # Before the version 1.7 the upstream version was not stored
@@ -298,7 +296,6 @@ ynh_app_setting_set --app $app --key upstream_version --value $(ynh_app_upstream
 ynh_script_progression --message="Starting a systemd service..." --weight=1
 
 ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log" --line_match="Starting new Web server: tcp:127.0.0.1:"
-
 
 # Store the checksum with the 'INTERNAL_TOKEN' value.
 # Should be removed when the issue https://github.com/go-gitea/gitea/issues/3246 is fixed
