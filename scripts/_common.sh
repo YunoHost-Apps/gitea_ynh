@@ -24,16 +24,6 @@ fi
 # DEFINE ALL COMMON FONCTIONS
 #=================================================
 
-create_dir() {
-    mkdir -p "$final_path/data"
-    mkdir -p "$final_path/custom/conf"
-    mkdir -p "$datadir/.ssh"
-    mkdir -p "$datadir/repositories"
-    mkdir -p "$datadir/data/avatars"
-    mkdir -p "$datadir/data/attachments"
-    mkdir -p "/var/log/$app"
-}
-
 set_permission() {
     chown -R $app:$app "$datadir"
     chmod u=rwX,g=rX,o= "$datadir"
