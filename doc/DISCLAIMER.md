@@ -56,22 +56,6 @@ This application now uses the core-only feature of the backup. To keep the integ
 
 Due of the backup core only feature the data directory in `/home/yunohost.app/gitea` **is not removed**. It must be manually deleted to purge user data from the app.
 
-### LFS setup
-To use a repository with an `LFS` setup, you need to activate it on `/opt/gitea/custom/conf/app.ini`
-
-```ini
-[server]
-LFS_START_SERVER = true
-LFS_HTTP_AUTH_EXPIRY = 20m
-```
-By default, NGINX is configured with a maximum value for uploading files at 200 MB. It's possible to change this value on `/etc/nginx/conf.d/my.domain.tld.d/gitea.conf`.
-```
-client_max_body_size 200M;
-```
-Don't forget to restart Gitea `sudo systemctl restart gitea.service`.
-
-> These settings are restored to the default configuration when updating Gitea. Remember to restore your configuration after all updates.
-
 ### Git command access with HTTPS
 
 If you want to use the Git command (like `git clone`, `git pull`, `git push`), you need to set this app as **public**.

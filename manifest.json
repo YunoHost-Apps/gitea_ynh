@@ -3,18 +3,18 @@
     "id": "gitea",
     "packaging_format": 1,
     "description": {
-        "en": "Lightweight Git forge",
-        "fr": "Forge Git légère"
+        "en": "Lightweight self-hosted Git forge",
+        "fr": "Forge Git légère auto-hébergé"
     },
+    "version": "1.16.9~ynh1",
+    "url": "https://gitea.io/",
     "upstream": {
         "license": "MIT",
         "website": "https://gitea.io/",
         "admindoc": "https://docs.gitea.io/",
         "code": "https://github.com/go-gitea/gitea"
     },
-    "url": "http://gitea.io",
     "license": "MIT",
-    "version": "1.16.9~ynh1",
     "maintainer": {
         "name": "Josué Tille",
         "email": "josue@tille.ch"
@@ -29,7 +29,7 @@
         "mysql"
     ],
     "requirements": {
-        "yunohost": ">= 4.2.6.1"
+        "yunohost": ">= 4.3.0"
     },
     "arguments": {
         "install" : [
@@ -40,6 +40,7 @@
             {
                 "name": "path",
                 "type": "path",
+                "example": "/gitea",
                 "default": "/gitea"
             },
             {
