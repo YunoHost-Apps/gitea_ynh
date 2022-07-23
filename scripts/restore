@@ -127,14 +127,14 @@ chmod u=rwX,g=rX,o= "/var/log/$app"
 #=================================================
 ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
 
-yunohost service add $app --description="Lightweight Git forge" --log="/var/log/$app/$app.log"
+yunohost service add $app --description="Lightweight Git forge" --log="/var/log/$app/gitea.log"
 
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
 ynh_script_progression --message="Starting a systemd service..." --weight=3
 
-ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log" --line_match="Starting new Web server: tcp:127.0.0.1:"
+ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/gitea.log" --line_match="Starting new Web server: tcp:127.0.0.1:"
 
 #=================================================
 # GENERIC FINALIZATION

@@ -53,7 +53,7 @@ ynh_abort_if_errors
 ynh_script_progression --message="Stopping a systemd service..." --weight=1
 
 # We stop the service before to set ynh_clean_setup
-ynh_systemd_action --service_name=$app --action="stop" --log_path="/var/log/$app/$app.log"
+ynh_systemd_action --service_name=$app --action="stop" --log_path="/var/log/$app/gitea.log"
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
@@ -171,7 +171,7 @@ fi
 restart_gitea() {
     # Set permissions
     set_permission
-    ynh_systemd_action -l "Starting new server: tcp:127.0.0.1:" -p "/var/log/$app/$app.log" -t 30
+    ynh_systemd_action -l "Starting new server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 30
     # Leave the time to update the database schema
     sleep 5
     systemctl stop $app
@@ -316,14 +316,14 @@ ynh_use_logrotate --non-append
 #=================================================
 ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
 
-yunohost service add $app --description="Lightweight Git forge" --log="/var/log/$app/$app.log"
+yunohost service add $app --description="Lightweight Git forge" --log="/var/log/$app/gitea.log"
 
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
 ynh_script_progression --message="Starting a systemd service..." --weight=1
 
-ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log" --line_match="Starting new Web server: tcp:127.0.0.1:"
+ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/gitea.log" --line_match="Starting new Web server: tcp:127.0.0.1:"
 
 #=================================================
 # FINISH MIGRATION PROCESS
@@ -350,7 +350,7 @@ fi
 #=================================================
 ynh_script_progression --message="Reconfiguring Fail2Ban..." --weight=1
 
-ynh_add_fail2ban_config --logpath "/var/log/$app/$app.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
+ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
 
 #=================================================
 # RELOAD NGINX
