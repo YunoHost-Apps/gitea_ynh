@@ -35,14 +35,10 @@ create_dir() {
 }
 
 set_permission() {
-    chown -R $app:$app "$final_path"
     chown -R $app:$app "$datadir"
-    chown -R $app:$app "/var/log/$app"
-
-    chmod u=rwX,g=rX,o= "$final_path"
-    chmod u=rwx,g=rx,o= "$final_path/gitea"
-    chmod u=rwx,g=rx,o= "$final_path/custom/conf/app.ini"
     chmod u=rwX,g=rX,o= "$datadir"
+    
+    chown -R $app:$app "/var/log/$app"
     chmod u=rwX,g=rX,o= "/var/log/$app"
 }
 

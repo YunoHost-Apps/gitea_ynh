@@ -193,7 +193,7 @@ ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$ap
 ynh_script_progression --message="Configuring Fail2Ban..." --weight=1
 
 # Create a dedicated Fail2Ban config
-ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
+ynh_add_fail2ban_config --logpath "/var/log/$app/$app.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
 
 #=================================================
 # SETUP SSOWAT

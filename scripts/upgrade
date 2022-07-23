@@ -153,33 +153,6 @@ if [ -e "/home/$app" ] && [ ! -e $datadir ]; then
 fi
 
 #=================================================
-# ADD A CONFIGURATION
-#=================================================
-ynh_script_progression --message="Adding a configuration file..." --weight=1
-
-ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
-ynh_add_config --template="../conf/app.ini" --destination="$final_path/custom/conf/app.ini"
-
-chmod 640 "$final_path/custom/conf/app.ini"
-chown $app:$app "$final_path/custom/conf/app.ini"
-
-#=================================================
-# NGINX CONFIGURATION
-#=================================================
-ynh_script_progression --message="Upgrading NGINX web server configuration..." --weight=2
-
-# Create a dedicated NGINX config
-ynh_add_nginx_config
-
-#=================================================
-# SETUP SYSTEMD
-#=================================================
-ynh_script_progression --message="Upgrading systemd configuration..." --weight=2
-
-# Create a dedicated systemd config
-ynh_add_systemd_config
-
-#=================================================
 # DATA BASE MIGRATION
 #=================================================
 ynh_script_progression --message="Upgrading database and sources..." --weight=6
@@ -274,9 +247,43 @@ case $upstream_version in
 ;&
 esac
 
-# Install gitea source
+# Install Gitea source
 ynh_setup_source --dest_dir="$final_path" --source_id="../conf/source/$architecture"
-restart_gitea
+
+# Save Version
+ynh_app_setting_set --app=$app --key=upstream_version --value=$(ynh_app_upstream_version)
+
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R $app:www-data "$final_path"
+chmod +x "$final_path/gitea"
+
+#=================================================
+# ADD A CONFIGURATION
+#=================================================
+ynh_script_progression --message="Adding a configuration file..." --weight=1
+
+ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
+ynh_add_config --template="../conf/app.ini" --destination="$final_path/custom/conf/app.ini"
+
+chmod 640 "$final_path/custom/conf/app.ini"
+chown $app:$app "$final_path/custom/conf/app.ini"
+
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+ynh_script_progression --message="Upgrading NGINX web server configuration..." --weight=2
+
+# Create a dedicated NGINX config
+ynh_add_nginx_config
+
+#=================================================
+# SETUP SYSTEMD
+#=================================================
+ynh_script_progression --message="Upgrading systemd configuration..." --weight=2
+
+# Create a dedicated systemd config
+ynh_add_systemd_config
 
 #=================================================
 # GENERIC FINALIZATION
@@ -302,14 +309,6 @@ restart_gitea
 ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
 
 yunohost service add $app --description="Lightweight Git forge" --log="/var/log/$app/$app.log"
-
-
-# Set permissions
-ynh_script_progression --message="Protecting directory"
-set_permission
-
-# Save Version
-ynh_app_setting_set --app=$app --key=upstream_version --value=$(ynh_app_upstream_version)
 
 #=================================================
 # START SYSTEMD SERVICE
@@ -343,7 +342,7 @@ fi
 #=================================================
 ynh_script_progression --message="Reconfiguring Fail2Ban..." --weight=1
 
-ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
+ynh_add_fail2ban_config --logpath "/var/log/$app/$app.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
 
 #=================================================
 # RELOAD NGINX
