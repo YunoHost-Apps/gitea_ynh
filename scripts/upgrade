@@ -19,6 +19,7 @@ app=$YNH_APP_INSTANCE_NAME
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 path_url=$(ynh_app_setting_get --app=$app --key=path)
 admin=$(ynh_app_setting_get --app=$app --key=adminusername)
+final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 key=$(ynh_app_setting_get --app=$app --key=secret_key)
 lfs_key=$(ynh_app_setting_get --app=$app --key=lfs_key)
 port=$(ynh_app_setting_get --app=$app --key=web_port)
