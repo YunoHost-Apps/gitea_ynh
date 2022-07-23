@@ -33,8 +33,8 @@ path_url=$YNH_APP_ARG_PATH
 admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
 upstream_version=$(ynh_app_upstream_version)
-key=$(ynh_string_random)
-lfs_key=$(ynh_string_random)
+key=$(ynh_string_random --length=24)
+lfs_key=$(ynh_string_random --length=24)
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -60,6 +60,7 @@ fi
 #=================================================
 ynh_script_progression --message="Storing installation settings..." --weight=1
 
+ynh_app_setting_set --app=$app --key=domain --value=$domain
 ynh_app_setting_set --app=$app --key=adminusername --value=$admin
 ynh_app_setting_set --app=$app --key=secret_key --value=$key
 ynh_app_setting_set --app=$app --key=lfs_key --value=$lfs_key
@@ -100,13 +101,16 @@ ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
 #=================================================
 ynh_script_progression --message="Setting up source files..." --time --weight=1
 
-### `ynh_setup_source` is used to install an app from a zip or tar.gz file,
-### downloaded from an upstream source, like a git repository.
-### `ynh_setup_source` use the file conf/app.src
-
 ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$final_path" --source_id="../conf/source/$architecture"
+
+mkdir -p "$final_path/custom/conf"
+
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R $app:www-data "$final_path"
+chmod +x "$final_path/gitea"
 
 #=================================================
 # NGINX CONFIGURATION
@@ -126,6 +130,9 @@ ynh_app_setting_set --app=$app --key=datadir --value=$datadir
 
 mkdir -p $datadir
 
+# create needed directories
+mkdir -p "$datadir/data/{repositories,avatars,attachments}"
+
 chmod 750 "$datadir"
 chmod -R o-rwx "$datadir"
 chown -R $app:www-data "$datadir"
@@ -138,12 +145,8 @@ ynh_script_progression --message="Adding a configuration file..." --weight=1
 ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
 ynh_add_config --template="../conf/app.ini" --destination="$final_path/custom/conf/app.ini"
 
-chmod 400 "$final_path/custom/conf/app.ini"
+chmod 640 "$final_path/custom/conf/app.ini"
 chown $app:$app "$final_path/custom/conf/app.ini"
-
-# Store the checksum with the 'INTERNAL_TOKEN' value.
-# Should be removed when the issue https://github.com/go-gitea/gitea/issues/3246 is fixed
-ynh_store_file_checksum --file "$final_path/custom/conf/app.ini"
 
 #=================================================
 # SETUP SYSTEMD
@@ -153,68 +156,56 @@ ynh_script_progression --message="Configuring a systemd service..." --time --wei
 # Create a dedicated systemd config
 ynh_add_systemd_config
 
-
-# create needed directories
-create_dir
-
-# Set permissions
-ynh_script_progression --message="Protecting directory"
-set_permission
-
-ynh_script_progression --message="Configuring application, step 2/2..."
-
-# Start gitea for building mysql tables
-systemctl start "$app".service
-
-# Wait untill login_source mysql table is created
-while ! $(ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name"  <<< "SELECT * FROM login_source;" &>/dev/null)
-do
-    sleep 2
-done
-
-# Add ldap config
-ynh_replace_string --match_string "__APP__" --replace_string "$app" --target_file ../conf/login_source.sql
-ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name" < ../conf/login_source.sql
-
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
 # SETUP LOGROTATE
 #=================================================
-ynh_script_progression --message="Configuring log rotation..." --time --weight=1
+ynh_script_progression --message="Configuring log rotation..." --weight=1
 
-ynh_use_logrotate --logfile="/var/log/$app"
+# Use logrotate to manage application logfile(s)
+ynh_use_logrotate
 
-# Save Version
-ynh_app_setting_set --app $app --key upstream_version --value $(ynh_app_upstream_version)
+mkdir -p "/var/log/$app"
+chmod u=rwX,g=rX,o= "/var/log/$app"
+chown -R $app: "/var/log/$app"
 
 #=================================================
 # INTEGRATE SERVICE IN YUNOHOST
 #=================================================
-ynh_script_progression --message="Integrating service in YunoHost..." --time --weight=1
+ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
 
-yunohost service add $app --description="A short description of the app" --log="/var/log/$app/$app.log"
+yunohost service add $app --description="Lightweight Git forge" --log="/var/log/$app/$app.log"
+
+#=================================================
+# INTEGRATE SERVICE IN YUNOHOST
+#=================================================
+ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
+
+yunohost service add $app --description="Lightweight Git forge" --log="/var/log/$app/$app.log"
 
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
-ynh_script_progression --message="Starting a systemd service..." --time --weight=1
+ynh_script_progression --message="Starting a systemd service..." --weight=3
 
+# Start a systemd service
 ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log" --line_match="Starting new Web server: tcp:127.0.0.1:"
 
 #=================================================
 # SETUP FAIL2BAN
 #=================================================
-ynh_script_progression --message="Configuring Fail2Ban..." --time --weight=1
+ynh_script_progression --message="Configuring Fail2Ban..." --weight=1
 
+# Create a dedicated Fail2Ban config
 ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
 
 #=================================================
 # SETUP SSOWAT
 #=================================================
-ynh_script_progression --message="Configuring permissions..." --time --weight=1
+ynh_script_progression --message="Configuring permissions..." --weight=1
 
-# Make app public if necessary
+# Make app public if necessary or protect it
 if [ $is_public -eq 1 ]
 then
 	# Everyone can access the app.
@@ -228,12 +219,21 @@ ynh_permission_create --permission="admin" --allowed=$admin
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading NGINX web server..." --time --weight=1
+ynh_script_progression --message="Reloading NGINX web server..." --weight=1
 
 ynh_systemd_action --service_name=nginx --action=reload
+
+#=================================================
+# LDAP CONFIGURATION
+#=================================================
+ynh_script_progression --message="Adding LDAP configuration..." --weight=1
+
+pushd "$final_path"
+	ynh_exec_as $app ./gitea admin auth add-ldap --security-protocol "Unencrypted" --name "YunoHost LDAP" --host "localhost" --port "389" --skip-tls-verify --user-search-base "ou=users,dc=yunohost,dc=org" --user-filter "(&(uid=%s)(objectClass=posixAccount)(permission=cn=$app.main,ou=permission,dc=yunohost,dc=org))" --firstname-attribute "givenName" --surname-attribute "sn" --email-attribute "mail" --admin-filter "(permission=cn=$app.admin,ou=permission,dc=yunohost,dc=org)"
+popd
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Installation of $app completed" --time --last
+ynh_script_progression --message="Installation of $app completed" --last
