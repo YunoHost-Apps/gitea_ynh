@@ -26,6 +26,7 @@ upstream_version=$(ynh_app_setting_get --app=$app --key=upstream_version)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 db_user=$db_name
 db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
