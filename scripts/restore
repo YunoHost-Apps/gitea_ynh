@@ -13,6 +13,10 @@ source /usr/share/yunohost/helpers
 # MANAGE SCRIPT FAILURE
 #=================================================
 
+ynh_clean_setup () {
+	#### Remove this function if there's nothing to clean before calling the remove script.
+	true
+}
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
 
@@ -28,7 +32,6 @@ path_url=$(ynh_app_setting_get --app=$app --key=path)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 db_user=$db_name
-admin=$(ynh_app_setting_get --app=$app --key=admin)
 datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 
 #=================================================
@@ -37,20 +40,10 @@ datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 ynh_script_progression --message="Validating restoration parameters..." --weight=2
 
 test ! -d $final_path \
-	|| ynh_die --message="There is already a directory: $final_path "
-
-ynh_user_exists "$admin" \
-  || ynh_die --message "The chosen admin user does not exist."
+	|| ynh_die --message="There is already a directory: $final_path"
 
 #=================================================
 # STANDARD RESTORATION STEPS
-#=================================================
-# RESTORE THE NGINX CONFIGURATION
-#=================================================
-ynh_script_progression --message="Restoring the NGINX configuration..." --weight=1
-
-ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
-
 #=================================================
 # RECREATE THE DEDICATED USER
 #=================================================
@@ -59,6 +52,13 @@ ynh_script_progression --message="Recreating the dedicated system user..." --wei
 ynh_system_user_create --username=$app --home_dir=$datadir --use_shell
 # Add ssh permission for Gitea user
 adduser $app ssh.app
+
+#=================================================
+# RESTORE THE NGINX CONFIGURATION
+#=================================================
+ynh_script_progression --message="Restoring the NGINX configuration..." --weight=1
+
+ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
 # RESTORE THE APP MAIN DIR
@@ -70,6 +70,7 @@ ynh_restore_file --origin_path="$final_path"
 chmod 750 "$final_path"
 chmod -R o-rwx "$final_path"
 chown -R $app:www-data "$final_path"
+chmod +x "$final_path/gitea"
 
 #=================================================
 # RESTORE THE DATA DIRECTORY
