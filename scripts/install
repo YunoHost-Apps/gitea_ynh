@@ -127,8 +127,8 @@ ynh_script_progression --message="Configuring permissions"
 ynh_permission_create --permission="admin" --allowed=$admin
 
 # Add gitea to YunoHost's monitored services
-ynh_script_progression --message="Register gitea service..."
-yunohost service add "$app" --log "/var/log/$app/gitea.log"
+ynh_script_progression --message="Register Gitea service..."
+yunohost service add "$app" --log="/var/log/$app/gitea.log"
 
 # Configure logrotate
 ynh_script_progression --message="Configuring log rotation..."
