@@ -96,7 +96,8 @@ fi
 ynh_script_progression --message="Making sure dedicated system user exists..." --weight=1
 
 ynh_system_user_create --username=$app --home_dir=$datadir --use_shell
-# Add ssh permission for gitea user
+
+# Add SSH permission for Gitea user
 adduser $app ssh.app
 
 #=================================================
@@ -113,7 +114,7 @@ if [[ $migration_process -eq 1 ]]; then
     #db_name=$(ynh_sanitize_dbid --db_name=$app)
     #db_user=$db_name
     #final_path="/opt/$app"
-    #datadir="/home/$app"
+    #datadir="/home/yunohost.app/$app"
     #repos_path="$datadir/repositories"
     #data_path="$datadir/data"
 
@@ -263,10 +264,10 @@ chmod +x "$final_path/gitea"
 ynh_script_progression --message="Adding a configuration file..." --weight=1
 
 ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
-ynh_add_config --template="../conf/app.ini" --destination="$final_path/custom/conf/app.ini"
+ynh_add_config --template="../conf/app.ini" --destination="$final_path/app.ini"
 
-chmod 640 "$final_path/custom/conf/app.ini"
-chown $app:$app "$final_path/custom/conf/app.ini"
+chmod 640 "$final_path/app.ini"
+chown $app:$app "$final_path/app.ini"
 
 #=================================================
 # NGINX CONFIGURATION

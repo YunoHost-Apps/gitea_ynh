@@ -118,10 +118,10 @@ domain=$new_domain
 path_url=$new_path
 ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
 
-ynh_exec_warn_less ynh_add_config --template="../conf/app.ini" --destination="$final_path/custom/conf/app.ini"
+ynh_exec_warn_less ynh_add_config --template="../conf/app.ini" --destination="$final_path/app.ini"
 
-chmod 640 "$final_path/custom/conf/app.ini"
-chown $app:$app "$final_path/custom/conf/app.ini"
+chmod 640 "$final_path/app.ini"
+chown $app:$app "$final_path/app.ini"
 
 #=================================================
 # GENERIC FINALISATION
