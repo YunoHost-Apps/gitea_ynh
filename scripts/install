@@ -139,8 +139,8 @@ ynh_app_setting_set --app $app --key upstream_version --value $(ynh_app_upstream
 
 # Reload services
 ynh_script_progression --message="Starting gitea services..." --weight=3
-ynh_systemd_action -l "Starting new Web server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 10
-sleep 1
+
+ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/gitea.log" --line_match="Starting new Web server: tcp:127.0.0.1:"
 
 # Store the checksum with the 'INTERNAL_TOKEN' value.
 # Should be removed when the issue https://github.com/go-gitea/gitea/issues/3246 is fixed
