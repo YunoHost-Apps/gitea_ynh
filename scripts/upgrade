@@ -109,14 +109,13 @@ config_gitea
 ynh_script_progression --message="Updating systemd units..."
 ynh_add_systemd_config
 
-# Modify Nginx configuration file and copy it to Nginx conf directory
-ynh_script_progression --message="Configuring nginx..." --weight=1
+# Modify Nginx configuration file and copy it to NGINX conf directory
+ynh_script_progression --message="Configuring NGINX..." --weight=1
 config_nginx
 
 #=================================================
 # DB migration
 #=================================================
-
 ynh_script_progression --message="Upgrading database and sources..." --weight=6
 
 # Before the version 1.7 the upstream version was not stored
@@ -133,7 +132,8 @@ fi
 restart_gitea() {
     # Set permissions
     set_permission
-    ynh_systemd_action -l "Starting new server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 30
+    #ynh_systemd_action -l "Starting new server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 30
+    ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/gitea.log" --line_match="Starting new Web server: tcp:127.0.0.1:"
     # Leave the time to update the database schema
     sleep 5
     systemctl stop $app
@@ -214,8 +214,8 @@ ynh_setup_source $final_path source/$architecture
 restart_gitea
 
 # SETUP FAIL2BAN
-ynh_script_progression --message="Configuring fail2ban..."
-ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
+ynh_script_progression --message="Configuring Fail2Ban..."
+ynh_add_fail2ban_config --logpath="/var/log/$app/gitea.log" --failregex=".*Failed authentication attempt for .* from <HOST>" --max_retry 5
 
 #=================================================
 # GENERIC FINALIZATION
@@ -225,15 +225,15 @@ ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Faile
 ynh_script_progression --message="Update permission..."
 if ! ynh_permission_exists --permission admin; then
     ynh_app_setting_delete --app $app --key unprotected_uris
-    ynh_permission_create --permission 'admin' --allowed "$admin"
+    ynh_permission_create --permission="admin" --allowed="$admin"
     # Update ldap config
-    ynh_replace_string --match_string "__APP__" --replace_string "$app" --target_file ../conf/login_source.sql
+    ynh_replace_string --match_string="__APP__" --replace_string="$app" --target_file="../conf/login_source.sql"
     ynh_mysql_connect_as "$db_user" "$db_password" "$dbname" < ../conf/login_source.sql
 fi
 
 # Add gitea to YunoHost's monitored services
-ynh_script_progression --message="Register gitea service..."
-yunohost service add "$app" --log "/var/log/$app/gitea.log"
+ynh_script_progression --message="Register Gitea service..."
+yunohost service add "$app" --log="/var/log/$app/gitea.log"
 
 # Add ssh permission for gitea user
 adduser $app ssh.app
@@ -243,23 +243,24 @@ ynh_script_progression --message="Protecting directory"
 set_permission
 
 # Save Version
-ynh_app_setting_set --app $app --key upstream_version --value $(ynh_app_upstream_version)
+ynh_app_setting_set --app=$app --key=upstream_version --value=$(ynh_app_upstream_version)
 
 # Reload services
-ynh_script_progression --message="Starting gitea services..." --weight=3
-ynh_systemd_action -l "Starting new Web server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 10
-sleep 1
+ynh_script_progression --message="Starting Gitea services..." --weight=3
+#ynh_systemd_action -l "Starting new Web server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 10
+#sleep 1
+ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/gitea.log" --line_match="Starting new Web server: tcp:127.0.0.1:"
 
 # Store the checksum with the 'INTERNAL_TOKEN' value.
 # Should be removed when the issue https://github.com/go-gitea/gitea/issues/3246 is fixed
-ynh_store_file_checksum --file "$final_path/custom/conf/app.ini"
+ynh_store_file_checksum --file="$final_path/custom/conf/app.ini"
 
 #=================================================
 # FINISH MIGRATION PROCESS
 #=================================================
 
 if [[ $migration_process -eq 1 ]]; then
-    echo "gogs has been successfully migrated to Gitea! \
+    echo "Gogs has been successfully migrated to Gitea! \
 A last scheduled operation will run in a couple of minutes to finish the \
 migration in YunoHost side. Do not proceed any application operation while \
 you don't see Gogs as installed." >&2
