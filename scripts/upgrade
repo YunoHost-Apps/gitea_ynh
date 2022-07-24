@@ -133,7 +133,7 @@ restart_gitea() {
     # Set permissions
     set_permission
     #ynh_systemd_action -l "Starting new server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 30
-    ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/gitea.log" --line_match="Starting new Web server: tcp:127.0.0.1:"
+    ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/gitea.log" --line_match="Serving 127.0.0.1:"
     # Leave the time to update the database schema
     sleep 5
     systemctl stop $app
