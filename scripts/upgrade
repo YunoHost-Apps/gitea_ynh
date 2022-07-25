@@ -46,6 +46,29 @@ then
 fi
 
 #=================================================
+# ENSURE DOWNWARD COMPATIBILITY
+#=================================================
+ynh_script_progression --message="Ensuring downward compatibility..." --time --weight=1
+
+# If db_name doesn't exist, create it
+if [ -z "$db_name" ]; then
+   db_name=$(ynh_sanitize_dbid --db_name=$app)
+   ynh_app_setting_set --app=$app --key=db_name --value=$db_name
+fi
+
+# Cleaning legacy permissions
+if ynh_legacy_permissions_exists; then
+    ynh_legacy_permissions_delete_all
+
+    ynh_app_setting_delete --app=$app --key=is_public
+fi
+
+if ! ynh_permission_exists --permission="admin"; then
+    # Create the required permissions
+    ynh_permission_create --permission="admin" --allowed=$admin
+fi
+
+#=================================================
 # MIGRATION FROM GOGS
 #=================================================
 
