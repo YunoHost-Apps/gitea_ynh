@@ -75,9 +75,14 @@ create_dir
 ynh_script_progression --message="Configuring a systemd service..." --weight=2
 ynh_add_systemd_config
 
-# Modify Nginx configuration file and copy it to Nginx conf directory
-ynh_script_progression --message="Configuring nginx..." --weight=1
-config_nginx
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+ynh_script_progression --message="Configuring NGINX web server..." --weight=1
+
+# Create a dedicated NGINX config
+ynh_add_nginx_config
+
 
 # Configure gitea with app.ini file
 ynh_script_progression --message="Configuring application, step 1/2..."

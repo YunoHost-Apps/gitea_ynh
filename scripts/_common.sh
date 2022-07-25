@@ -43,14 +43,6 @@ create_dir() {
     mkdir -p "/var/log/$app"
 }
 
-config_nginx() {
-    if [ "$path_url" != "/" ]
-    then
-        ynh_replace_string --match_string "^#sub_path_only" --replace_string "" --target_file "../conf/nginx.conf"
-    fi
-    ynh_add_nginx_config
-}
-
 config_gitea() {
     ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
     ynh_add_config --template="app.ini" --destination="$final_path/custom/conf/app.ini"

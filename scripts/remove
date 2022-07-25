@@ -38,9 +38,15 @@ ynh_secure_remove --file="/var/log/$app"
 # Remove the app-specific logrotate config
 ynh_remove_logrotate
 
-# Remove nginx config
-ynh_script_progression --message="Removing nginx configuration..."
+#=================================================
+# REMOVE NGINX CONFIGURATION
+#=================================================
+ynh_script_progression --message="Removing NGINX web server configuration..." --weight=1
+
+# Remove the dedicated NGINX config
 ynh_remove_nginx_config
+
+
 
 # Remove gitea user and data
 ynh_script_progression --message="Removing the dedicated system user..."

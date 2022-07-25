@@ -39,6 +39,16 @@ test ! -e "$final_path" || ynh_die --message "This path already contains a folde
 ynh_script_progression --message="Configuring system user..."
 ynh_system_user_create --username=$app --home_dir=$datadir --use_shell
 
+#=================================================
+# STANDARD RESTORATION STEPS
+#=================================================
+# RESTORE THE NGINX CONFIGURATION
+#=================================================
+ynh_script_progression --message="Restoring the NGINX configuration..." --weight=1
+
+ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
+
+
 # Restore all files
 ynh_script_progression --message="Restoring files..." --weight=10
 ynh_restore

@@ -109,9 +109,13 @@ config_gitea
 ynh_script_progression --message="Updating systemd units..."
 ynh_add_systemd_config
 
-# Modify Nginx configuration file and copy it to NGINX conf directory
-ynh_script_progression --message="Configuring NGINX..." --weight=1
-config_nginx
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+ynh_script_progression --message="Upgrading NGINX web server configuration..." --weight=1
+
+# Create a dedicated NGINX config
+ynh_add_nginx_config
 
 #=================================================
 # DB migration
@@ -274,4 +278,16 @@ you don't see Gogs as installed." >&2
     (cd /tmp; echo "/tmp/$script_post_migration > /tmp/$script_post_migration.log 2>&1" | at now + 2 minutes)
 fi
 
+#=================================================
+# RELOAD NGINX
+#=================================================
+ynh_script_progression --message="Reloading NGINX web server..." --weight=1
+
+ynh_systemd_action --service_name=nginx --action=reload
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
 ynh_script_progression --message="Upgrade of $app completed" --last
+
