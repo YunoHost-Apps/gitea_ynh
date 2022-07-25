@@ -156,6 +156,7 @@ fi
 #=================================================
 # DATA BASE MIGRATION
 #=================================================
+
 ynh_script_progression --message="Upgrading database and sources..." --weight=6
 
 # Before the version 1.7 the upstream version was not stored
@@ -170,7 +171,6 @@ if [ -z ${upstream_version:-} ]; then
 fi
 
 restart_gitea() {
-    #set_permission
     ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/gitea.log" --line_match="Starting new Web server: tcp:127.0.0.1:"
     # Leave the time to update the database schema
     sleep 5
@@ -295,22 +295,6 @@ ynh_use_logrotate --non-append
 
 #=================================================
 # GENERIC FINALIZATION
-#=================================================
-
-# # Set all permissions
-# ynh_script_progression --message="Update permission..."
-
-# if ! ynh_permission_exists --permission admin; then
-#     ynh_app_setting_delete --app=$app --key=unprotected_uris
-#     ynh_permission_create --permission='admin' --allowed="$admin"
-#     # Update LDAP config
-#     #ynh_replace_string --match_string "__APP__" --replace_string "$app" --target_file ../conf/login_source.sql
-#     #ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name" < ../conf/login_source.sql
-#     pushd "$final_path"
-#         ynh_exec_as $app ./gitea admin auth add-ldap --security-protocol "Unencrypted" --name "YunoHost LDAP" --host "localhost" --port "389" --skip-tls-verify --user-search-base "ou=users,dc=yunohost,dc=org" --user-filter "(&(uid=%s)(objectClass=posixAccount)(permission=cn=$app.main,ou=permission,dc=yunohost,dc=org))" --firstname-attribute "givenName" --surname-attribute "sn" --email-attribute "mail" --admin-filter "(permission=cn=$app.admin,ou=permission,dc=yunohost,dc=org)"
-#     popd
-# fi
-
 #=================================================
 # INTEGRATE SERVICE IN YUNOHOST
 #=================================================
