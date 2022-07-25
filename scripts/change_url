@@ -110,6 +110,8 @@ fi
 #=================================================
 ynh_script_progression --message="Updating gitea configuration..." --weight=1
 
+domain=$new_domain
+path_url=$new_path
 ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
 ynh_add_config --template="app.ini" --destination="$final_path/custom/conf/app.ini"
 
