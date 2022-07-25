@@ -3,8 +3,8 @@
 #=================================================
 
 app=$YNH_APP_INSTANCE_NAME
-dbname=$app
-db_user=$app
+db_name=$(ynh_sanitize_dbid --db_name=$app)
+db_user=$db_name
 final_path="/opt/$app"
 datadir="/home/yunohost.app/$app"
 repos_path="$datadir/repositories"

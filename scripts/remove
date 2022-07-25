@@ -13,8 +13,11 @@ source /usr/share/yunohost/helpers
 
 ynh_script_progression --message="Loading installation settings..."
 
-# Retrieve domain from app settings
+app=$YNH_APP_INSTANCE_NAME
+
 domain=$(ynh_app_setting_get --app $app --key domain)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+db_user=$db_name
 
 #=================================================
 # STANDARD REMOVE
@@ -24,10 +27,14 @@ domain=$(ynh_app_setting_get --app $app --key domain)
 ynh_script_progression --message="Stoping services..."
 systemctl stop "$app".service
 
-# Drop MySQL database and user
-ynh_script_progression --message="Removing databases..."
-ynh_mysql_drop_db "$dbname" 2>/dev/null
-ynh_mysql_drop_user "$db_user" 2>/dev/null
+#=================================================
+# REMOVE THE MYSQL DATABASE
+#=================================================
+ynh_script_progression --message="Removing the MySQL database..." --weight=1
+
+# Remove a database if it exists, along with the associated user
+ynh_mysql_remove_db --db_user=$db_user --db_name=$db_name
+
 
 # Delete app directory and configurations
 ynh_script_progression --message="Removing code..."

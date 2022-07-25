@@ -18,7 +18,9 @@ ynh_abort_if_errors
 ynh_script_progression --message="Loading installation settings..."
 domain=$(ynh_app_setting_get --app $app --key domain)
 path_url=$(ynh_normalize_url_path --path_url $(ynh_app_setting_get --app $app --key path))
-db_password=$(ynh_app_setting_get --app $app --key mysqlpwd)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+db_user=$db_name
+db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
 admin=$(ynh_app_setting_get --app $app --key adminusername)
 key=$(ynh_app_setting_get --app $app --key secret_key)
 port=$(ynh_app_setting_get --app $app --key web_port)
@@ -54,8 +56,8 @@ ynh_handle_app_migration --migration_id=gogs --migration_list=gogs_migrations
 
 if [[ $migration_process -eq 1 ]]; then
     # Reload variables
-    dbname=$app
-    db_user=$app
+    db_name=$(ynh_sanitize_dbid --db_name=$app)
+    db_user=$db_name
     final_path="/opt/$app"
     datadir="/home/""$app"
     repos_path="$datadir/repositories"
@@ -73,7 +75,7 @@ if [[ $migration_process -eq 1 ]]; then
 
     # Restore authentication from SQL database
     ynh_replace_string --match_string __APP__ --replace_string "$app" --target_file ../conf/login_source.sql
-    ynh_mysql_connect_as "$db_user" "$db_password" "$dbname" < ../conf/login_source.sql
+    ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name" < ../conf/login_source.sql
 
     # Fix hooks
     if [[ -e $repos_path ]];then
@@ -227,7 +229,7 @@ if ! ynh_permission_exists --permission admin; then
     ynh_permission_create --permission="admin" --allowed="$admin"
     # Update ldap config
     ynh_replace_string --match_string="__APP__" --replace_string="$app" --target_file="../conf/login_source.sql"
-    ynh_mysql_connect_as "$db_user" "$db_password" "$dbname" < ../conf/login_source.sql
+    ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name" < ../conf/login_source.sql
 fi
 
 # Add gitea to YunoHost's monitored services
