@@ -69,8 +69,8 @@ ynh_script_progression --message="Configuring log rotation..."
 ynh_use_logrotate --logfile "/var/log/$app"
 
 # Add gitea to YunoHost's monitored services
-ynh_script_progression --message="Register gitea service..."
-yunohost service add "$app" --log /var/log/"$app"/gitea.log
+ynh_script_progression --message="Register Gitea service..."
+yunohost service add "$app" --log=/var/log/$app/gitea.log
 
 # Reload services
 ynh_script_progression --message="Reloading services..."

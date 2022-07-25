@@ -1,9 +1,9 @@
 ;; General
     ; Manifest
-        domain="domain.tld"    (DOMAIN)
-        path="/path"	   (PATH)
-        admin="john"            (USER)
-        is_public=1 (PUBLIC|public=1|private=0)
+        domain="domain.tld"
+        path="/path"
+        admin="john"
+        is_public=1
     ; Checks
         pkg_linter=1
         setup_sub_dir=1
@@ -12,6 +12,8 @@
         setup_private=1
         setup_public=1
         upgrade=1
+        #1.14.5
+        upgrade=1   from_commit=7ea357724f2371aa1173f15ba5a7502609a0a131
         upgrade=1   from_commit=349992d4f3921e4e1adb37a0cace4a5a9eb67099
         upgrade=1   from_commit=4e078e91129725c8b09ba551ab2a04e0328a45b3
         backup_restore=1
@@ -20,6 +22,8 @@
         port_already_use=1 (6000)
         change_url=1
 ;;; Upgrade options
+    ; commit=7ea357724f2371aa1173f15ba5a7502609a0a131
+        name=1.14.5
 	; commit=349992d4f3921e4e1adb37a0cace4a5a9eb67099
 		name=First package version
 	; commit=4e078e91129725c8b09ba551ab2a04e0328a45b3
