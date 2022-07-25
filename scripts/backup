@@ -16,7 +16,8 @@ ynh_abort_if_errors
 
 # Retrieve app settings
 ynh_print_info --message="Loading installation settings..."
-domain=$(ynh_app_setting_get --app $app --key domain)
+domain=$(ynh_app_setting_get --app=$app --key=domain)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 
 if [[ ! "$(systemctl status $app.service)" =~ "Active: inactive (dead)" ]]; then
     ynh_print_warn --message="It's hightly recommended to make your backup when the service is stopped. Please stop $app service and with this command before to run the backup 'systemctl stop $app.service'"

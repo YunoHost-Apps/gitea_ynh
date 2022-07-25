@@ -20,9 +20,12 @@ ynh_script_progression --message="Loading installation settings..."
 old_domain=$YNH_APP_OLD_DOMAIN
 domain=$YNH_APP_NEW_DOMAIN
 path_url=$(ynh_normalize_url_path --path_url ${YNH_APP_NEW_PATH:-'/'})
+
 app=$YNH_APP_INSTANCE_NAME
 
-db_pwd=$(ynh_app_setting_get --app $app --key mysqlpwd)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+db_user=$db_name
+db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
 admin=$(ynh_app_setting_get --app $app --key adminusername)
 key=$(ynh_app_setting_get --app $app --key secret_key)
 port=$(ynh_app_setting_get --app $app --key web_port)
