@@ -11,28 +11,33 @@ source ./_common.sh
 # IMPORT GENERIC HELPERS
 source /usr/share/yunohost/helpers
 
-# Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
-
-# Retrieve app settings
+#=================================================
+# LOAD SETTINGS
+#=================================================
 ynh_script_progression --message="Loading installation settings..."
-domain=$(ynh_app_setting_get --app $app --key domain)
+
+domain=$(ynh_app_setting_get --app=$app --key=domain)
 path_url=$(ynh_normalize_url_path --path_url $(ynh_app_setting_get --app $app --key path))
-db_password=$(ynh_app_setting_get --app $app --key mysqlpwd)
-admin=$(ynh_app_setting_get --app $app --key adminusername)
-key=$(ynh_app_setting_get --app $app --key secret_key)
-port=$(ynh_app_setting_get --app $app --key web_port)
-upstream_version=$(ynh_app_setting_get --app $app --key upstream_version)
+db_password=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+admin=$(ynh_app_setting_get --app=$app --key=adminusername)
+key=$(ynh_app_setting_get --app=$app --key=secret_key)
+lfs_key=$(ynh_app_setting_get --app=$app --key=lfs_key)
+port=$(ynh_app_setting_get --app=$app --key=web_port)
+upstream_version=$(ynh_app_setting_get --app=$app --key=upstream_version)
+
+#=================================================
+# STOP SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message="Stopping a systemd service..." --weight=1
+
+# We stop the service before to set ynh_clean_setup
+ynh_systemd_action --service_name=$app --action="stop"
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
-ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=10
+ynh_script_progression --message="Backing up the app before upgrading (may take a while)..."
 
-# We stop the service before to set ynh_clean_setup
-ynh_systemd_action --service_name=$app.service --action=stop
-
-# Backup the current version of the app
 if [ "0$(ynh_app_setting_get --app=$app --key=disable_backup_before_upgrade)" -ne 1 ]
 then
     ynh_backup_before_upgrade
@@ -41,6 +46,20 @@ then
         ynh_clean_check_starting
         ynh_restore_upgradebackup
     }
+fi
+
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+#=================================================
+# ENSURE DOWNWARD COMPATIBILITY
+#=================================================
+ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
+
+# If lfs_key doesn't exist, create it
+if [ -z "$lfs_key" ]; then
+   lfs_key=$(ynh_string_random)
+   ynh_app_setting_set --app=$app --key=lfs_key --value=$lfs_key
 fi
 
 #=================================================
@@ -96,7 +115,6 @@ fi
 #=================================================
 # STANDARD UPGRADE STEPS
 #=================================================
-
 ynh_script_progression --message="Configuring application..."
 
 # Clean template to fix issue : https://github.com/gogits/gogs/issues/4585
