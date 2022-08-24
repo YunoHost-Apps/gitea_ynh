@@ -84,7 +84,7 @@ create_dir
 ynh_script_progression --message="Configuring a systemd service..." --weight=2
 ynh_add_systemd_config
 
-# Modify Nginx configuration file and copy it to Nginx conf directory
+# Modify Nginx configuration file and copy it to NGINX conf directory
 ynh_script_progression --message="Configuring nginx..." --weight=1
 config_nginx
 
