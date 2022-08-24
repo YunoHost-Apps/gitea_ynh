@@ -40,6 +40,12 @@ if [ -e "$datadir" ]; then
     mv "$datadir" "$old_data_dir_path"
 fi
 
+# Generate random password and key
+ynh_script_progression --message="Defining db password and key..."
+db_password=$(ynh_string_random)
+key=$(ynh_string_random)
+lfs_key=$(ynh_string_random)
+
 # Find available ports
 port=$(ynh_find_port --port 6000)
 
