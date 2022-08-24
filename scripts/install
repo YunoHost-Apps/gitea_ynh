@@ -48,6 +48,7 @@ ynh_script_progression --message="Storing installation settings..."
 
 ynh_app_setting_set --app $app --key adminusername --value $admin
 ynh_app_setting_set --app $app --key secret_key --value $key
+ynh_app_setting_set --app $app --key lfs_key --value $lfs_key
 ynh_app_setting_set --app $app --key web_port --value $port
 
 #=================================================

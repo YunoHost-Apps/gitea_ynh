@@ -11,12 +11,12 @@ source ./_common.sh
 # IMPORT GENERIC HELPERS
 source /usr/share/yunohost/helpers
 
-# Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
-
-# Retrieve app settings
+#=================================================
+# LOAD SETTINGS
+#=================================================
 ynh_script_progression --message="Loading installation settings..."
-domain=$(ynh_app_setting_get --app $app --key domain)
+
+domain=$(ynh_app_setting_get --app=$app --key=domain)
 path_url=$(ynh_normalize_url_path --path_url $(ynh_app_setting_get --app $app --key path))
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 db_user=$db_name
@@ -29,12 +29,8 @@ upstream_version=$(ynh_app_setting_get --app $app --key upstream_version)
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
-ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=10
+ynh_script_progression --message="Backing up the app before upgrading (may take a while)..."
 
-# We stop the service before to set ynh_clean_setup
-ynh_systemd_action --service_name=$app.service --action=stop
-
-# Backup the current version of the app
 if [ "0$(ynh_app_setting_get --app=$app --key=disable_backup_before_upgrade)" -ne 1 ]
 then
     ynh_backup_before_upgrade
@@ -45,6 +41,9 @@ then
     }
 fi
 
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
@@ -54,6 +53,12 @@ ynh_script_progression --message="Ensuring downward compatibility..." --time --w
 if [ -z "$db_name" ]; then
    db_name=$(ynh_sanitize_dbid --db_name=$app)
    ynh_app_setting_set --app=$app --key=db_name --value=$db_name
+fi
+
+# If lfs_key doesn't exist, create it
+if [ -z "$lfs_key" ]; then
+   lfs_key=$(ynh_string_random)
+   ynh_app_setting_set --app=$app --key=lfs_key --value=$lfs_key
 fi
 
 # Cleaning legacy permissions
@@ -121,7 +126,6 @@ fi
 #=================================================
 # STANDARD UPGRADE STEPS
 #=================================================
-
 ynh_script_progression --message="Configuring application..."
 
 # Clean template to fix issue : https://github.com/gogits/gogs/issues/4585
@@ -229,6 +233,14 @@ case $upstream_version in
 ;&
 "1.14."* )
     ynh_setup_source $final_path source/${architecture}_1.15
+    restart_gitea
+;&
+"1.15."* )
+    ynh_setup_source $final_path source/${architecture}_1.16
+    restart_gitea
+;&
+"1.16."* )
+    ynh_setup_source $final_path source/${architecture}_1.16
     restart_gitea
 ;&
 esac
