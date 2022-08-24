@@ -17,7 +17,7 @@ source /usr/share/yunohost/helpers
 ynh_script_progression --message="Loading installation settings..."
 
 domain=$(ynh_app_setting_get --app=$app --key=domain)
-path_url=$(ynh_normalize_url_path --path_url $(ynh_app_setting_get --app $app --key path))
+path_url=$(ynh_app_setting_get --app=$app --key=path)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 db_user=$db_name
 db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
@@ -47,7 +47,7 @@ ynh_abort_if_errors
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
-ynh_script_progression --message="Ensuring downward compatibility..." --time --weight=1
+ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
 
 # If db_name doesn't exist, create it
 if [ -z "$db_name" ]; then

@@ -60,7 +60,7 @@ systemctl daemon-reload
 systemctl enable "$app".service --quiet
 
 # SETUP FAIL2BAN
-ynh_script_progression --message="Configuring fail2ban..."
+ynh_script_progression --message="Configuring Fail2Ban..."
 ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
 
 #=================================================
