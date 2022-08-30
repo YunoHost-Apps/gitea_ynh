@@ -22,9 +22,10 @@ domain=$YNH_APP_NEW_DOMAIN
 path_url=$(ynh_normalize_url_path --path_url ${YNH_APP_NEW_PATH:-'/'})
 app=$YNH_APP_INSTANCE_NAME
 
-dbpass=$(ynh_app_setting_get --app $app --key mysqlpwd)
+db_password=$(ynh_app_setting_get --app $app --key mysqlpwd)
 admin=$(ynh_app_setting_get --app $app --key adminusername)
 key=$(ynh_app_setting_get --app $app --key secret_key)
+lfs_key=$(ynh_app_setting_get --app $app --key lfs_key)
 port=$(ynh_app_setting_get --app $app --key web_port)
 upstream_version=$(ynh_app_setting_get $app upstream_version)
 
@@ -55,7 +56,7 @@ config_gitea
 
 # RELOAD services
 ynh_script_progression --message="Starting services..."
-ynh_systemd_action -l "Starting new server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 10 -a restart
+ynh_systemd_action -l "Starting new Web server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 10 -a restart
 sleep 1
 
 # Store the checksum with the 'INTERNAL_TOKEN' value.
