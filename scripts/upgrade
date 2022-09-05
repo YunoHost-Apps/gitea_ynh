@@ -110,6 +110,7 @@ fi
 # Move data directory
 if [ -e "/home/""$app" ] && [ ! -e $datadir ]; then
     mv "/home/""$app" "$datadir"
+    usermod -d "$datadir" $app
 fi
 
 #=================================================
