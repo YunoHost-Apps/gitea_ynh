@@ -112,6 +112,11 @@ if [ -e "/home/""$app" ] && [ ! -e $datadir ]; then
     mv "/home/""$app" "$datadir"
 fi
 
+# Ensuring the user has the right home dir
+if [ ~$app != "$datadir" ]; then
+    usermod -d "$datadir" $app
+fi
+
 #=================================================
 # STANDARD UPGRADE STEPS
 #=================================================
