@@ -14,7 +14,7 @@
     },
     "url": "http://gitea.io",
     "license": "MIT",
-    "version": "1.17.2~ynh1",
+    "version": "1.17.2~ynh2",
     "maintainer": {
         "name": "Josué Tille",
         "email": "josue@tille.ch"
