@@ -66,4 +66,5 @@ set_permission() {
     chmod u=rwx,g=rx,o= "$final_path/custom/conf/app.ini"
     chmod u=rwX,g=rX,o= "$datadir"
     chmod u=rwX,g=rX,o= "/var/log/$app"
+    chmod u=rwx,g=,o= "$ssh_path"
 }
