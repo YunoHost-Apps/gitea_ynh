@@ -5,24 +5,24 @@ It shall NOT be edited by hand.
 
 # Gitea pour YunoHost
 
-[![Niveau d'intégration](https://dash.yunohost.org/integration/gitea.svg)](https://dash.yunohost.org/appci/app/gitea) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/gitea.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/gitea.maintain.svg)  
+[![Niveau d’intégration](https://dash.yunohost.org/integration/gitea.svg)](https://dash.yunohost.org/appci/app/gitea) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/gitea.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/gitea.maintain.svg)  
 [![Installer Gitea avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=gitea)
 
 *[Read this readme in english.](./README.md)*
 
-> *Ce package vous permet d'installer Gitea rapidement et simplement sur un serveur YunoHost.
-Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour savoir comment l'installer et en profiter.*
+> *Ce package vous permet d’installer Gitea rapidement et simplement sur un serveur YunoHost.
+Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour savoir comment l’installer et en profiter.*
 
-## Vue d'ensemble
+## Vue d’ensemble
 
 Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to GitHub.
 
 
-**Version incluse :** 1.18.0~ynh1
+**Version incluse :** 1.18.1~ynh1
 
-## Captures d'écran
+## Captures d’écran
 
-![Capture d'écran de Gitea](./doc/screenshots/screenshot.png)
+![Capture d’écran de Gitea](./doc/screenshots/screenshot.png)
 
 ## Avertissements / informations importantes
 
@@ -106,9 +106,9 @@ If you want to use the Git command (like `git clone`, `git pull`, `git push`), y
 
 ## Documentations et ressources
 
-* Site officiel de l'app : <https://gitea.io/>
-* Documentation officielle de l'admin : <https://docs.gitea.io/>
-* Dépôt de code officiel de l'app : <https://github.com/go-gitea/gitea>
+* Site officiel de l’app : <https://gitea.io/>
+* Documentation officielle de l’admin : <https://docs.gitea.io/>
+* Dépôt de code officiel de l’app : <https://github.com/go-gitea/gitea>
 * Documentation YunoHost pour cette app : <https://yunohost.org/app_gitea>
 * Signaler un bug : <https://github.com/YunoHost-Apps/gitea_ynh/issues>
 
@@ -124,4 +124,4 @@ ou
 sudo yunohost app upgrade gitea -u https://github.com/YunoHost-Apps/gitea_ynh/tree/testing --debug
 ```
 
-**Plus d'infos sur le packaging d'applications :** <https://yunohost.org/packaging_apps>
+**Plus d’infos sur le packaging d’applications :** <https://yunohost.org/packaging_apps>
