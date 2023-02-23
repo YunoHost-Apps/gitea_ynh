@@ -1,24 +1,15 @@
 [Unit]
-Description=Gitea
-After=syslog.target
-After=network.target
-After=mysql.service
-After=slapd.service
+Description=Gitea: git Service
+After=syslog.target network.target mysql.service slapd.service
 
 [Service]
-# Modify these two values and uncomment them if you have
-# repos with lots of files and get an HTTP error 500 because
-# of that
-###
-#LimitMEMLOCK=infinity
-#LimitNOFILE=65535
 Type=simple
 User=__APP__
 Group=__APP__
-WorkingDirectory=/home/yunohost.app/__APP__
-ExecStart=/opt/__APP__/gitea web
+WorkingDirectory=__DATA_DIR__/
+ExecStart=__INSTALL_DIR__/gitea web -p __PORT__
 Restart=always
-Environment=USER=__APP__ HOME=/home/yunohost.app/__APP__
+Environment=USER=__APP__ HOME=__DATA_DIR__/
 
 # Sandboxing options to harden security
 # Depending on specificities of your service/app, you may need to tweak these 
