@@ -39,7 +39,7 @@ echo "PROCEED=false" >> "$GITHUB_ENV"
 
 # Proceed only if the retrieved version is greater than the current one
 if ! dpkg --compare-versions "$current_version" "lt" "$version" ; then
-    echo "::warning ::No new stable version available"
+    echo "::warning ::No new version available"
     exit 0
 # Proceed only if the retrieved version is not a release candidate
 elif [[ "$version" == *"rc"* ]] ; then
@@ -64,34 +64,32 @@ echo "${#assets[@]} available asset(s)"
 # Create the temporary directory
 tempdir="$(mktemp -d)"
 
+echo "First loop for processing checksum files..."
+
 # Let's loop over the array of assets URLs
 for asset_url in "${assets[@]}"; do
 
-echo "First loop for processing checksums..."
 echo "Handling asset at $asset_url"
 
 case $asset_url in
-  *".sha256")
-    checksum=1
+  # ignore irrelevant stuff
+  *".asc"* | *".xz"* | *".exe"* | *"src"* | *".tar.gz"* | *"freebsd"* | *"darwin"*)
     ;;
-  *)
-    checksum=0
+  *".sha256")
+    echo "Downloading checksum file at" "${asset_url##*/}"
+    filename=${asset_url##*/}
+    curl --silent -4 -L "$asset_url" -o "$tempdir/$filename"
     ;;
 esac
-
-if checksum; then
-  # Download checksums
-  echo "Downloading checksum file at" "${asset_url##*/}"
-  curl --silent -4 -L "${asset_url##*/}" -o "$tempdir/checksums/"
-fi
 
 done
 
 
+echo "Second loop for processing source files..."
+
 # Let's loop over the array of assets URLs
 for asset_url in "${assets[@]}"; do
 
-echo "Second loop for processing source files..."
 echo "Handling asset at $asset_url"
 
 # Assign the asset to a source file in conf/ directory
@@ -123,17 +121,17 @@ if [ -n "$src" ]; then
 
 # Get checksum
 filename=${asset_url##*/}
-checksum=$(< "$tempdir/checksums/$filename.sha256" awk '{print $1;}')
+checksum=$(< "$tempdir/$filename.sha256" awk '{print $1;}')
 
 # Rewrite source file
-cat <<EOT > "conf/$src.src"
+cat <<EOT > "conf/source/$src.src"
 SOURCE_URL=$asset_url
 SOURCE_SUM=$checksum
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FILENAME=gitea
 SOURCE_EXTRACT=false
 EOT
-echo "... conf/$src.src updated"
+echo "... conf/source/$src.src updated"
 
 else
 echo "... asset ignored"
@@ -163,5 +161,5 @@ echo "$(jq -s --indent 4 ".[] | .version = \"$version~ynh1\"" manifest.json)" > 
 # No need to update the README, yunohost-bot takes care of it
 
 # The Action will proceed only if the PROCEED environment variable is set to true
-echo "PROCEED=false" >> "$GITHUB_ENV"
+echo "PROCEED=true" >> "$GITHUB_ENV"
 exit 0
