@@ -3,49 +3,71 @@
 #=================================================
 # GENERIC START
 #=================================================
-
-# Load common variables and helpers
-source ../settings/scripts/experimental_helper.sh
-source ../settings/scripts/_common.sh
-
 # IMPORT GENERIC HELPERS
+#=================================================
+
+source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
-# Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
-
-# Retrieve app settings
-ynh_print_info --message="Loading installation settings..."
-domain=$(ynh_app_setting_get --app $app --key domain)
-
-if [[ ! "$(systemctl status $app.service)" =~ "Active: inactive (dead)" ]]; then
-    ynh_print_warn --message="It's hightly recommended to make your backup when the service is stopped. Please stop $app service and with this command before to run the backup 'systemctl stop $app.service'"
-fi
+#=================================================
+# DECLARE DATA AND CONF FILES TO BACKUP
+#=================================================
+ynh_print_info --message="Declaring files to be backed up..."
 
 #=================================================
-# STANDARD BACKUP STEPS
+# BACKUP THE APP MAIN DIR
 #=================================================
 
-# Copy the app source files
-ynh_print_info --message="Backing up code..."
-ynh_backup --src_path "$final_path"
+ynh_backup --src_path="$install_dir"
 
-# Copy the data files
-ynh_print_info --message="Backing up user data..."
-ynh_backup --src_path "$datadir" --is_big=1
+#=================================================
+# BACKUP THE DATA DIR
+#=================================================
 
-ynh_print_info --message="Backing up configuration..."
+ynh_backup --src_path="$data_dir" --is_big
 
-# Copy the conf files
-ynh_backup --src_path "/etc/nginx/conf.d/${domain}.d/${app}.conf"
-ynh_backup --src_path "/etc/systemd/system/${app}.service"
+#=================================================
+# BACKUP THE NGINX CONFIGURATION
+#=================================================
 
-# Backup logs
-ynh_print_info --message="Backing up logs..."
-ynh_backup --src_path "/var/log/$app"
+ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 
-# Dump the database
-ynh_print_info --message="Backing up database"
-ynh_mysql_dump_db "$dbname" > ./db.sql
+#=================================================
+# BACKUP FAIL2BAN CONFIGURATION
+#=================================================
+
+ynh_backup --src_path="/etc/fail2ban/jail.d/$app.conf"
+ynh_backup --src_path="/etc/fail2ban/filter.d/$app.conf"
+
+#=================================================
+# SPECIFIC BACKUP
+#=================================================
+# BACKUP LOGROTATE
+#=================================================
+
+ynh_backup --src_path="/etc/logrotate.d/$app"
+
+#=================================================
+# BACKUP SYSTEMD
+#=================================================
+
+ynh_backup --src_path="/etc/systemd/system/$app.service"
+
+#=================================================
+# BACKUP VARIOUS FILES
+#=================================================
+
+ynh_backup --src_path="/var/log/$app"
+
+#=================================================
+# BACKUP THE DATABASE
+#=================================================
+ynh_print_info --message="Backing up the database..."
+
+ynh_psql_dump_db --database="$db_name" > db.sql
+
+#=================================================
+# END OF SCRIPT
+#=================================================
 
 ynh_print_info --message="Backup script completed for $app. (YunoHost will then actually copy those files to the archive)."

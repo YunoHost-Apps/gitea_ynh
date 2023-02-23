@@ -1,0 +1,64 @@
+packaging_format = 2
+
+id = "gitea"
+name = "Gitea"
+description.en = "Lightweight self-hosted Git forge"
+description.fr = "Forge Git légère auto-hébergé"
+
+version = "1.18.5~ynh1"
+
+maintainers = []
+
+[upstream]
+license = "MIT"
+website = "https://gitea.io/"
+demo = "https://try.gitea.io/"
+admindoc = "https://docs.gitea.io/en-us/"
+code = "https://github.com/go-gitea/gitea"
+
+[integration]
+yunohost = ">= 11.1.11"
+architectures = "all"
+multi_instance = true
+ldap = true
+sso = false
+disk = "50M"
+ram.build = "50M"
+ram.runtime = "50M"
+
+[install]
+    [install.domain]
+    type = "domain"
+
+    [install.path]
+    type = "path"
+    default = "/gitea"
+
+    [install.admin]
+    type = "user"
+
+    [install.init_main_permission]
+    help.en = "If enabled, Gitea will be accessible by people who do not have an account. This can be changed later via the webadmin."
+    help.fr = "Si cette case est cochée, Gitea sera accessible aux personnes n’ayant pas de compte. Vous pourrez changer ceci plus tard via la webadmin."
+    type = "group"
+    default = "visitors"
+
+[resources]
+    [resources.ports]
+
+    [resources.system_user]
+    allow_ssh = true
+
+    [resources.install_dir]
+
+    [resources.data_dir]
+
+    [resources.permissions]
+    main.url = "/"
+    admin.allowed = ["admin"]
+
+    [resources.apt]
+    packages = "postgresql"
+
+    [resources.database]
+    type = "postgresql"
