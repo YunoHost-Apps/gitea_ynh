@@ -55,7 +55,7 @@ ram.runtime = "50M"
 
     [resources.permissions]
     main.url = "/"
-    admin.allowed = ["admin"]
+    admin.allowed = ["admins"]
 
     [resources.apt]
     packages = "postgresql"
