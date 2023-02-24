@@ -71,7 +71,7 @@ ynh_add_config --template="../conf/app.ini" --destination="$install_dir/custom/c
 
 chmod 640 "$install_dir/custom/conf/app.ini"
 chown $app:$app "$install_dir/custom/conf/app.ini"
-chmod u=rwx,g=,o= "$data_dir/.ssh"
+#chmod u=rwx,g=,o= "$data_dir/.ssh"
 
 #=================================================
 # START SYSTEMD SERVICE
