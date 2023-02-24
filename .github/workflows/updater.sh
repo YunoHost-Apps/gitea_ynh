@@ -48,7 +48,7 @@ assets=($(curl --silent "https://api.github.com/repos/$repo/releases" | jq -r '[
 # Sometimes the release name starts with a "v", so let's filter it out.
 # You may need more tweaks here if the upstream repository has different naming conventions. 
 if [[ ${version:0:1} == "v" || ${version:0:1} == "V" ]]; then
-    version=${version:1}
+  version=${version:1}
 fi
 
 # Setting up the environment variables
@@ -60,16 +60,16 @@ echo "PROCEED=false" >> "$GITHUB_ENV"
 
 # Proceed only if the retrieved version is greater than the current one
 if ! dpkg --compare-versions "$current_version" "lt" "$version" ; then
-    echo "::warning ::No new version available"
-    exit 0
+  echo "::warning ::No new version available"
+  exit 0
 # Proceed only if the retrieved version is not a release candidate
 elif [[ "$version" == *"rc"* ]] ; then
-    echo "::warning ::No new stable version available (there is a release candidate)"
-    exit 0
+  echo "::warning ::No new stable version available (there is a release candidate)"
+  exit 0
 # Proceed only if a PR for this new version does not already exist
 elif git ls-remote -q --exit-code --heads https://github.com/"$GITHUB_REPOSITORY".git ci-auto-update-v"$version" ; then
-    echo "::warning ::A branch already exists for this update"
-    exit 0
+  echo "::warning ::A branch already exists for this update"
+  exit 0
 fi
 
 # Each release can hold multiple assets (e.g. binaries for different architectures, source code, etc.)
@@ -140,17 +140,15 @@ esac
 
 # If $src is not empty, let's process the asset
 if [ -n "$src" ]; then
+  # Get checksum
+  filename=${asset_url##*/}
+  checksum=$(< "$tempdir/$filename.sha256" awk '{print $1;}')
 
-# Get checksum
-filename=${asset_url##*/}
-checksum=$(< "$tempdir/$filename.sha256" awk '{print $1;}')
+  path="conf/source/$src.src"
 
-path="conf/source/$src.src"
-
-update_source_file
-
+  update_source_file
 else
-echo "... asset ignored"
+  echo "... asset ignored"
 fi
 
 done
