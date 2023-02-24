@@ -160,7 +160,7 @@ echo "Upgrade done."
 
 # retrieving the actual version in the config file
 patch_version="$(grep -Eo 'SOURCE_URL=.*' conf/source/armv7.src | cut -d'v' -f2 | cut -d'/' -f1)"
-if [ "$current_version" != "$patch_version" ]; then
+if [ "$version" != "$patch_version" ]; then
   patch_source_file "conf/source/arm.src" "conf/source/armv7.src"
 fi
 
@@ -204,7 +204,7 @@ if [ "$last_main_version" != "$main_version" ]; then
 
   # retrieving the actual version in the config file
   patch_version="$(grep -Eo 'SOURCE_URL=.*' "conf/source/armv7_${last_main_version}.src" | cut -d'v' -f2 | cut -d'/' -f1)"
-  if [ "$current_version" != "$patch_version" ]; then
+  if [ "$version" != "$patch_version" ]; then
     patch_source_file "conf/source/arm_${last_main_version}.src" "conf/source/armv7_${last_main_version}.src"
   fi
 
