@@ -10,10 +10,27 @@
 # automatic actions when a new upstream release is detected.
 
 update_source_file() {
-# Rewrite source file
-sed -i "s@SOURCE_URL=.*@SOURCE_URL=$asset_url@" "$path"
-sed -i "s@SOURCE_SUM=.*@SOURCE_SUM=$checksum@" "$path"
-echo "... $path"
+  # Rewrite source file
+  sed -i "s@SOURCE_URL=.*@SOURCE_URL=$asset_url@" "$path"
+  sed -i "s@SOURCE_SUM=.*@SOURCE_SUM=$checksum@" "$path"
+  echo "... $path"
+}
+
+
+# if the armv7 source file has not been updated, fill it with the armv6 info
+# it's to patch the lack of armv7 build due to a bug
+
+patch_source_file() {
+  local patch_from_path=$1
+  local patch_to_path=$2
+
+  # if it's different from the new version available, patch the file
+  echo "Patching '$patch_to_path' with '$patch_from_path'."
+  path="$patch_to_path"
+  asset_url="$(grep -Eo 'SOURCE_URL=.*' "$patch_from_path" | cut -d'=' -f2)"
+  checksum="$(grep -Eo 'SOURCE_SUM=.*' "$patch_from_path" | cut -d'=' -f2)"
+  update_source_file
+  echo "Patching done."
 }
 
 #=================================================
@@ -130,14 +147,7 @@ checksum=$(< "$tempdir/$filename.sha256" awk '{print $1;}')
 
 path="conf/source/$src.src"
 
-# patching the armv7 file with the armv6 bin version
-if [ "$src" = "arm" ]; then
-  update_source_file
-  path="conf/source/armv7.src"
-  update_source_file
-else
-  update_source_file
-fi
+update_source_file
 
 else
 echo "... asset ignored"
@@ -146,6 +156,13 @@ fi
 done
 
 echo "Upgrade done."
+
+
+# retrieving the actual version in the config file
+patch_version="$(grep -Eo 'SOURCE_URL=.*' conf/source/armv7.src | cut -d'v' -f2 | cut -d'/' -f1)"
+if [ "$current_version" != "$patch_version" ]; then
+  patch_source_file "conf/source/arm.src" "conf/source/armv7.src"
+fi
 
 
 last_main_version="${current_version%.*}"
@@ -168,7 +185,7 @@ if [ "$last_main_version" != "$main_version" ]; then
     if [ "$i" = "arm" ]; then
       asset_url="https://github.com/$repo/releases/download/v$last_main_version_full/gitea-$last_main_version_full-linux-arm-6"
     elif [ "$i" = "armv7" ]; then
-      asset_url="https://github.com/$repo/releases/download/v$last_main_version_full/gitea-$last_main_version_full-linux-arm-6"
+      asset_url="https://github.com/$repo/releases/download/v$last_main_version_full/gitea-$last_main_version_full-linux-arm-7"
     elif [ "$i" = "arm64" ]; then
       asset_url="https://github.com/$repo/releases/download/v$last_main_version_full/gitea-$last_main_version_full-linux-arm64"
     elif [ "$i" = "i386" ]; then
@@ -184,6 +201,12 @@ if [ "$last_main_version" != "$main_version" ]; then
     update_source_file
 
   done
+
+  # retrieving the actual version in the config file
+  patch_version="$(grep -Eo 'SOURCE_URL=.*' "conf/source/armv7_${last_main_version}.src" | cut -d'v' -f2 | cut -d'/' -f1)"
+  if [ "$current_version" != "$patch_version" ]; then
+    patch_source_file "conf/source/arm_${last_main_version}.src" "conf/source/armv7_${last_main_version}.src"
+  fi
 
   echo "Creation of source files for migration completed"
 
