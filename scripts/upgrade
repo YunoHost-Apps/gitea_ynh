@@ -234,7 +234,11 @@ case $upstream_version in
     restart_gitea
 ;&
 "1.16."* )
-    ynh_setup_source $final_path source/${architecture}_1.16
+    ynh_setup_source $final_path source/${architecture}_1.17
+    restart_gitea
+;&
+"1.17."* )
+    ynh_setup_source $final_path source/${architecture}_1.18
     restart_gitea
 ;&
 esac

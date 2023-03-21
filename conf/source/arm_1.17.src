@@ -1,0 +1,5 @@
+SOURCE_URL=https://github.com/go-gitea/gitea/releases/download/v1.17.4/gitea-1.17.4-linux-arm-6
+SOURCE_SUM=771abb512809d8ddbc12381c58b42cc9b2e3569101d9a6e42fdf9195c584bfc1
+SOURCE_SUM_PRG=sha256sum
+SOURCE_FILENAME=gitea
+SOURCE_EXTRACT=false
