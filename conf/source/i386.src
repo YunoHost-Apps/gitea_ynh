@@ -1,5 +1,5 @@
-SOURCE_URL=https://github.com/go-gitea/gitea/releases/download/v1.19.0/gitea-1.19.0-linux-386
-SOURCE_SUM=f85fca601bf18666b0f4d30598539c1d05298ab677f85f3bd7db2d9908ef4b98
+SOURCE_URL=https://github.com/go-gitea/gitea/releases/download/v1.19.1/gitea-1.19.1-linux-386
+SOURCE_SUM=dbe11ba4f27f1702ddb54199e697d7f838b51dea7ddbcdcf7499ea96717d70ec
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FILENAME=gitea
 SOURCE_EXTRACT=false
