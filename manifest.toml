@@ -1,0 +1,78 @@
+packaging_format = 2
+
+id = "gitea"
+name = "Gitea"
+description.en = "Lightweight self-hosted Git forge"
+description.fr = "Forge Git légère auto-hébergé"
+
+version = "1.19.4~ynh1"
+
+maintainers = []
+
+[upstream]
+license = "MIT"
+website = "https://gitea.io/"
+demo = "https://try.gitea.io/"
+admindoc = "https://docs.gitea.io/en-us/"
+code = "https://github.com/go-gitea/gitea"
+
+[integration]
+yunohost = ">= 11.1.21"
+architectures = "all"
+multi_instance = true
+ldap = true
+sso = false
+disk = "50M"
+ram.build = "50M"
+ram.runtime = "50M"
+
+[install]
+    [install.domain]
+    type = "domain"
+
+    [install.path]
+    type = "path"
+    default = "/gitea"
+
+    [install.admin]
+    type = "user"
+
+    [install.init_main_permission]
+    help.en = "If enabled, Gitea will be accessible by people who do not have an account. This can be changed later via the webadmin."
+    help.fr = "Si cette case est cochée, Gitea sera accessible aux personnes n’ayant pas de compte. Vous pourrez changer ceci plus tard via la webadmin."
+    type = "group"
+    default = "visitors"
+
+[resources]
+
+[resources.sources]
+    [resources.sources.main]
+        amd64.url = "https://github.com/go-gitea/gitea/releases/download/v1.19.4/gitea-1.19.4-linux-amd64"
+        amd64.sha256 = "bf68e8e39c70dc54a7876527d463b517f8af51a2d2924511cd047f479cd8aefd"
+        arm64.url = "https://github.com/go-gitea/gitea/releases/download/v1.19.4/gitea-1.19.4-linux-arm64"
+        amd64.sha256 = "db147f43fa523a1ff9c7ae3acee9cde48b1b04ef1ca415a6429c781078ce2568"
+        armhf.url = "https://github.com/go-gitea/gitea/releases/download/v1.19.4/gitea-1.19.4-linux-arm-6"
+        armhf.sha256 = "befb106cf527244fdb2c40e2493d6831d4863bc2d3fe8304b6a96336f4c7e916"
+        i386.url = "https://github.com/go-gitea/gitea/releases/download/v1.19.4/gitea-1.19.4-linux-386"
+        i386.sha256 = "70fe6293587d467b8c31d8ab18d8b3abb603bb7a72b7cd90839e84a155cb89b5"
+        rename = "gitea"
+        extract = false
+
+    [resources.ports]
+
+    [resources.system_user]
+    allow_ssh = true
+
+    [resources.install_dir]
+
+    [resources.data_dir]
+
+    [resources.permissions]
+    main.url = "/"
+    admin.allowed = ["admins"]
+
+    [resources.apt]
+    packages = "postgresql"
+
+    [resources.database]
+    type = "postgresql"
