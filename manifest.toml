@@ -66,6 +66,7 @@ ram.runtime = "50M"
     [resources.install_dir]
 
     [resources.data_dir]
+    subdirs = [".ssh", "repositories", "data/avatars", "data/repo-avatars"]
 
     [resources.permissions]
     main.url = "/"
