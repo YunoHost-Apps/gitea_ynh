@@ -1,5 +1,5 @@
 [Unit]
-Description=Gitea: git Service
+Description=Gitea: Git Service
 After=syslog.target network.target mysql.service slapd.service
 
 [Service]
