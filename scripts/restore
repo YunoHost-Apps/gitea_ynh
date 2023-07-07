@@ -16,7 +16,6 @@ ynh_script_progression --message="Restoring $app main directory..." --weight=10
 
 ynh_restore_file --origin_path="$install_dir"
 
-chmod -R o-rwx "$install_dir"
 chown -R $app:www-data "$install_dir"
 
 #=================================================
