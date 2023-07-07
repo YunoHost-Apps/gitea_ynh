@@ -73,7 +73,7 @@ ram.runtime = "50M"
     admin.allowed = ["admins"]
 
     [resources.apt]
-    packages = "postgresql"
+    packages = "mariadb-server git"
 
     [resources.database]
-    type = "postgresql"
+    type = "mysql"
