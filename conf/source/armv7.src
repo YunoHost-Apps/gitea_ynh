@@ -1,8 +1,8 @@
 # The armv7 build is brocken
 # See : https://github.com/go-gitea/gitea/issues/6700
 # Use temporary the armv6 binary
-SOURCE_URL=https://github.com/go-gitea/gitea/releases/download/v1.20.2/gitea-1.20.2-linux-arm-6
-SOURCE_SUM=ecd8889835c419b1d82d1e82cb9371cb7b84eb900ad10d8040819c3862e2bf47
+SOURCE_URL=https://github.com/go-gitea/gitea/releases/download/v1.20.3/gitea-1.20.3-linux-arm-6
+SOURCE_SUM=13f5ed2d75faebd525b234eff15fe355cbebb8bcd24ec01d99cd8d3584048c6a
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FILENAME=gitea
 SOURCE_EXTRACT=false
