@@ -16,12 +16,12 @@ Type=simple
 User=__APP__
 Group=__APP__
 WorkingDirectory=/home/yunohost.app/__APP__
-ExecStart=/opt/__APP__/gitea web
+ExecStart=__INSTALL_DIR__/gitea web
 Restart=always
 Environment=USER=__APP__ HOME=/home/yunohost.app/__APP__
 
 # Sandboxing options to harden security
-# Depending on specificities of your service/app, you may need to tweak these 
+# Depending on specificities of your service/app, you may need to tweak these
 # .. but this should be a good baseline
 # Details for these options: https://www.freedesktop.org/software/systemd/man/systemd.exec.html
 NoNewPrivileges=yes
@@ -48,7 +48,7 @@ CapabilityBoundingSet=~CAP_BLOCK_SUSPEND CAP_WAKE_ALARM
 CapabilityBoundingSet=~CAP_SYS_TTY_CONFIG
 CapabilityBoundingSet=~CAP_MAC_ADMIN CAP_MAC_OVERRIDE
 CapabilityBoundingSet=~CAP_NET_ADMIN CAP_NET_BROADCAST CAP_NET_RAW
-CapabilityBoundingSet=~CAP_SYS_ADMIN CAP_SYS_PTRACE CAP_SYSLOG 
+CapabilityBoundingSet=~CAP_SYS_ADMIN CAP_SYS_PTRACE CAP_SYSLOG
 
 [Install]
 WantedBy=multi-user.target

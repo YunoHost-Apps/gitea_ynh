@@ -1,70 +1,63 @@
-#=================================================
-# SET ALL CONSTANTS
-#=================================================
-
-app=$YNH_APP_INSTANCE_NAME
-dbname=$app
-db_user=$app
-final_path="/opt/$app"
-datadir="/home/yunohost.app/$app"
-repos_path="$datadir/repositories"
-data_path="$datadir/data"
-ssh_path="$datadir/.ssh"
-
-# Detect the system architecture to download the right tarball
-# NOTE: `uname -m` is more accurate and universal than `arch`
-# See https://en.wikipedia.org/wiki/Uname
-if [ -n "$(uname -m | grep arm64)" ] || [ -n "$(uname -m | grep aarch64)" ]; then
-    architecture="arm64"
-elif [ -n "$(uname -m | grep 64)" ]; then
-    architecture="x86-64"
-elif [ -n "$(uname -m | grep 86)" ]; then
-    architecture="i386"
-elif [ -n "$(uname -m | grep armv7)" ]; then
-    architecture="armv7"
-elif [ -n "$(uname -m | grep arm)" ]; then
-    architecture="arm"
-else
-	ynh_die --message "Unable to detect your achitecture, please open a bug describing \
-        your hardware and the result of the command \"uname -m\"." 1
-fi
+#!/bin/bash
 
 #=================================================
 # DEFINE ALL COMMON FONCTIONS
 #=================================================
 
-create_dir() {
-    mkdir -p "$final_path/data"
-    mkdir -p "$final_path/custom/conf"
-    mkdir -p "$ssh_path"
-    mkdir -p "$repos_path"
-    mkdir -p "$data_path/avatars"
-    mkdir -p "$data_path/attachments"
+_gitea_mkdirs() {
+    mkdir -p "$install_dir/data"
+    mkdir -p "$install_dir/custom/conf"
+    _gitea_permissions_install_dir
+
+    mkdir -p "$data_dir/.ssh"
+    mkdir -p "$data_dir/repositories"
+    mkdir -p "$data_dir/data/avatars"
+    mkdir -p "$data_dir/data/attachments"
+    chown -R "$app:$app" "$data_dir"
+    chmod -R u=rwX,g=rX,o= "$data_dir"
+    chmod -R u=rwx,g=,o= "$data_dir/.ssh"
+
     mkdir -p "/var/log/$app"
+    touch "/var/log/$app/gitea.log"
+    chown -R "$app:$app" "/var/log/$app"
+    chmod -R u=rwX,g=rX,o= "/var/log/$app"
 }
 
-config_nginx() {
-    if [ "$path_url" != "/" ]
-    then
-        ynh_replace_string --match_string "^#sub_path_only" --replace_string "" --target_file "../conf/nginx.conf"
+_gitea_permissions_install_dir() {
+    chown -R "$app:$app" "$install_dir"
+    chmod -R u=rwX,g=rX,o= "$install_dir"
+}
+
+_gitea_set_secrets() {
+    if [[ -z "${internal_token:-}" ]]; then
+        internal_token=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret INTERNAL_TOKEN)
+        ynh_app_setting_set --app "$app" --key internal_token --value="$internal_token"
     fi
-    ynh_add_nginx_config
+
+    if [[ -z "${secret_key:-}" ]]; then
+        secret_key=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret SECRET_KEY)
+        ynh_app_setting_set --app "$app" --key secret_key --value="$secret_key"
+    fi
+
+    if [[ -z "${jwt_secret:-}" ]]; then
+        jwt_secret=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)
+        ynh_app_setting_set --app "$app" --key jwt_secret --value="$jwt_secret"
+    fi
+
+    if [[ -n "${lfs_key:-}" ]]; then
+        # Migration
+        lfs_jwt_secret="$lfs_key"
+        ynh_app_setting_delete --app "$app" --key lfs_key
+        ynh_app_setting_set --app "$app" --key lfs_jwt_secret --value="$lfs_jwt_secret"
+    fi
+
+    if [[ -z "${lfs_jwt_secret:-}" ]]; then
+        lfs_jwt_secret=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)
+        ynh_app_setting_set --app "$app" --key lfs_jwt_secret --value="$lfs_jwt_secret"
+    fi
 }
 
-config_gitea() {
+_gitea_add_config() {
     ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
-    ynh_add_config --template="app.ini" --destination="$final_path/custom/conf/app.ini"
-}
-
-set_permission() {
-    chown -R $app:$app "$final_path"
-    chown -R $app:$app "$datadir"
-    chown -R $app:$app "/var/log/$app"
-
-    chmod u=rwX,g=rX,o= "$final_path"
-    chmod u=rwx,g=rx,o= "$final_path/gitea"
-    chmod u=rwx,g=rx,o= "$final_path/custom/conf/app.ini"
-    chmod u=rwX,g=rX,o= "$datadir"
-    chmod u=rwX,g=rX,o= "/var/log/$app"
-    chmod u=rwx,g=,o= "$ssh_path"
+    ynh_add_config --template="app.ini" --destination="$install_dir/custom/conf/app.ini"
 }
