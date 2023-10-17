@@ -19,7 +19,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to GitHub.
 
 
-**Shipped version:** 1.20.4~ynh1
+**Shipped version:** 1.20.5~ynh1
 
 ## Screenshots
 
@@ -110,7 +110,6 @@ If you want to use the Git command (like `git clone`, `git pull`, `git push`), y
 * Official app website: <https://gitea.io/>
 * Official admin documentation: <https://docs.gitea.io/>
 * Upstream app code repository: <https://github.com/go-gitea/gitea>
-* YunoHost documentation for this app: <https://yunohost.org/app_gitea>
 * Report a bug: <https://github.com/YunoHost-Apps/gitea_ynh/issues>
 
 ## Developer info
