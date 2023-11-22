@@ -110,6 +110,7 @@ If you want to use the Git command (like `git clone`, `git pull`, `git push`), y
 * Site officiel de l’app : <https://gitea.io/>
 * Documentation officielle de l’admin : <https://docs.gitea.io/>
 * Dépôt de code officiel de l’app : <https://github.com/go-gitea/gitea>
+* YunoHost Store: <https://apps.yunohost.org/app/gitea>
 * Signaler un bug : <https://github.com/YunoHost-Apps/gitea_ynh/issues>
 
 ## Informations pour les développeurs
