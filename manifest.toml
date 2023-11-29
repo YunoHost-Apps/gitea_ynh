@@ -45,19 +45,20 @@ ram.runtime = "100M"
     type = "path"
     default = "/gitea"
 
-    [install.admin]
-    type = "user"
-
     [install.init_main_permission]
     help.en = "Gitea should be visible by visitors to use git via HTTP and to use the API. You can still set repositories as private individually."
     help.fr = "Gitea doit être visible par les visiteurs pour utiliser git via HTTP et utiliser l'API. Vous pouvez toujours rendre les dépôts privés individuellement."
     type = "group"
     default = "visitors"
 
+
+    [install.init_admin_permission]
+    type = "group"
+    default = "admins"
+
 [resources]
 
     [resources.sources.main]
-    format = "whatever"
     extract = false
     rename = "gitea"
 
@@ -82,6 +83,8 @@ ram.runtime = "100M"
 
     [resources.permissions]
     main.url = "/"
+
+    admin.label = "Admins"
 
     [resources.ports]
     main.default = 6000
