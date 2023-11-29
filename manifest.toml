@@ -32,7 +32,7 @@ architectures = [
 ]
 multi_instance = true
 ldap = true
-sso = false
+sso = true
 disk = "120M"
 ram.build = "100M"
 ram.runtime = "100M"
