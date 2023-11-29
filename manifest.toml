@@ -56,7 +56,6 @@ ram.runtime = "100M"
 
 [resources]
 
-    [resources.sources]
     [resources.sources.main]
     format = "whatever"
     extract = false
@@ -72,12 +71,12 @@ ram.runtime = "100M"
     amd64.sha256 = "586b1b0df6940e847600625850ee7d766f103dc3341c1b4abfc269db57c5d826"
 
     [resources.system_user]
-    # Hard-coded...
     home = "/home/yunohost.app/__APP__"
     allow_ssh = true
     allow_email = true
 
     [resources.install_dir]
+    dir = "/opt/yunohost/__APP__"
 
     [resources.data_dir]
 
