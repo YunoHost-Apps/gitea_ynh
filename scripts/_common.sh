@@ -39,11 +39,6 @@ _gitea_set_secrets() {
         ynh_app_setting_set --app "$app" --key secret_key --value="$secret_key"
     fi
 
-    if [[ -z "${jwt_secret:-}" ]]; then
-        jwt_secret=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)
-        ynh_app_setting_set --app "$app" --key jwt_secret --value="$jwt_secret"
-    fi
-
     if [[ -n "${lfs_key:-}" ]]; then
         # Migration
         lfs_jwt_secret="$lfs_key"
