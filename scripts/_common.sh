@@ -1,31 +1,29 @@
-#!/bin/bash
+#=================================================
+# SET ALL CONSTANTS
+#=================================================
+
+systemd_match_start_line='Starting new Web server: tcp:127.0.0.1:'
+ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
 
 #=================================================
 # DEFINE ALL COMMON FONCTIONS
 #=================================================
 
-_gitea_mkdirs() {
-    mkdir -p "$install_dir/data"
-    mkdir -p "$install_dir/custom/conf"
-    _gitea_permissions_install_dir
-
-    mkdir -p "$data_dir/.ssh"
-    mkdir -p "$data_dir/repositories"
-    mkdir -p "$data_dir/data/avatars"
-    mkdir -p "$data_dir/data/attachments"
-    chown -R "$app:$app" "$data_dir"
-    chmod -R u=rwX,g=rX,o= "$data_dir"
-    chmod -R u=rwx,g=,o= "$data_dir/.ssh"
-
-    mkdir -p "/var/log/$app"
-    touch "/var/log/$app/gitea.log"
-    chown -R "$app:$app" "/var/log/$app"
-    chmod -R u=rwX,g=rX,o= "/var/log/$app"
-}
-
-_gitea_permissions_install_dir() {
+_set_permissions() {
     chown -R "$app:$app" "$install_dir"
     chmod -R u=rwX,g=rX,o= "$install_dir"
+    chmod +x "$install_dir/gitea"
+
+    chown -R "$app:$app" "$data_dir"
+    find $data_dir \(   \! -perm u=rwX,g=rX,-o= \
+                     -o \! -user $YNH_APP_ID \
+                     -o \! -group $YNH_APP_ID \) \
+                   -exec chown $YNH_APP_ID:$YNH_APP_ID {} \; \
+                   -exec chmod u=rwX,g=rX,o= {} \;
+    chmod -R u=rwX,g=,o= "$data_dir/.ssh"
+
+    chown -R "$app:$app" "/var/log/$app"
+    chmod -R u=rwX,g=rX,o= "/var/log/$app"
 }
 
 _gitea_set_secrets() {
@@ -39,13 +37,7 @@ _gitea_set_secrets() {
         ynh_app_setting_set --app "$app" --key secret_key --value="$secret_key"
     fi
 
-    if [[ -z "${jwt_secret:-}" ]]; then
-        jwt_secret=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)
-        ynh_app_setting_set --app "$app" --key jwt_secret --value="$jwt_secret"
-    fi
-
     if [[ -n "${lfs_key:-}" ]]; then
-        # Migration
         lfs_jwt_secret="$lfs_key"
         ynh_app_setting_delete --app "$app" --key lfs_key
         ynh_app_setting_set --app "$app" --key lfs_jwt_secret --value="$lfs_jwt_secret"
@@ -55,9 +47,4 @@ _gitea_set_secrets() {
         lfs_jwt_secret=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)
         ynh_app_setting_set --app "$app" --key lfs_jwt_secret --value="$lfs_jwt_secret"
     fi
-}
-
-_gitea_add_config() {
-    ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
-    ynh_add_config --template="app.ini" --destination="$install_dir/custom/conf/app.ini"
 }

@@ -26,7 +26,7 @@ ynh_remove_logrotate
 
 ynh_remove_fail2ban_config
 
-ynh_script_progression --message="Removing logs..."
+ynh_script_progression --message='Removing logs...'
 ynh_secure_remove --file="/var/log/$app"
 
 #=================================================

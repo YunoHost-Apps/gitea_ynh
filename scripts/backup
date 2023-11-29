@@ -9,14 +9,14 @@ source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
 
-if [[ ! "$(systemctl status $app.service)" =~ "Active: inactive (dead)" ]]; then
+if [[ ! "$(systemctl status $app.service)" =~ 'Active: inactive (dead)' ]]; then
     ynh_print_warn --message="It's hightly recommended to make your backup when the service is stopped. Please stop $app service and with this command before to run the backup 'systemctl stop $app.service'"
 fi
 
 #=================================================
 # DECLARE DATA AND CONF FILES TO BACKUP
 #=================================================
-ynh_print_info --message="Declaring files to be backed up..."
+ynh_print_info --message='Declaring files to be backed up...'
 
 # Copy the app source files
 ynh_backup --src_path "$install_dir"

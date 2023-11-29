@@ -13,9 +13,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 ynh_script_progression --message="Restoring the app files..." --weight=1
 ynh_restore
-
-# Also sets the permissions
-_gitea_mkdirs
+_set_permissions
 
 #=================================================
 # RESTORE THE MYSQL DATABASE
@@ -46,7 +44,7 @@ ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Faile
 ynh_script_progression --message="Reloading NGINX web server and $app's service..." --weight=1
 
 # Typically you only have either $app or php-fpm but not both at the same time...
-ynh_systemd_action -l "Starting new Web server: tcp:127.0.0.1:" -t 10
+ynh_systemd_action --service_name="$app" --action=start --log_path="/var/log/$app/gitea.log" --line_match="$systemd_match_start_line"
 
 ynh_systemd_action --service_name=nginx --action=reload
 

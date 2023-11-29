@@ -16,7 +16,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 ynh_script_progression --message="Stopping a systemd service..." --weight=1
 
-ynh_systemd_action --service_name="$app" --action="stop"
+ynh_systemd_action --service_name="$app" --action=stop
 
 #=================================================
 # MODIFY URL IN NGINX CONF
@@ -32,8 +32,8 @@ ynh_change_url_nginx_config
 #=================================================
 ynh_script_progression --message="Updating gitea configuration..."
 
-_gitea_add_config
-_gitea_permissions_install_dir
+ynh_add_config --template="app.ini" --destination="$install_dir/custom/conf/app.ini"
+_set_permissions
 
 #=================================================
 # GENERIC FINALISATION
@@ -42,7 +42,7 @@ _gitea_permissions_install_dir
 #=================================================
 ynh_script_progression --message="Starting gitea services..." --weight=3
 
-ynh_systemd_action --service_name="$app" --action="start" --log_path="/var/log/$app/gitea.log" --line_match="Starting new Web server: tcp:127.0.0.1:"
+ynh_systemd_action --service_name="$app" --action=start --log_path="/var/log/$app/gitea.log" --line_match="$systemd_match_start_line"
 
 #=================================================
 # END OF SCRIPT

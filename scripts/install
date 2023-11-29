@@ -14,20 +14,43 @@ source /usr/share/yunohost/helpers
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression --message="Installing sources files and data directories..." --weight=10
 
+ynh_script_progression --message='Creating base directory...'
 
+if [ -n "$(ls -A $data_dir)" ]; then
+    old_data_dir_path="${data_dir}_$(date '+%Y%m%d.%H%M%S')"
+    ynh_print_warn "Data directory was not empty. Data was moved to $old_data_dir_path"
+    mkdir -p $old_data_dir_path
+    mv -t "$old_data_dir_path" "$data_dir"/*
+fi
+
+# base directories
+mkdir -p "$install_dir/data"
+mkdir -p "$install_dir/custom/conf"
+mkdir -p "/var/log/$app"
+
+mkdir -p "$data_dir/.ssh"
+mkdir -p "$data_dir/repositories"
+mkdir -p "$data_dir/data/avatars"
+mkdir -p "$data_dir/data/attachments"
+
+ynh_script_progression --message='Installing sources files and data directories...' --weight=10
+
+# Setup source
 ynh_setup_source --dest_dir="$install_dir"
-chmod +x "$install_dir/gitea"
-
-# create needed directories
-_gitea_mkdirs
+_set_permissions
 
 ynh_script_progression --message="Configuring application, step 1/2..."
 
-_gitea_set_secrets
-_gitea_add_config
-_gitea_permissions_install_dir
+internal_token=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret INTERNAL_TOKEN)
+secret_key=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret SECRET_KEY)
+lfs_jwt_secret=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)
+
+ynh_app_setting_set --app="$app" --key=internal_token --value="$internal_token"
+ynh_app_setting_set --app="$app" --key=secret_key --value="$secret_key"
+ynh_app_setting_set --app="$app" --key=lfs_jwt_secret --value="$lfs_jwt_secret"
+
+ynh_add_config --template='app.ini' --destination="$install_dir/custom/conf/app.ini"
 
 #=================================================
 # SYSTEM CONFIGURATION
@@ -47,7 +70,7 @@ yunohost service add "$app" --log="/var/log/$app/gitea.log"
 ynh_use_logrotate --logfile "/var/log/$app"
 
 # Create a dedicated Fail2Ban config
-ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
+ynh_add_fail2ban_config --logpath="/var/log/$app/gitea.log" --failregex='.*Failed authentication attempt for .* from <HOST>' --max_retry=5
 
 #=================================================
 # APP INITIAL CONFIGURATION
@@ -55,26 +78,27 @@ ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Faile
 # ADD A CONFIGURATION
 #=================================================
 
-ynh_script_progression --message="Configuring application, step 2/2..."
+ynh_script_progression --message='Configuring application, step 2/2...'
+_set_permissions
 
 # Start gitea for building mysql tables
-ynh_systemd_action --service_name="$app" --action="start" --log_path="/var/log/$app/gitea.log" --line_match="Starting new Web server: tcp:127.0.0.1:"
+ynh_systemd_action --service_name="$app" --action=start --log_path="/var/log/$app/gitea.log" --line_match="$systemd_match_start_line"
 
 # Add ldap config
-ynh_replace_string --match_string "__APP__" --replace_string "$app" --target_file ../conf/login_source.sql
+ynh_replace_string --match_string=__APP__ --replace_string="$app" --target_file=../conf/login_source.sql
 ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name" < ../conf/login_source.sql
 
 # Stop the service to restart it just afterwards
-ynh_systemd_action --service_name="$app" --action="stop" --log_path="/var/log/$app/gitea.log"
+ynh_systemd_action --service_name="$app" --action='stop' --log_path="/var/log/$app/gitea.log"
 
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
-ynh_script_progression --message="Starting gitea services..." --weight=3
+ynh_script_progression --message='Starting gitea services...' --weight=3
 
-ynh_systemd_action --service_name="$app" --action="start" --log_path="/var/log/$app/gitea.log" --line_match="Starting new Web server: tcp:127.0.0.1:"
+ynh_systemd_action --service_name="$app" --action=start --log_path="/var/log/$app/gitea.log" --line_match="$systemd_match_start_line"
 
 #=================================================
 # END OF SCRIPT

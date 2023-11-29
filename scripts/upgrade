@@ -16,25 +16,35 @@ upgrade_type=$(ynh_check_app_version_changed)
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
-ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
+ynh_script_progression --message='Ensuring downward compatibility...' --weight=1
 
-# If lfs_key doesn't exist, create it
-if [ -z "${lfs_key:-}" ]; then
-   lfs_key=$(ynh_string_random)
-   ynh_app_setting_set --app="$app" --key=lfs_key --value="$lfs_key"
+if ynh_compare_current_package_version --comparison lt --version "1.6.4~ynh1"; then
+    message="Upgrade from $YNH_APP_CURRENT_VERSION was dropped. You need to run this, then upgrade to the latest version:
+sudo yunohost app upgrade $app -u https://github.com/YunoHost-Apps/gitea_ynh/commit/a9ceb157032ae2290e944c1d0a255451ff2d133d"
+    ynh_print_info "$message"
+    ynh_die --message="$message" --ret_code 1
 fi
+
+#=================================================
+# STOP SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message='Stopping a systemd service...' --weight=1
+
+ynh_systemd_action --service_name="$app" --action=stop
+
+#=================================================
+# MIGRATION STEP 1 (migrate path from packagin v1)
+#=================================================
 
 # This is not handled by the core because the previous package did not define final_path...
 if [ -d "/opt/$app" ]; then
     # This is the package version of the manifestv2
-    rsync -a "/opt/$app/" "$install_dir"
-    ynh_secure_remove "/opt/$app"
+    mv "/opt/$app/" "$install_dir"
 fi
 
 # Move data directory
 if [ -d "/home/$app" ]; then
-    rsync -a "/home/$app/" "$data_dir"
-    ynh_secure_remove "/home/$app"
+    mv "/home/$app/" "$data_dir"
 fi
 
 # Ensure the user has the correct home dir
@@ -43,23 +53,45 @@ if [ ~"$app" != "$data_dir" ]; then
 fi
 
 # Ensure secrets are defined
-# Some workaround around `gitea secret generate` not available in old versions
-mv "$install_dir/gitea" "$install_dir/gitea_orig"
 ynh_setup_source --dest_dir="$install_dir" --source_id=main
-chmod +x "$install_dir/gitea"
-_gitea_set_secrets
-ynh_secure_remove "$install_dir/gitea"
-mv "$install_dir/gitea_orig" "$install_dir/gitea"
-
-# Ensure directories are created
-_gitea_mkdirs
+_set_permissions
 
 #=================================================
-# STOP SYSTEMD SERVICE
+# MIGRATION STEP 2 (Set undefined Vars)
 #=================================================
-ynh_script_progression --message="Stopping a systemd service..." --weight=1
 
-ynh_systemd_action --service_name="$app" --action="stop"
+if [[ -z "${internal_token:-}" ]]; then
+    internal_token=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret INTERNAL_TOKEN)
+    ynh_app_setting_set --app "$app" --key internal_token --value="$internal_token"
+fi
+
+if [[ -z "${secret_key:-}" ]]; then
+    secret_key=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret SECRET_KEY)
+    ynh_app_setting_set --app "$app" --key secret_key --value="$secret_key"
+fi
+
+if [[ -n "${lfs_key:-}" ]]; then
+    lfs_jwt_secret="$lfs_key"
+    ynh_app_setting_delete --app "$app" --key lfs_key
+    ynh_app_setting_set --app "$app" --key lfs_jwt_secret --value="$lfs_jwt_secret"
+fi
+
+if [[ -z "${lfs_jwt_secret:-}" ]]; then
+    lfs_jwt_secret=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)
+    ynh_app_setting_set --app "$app" --key lfs_jwt_secret --value="$lfs_jwt_secret"
+fi
+
+#=================================================
+# UPDATE A CONFIG FILE
+#=================================================
+ynh_script_progression --message='Updating configuration files...' --weight=1
+
+# Clean template to fix issue : https://github.com/gogits/gogs/issues/4585
+ynh_secure_remove --file="$install_dir/templates"
+
+# Configure gitea with app.ini file
+ynh_add_config --template=app.ini --destination="$install_dir/custom/conf/app.ini"
+_set_permissions
 
 #=================================================
 # REAPPLY SYSTEM CONFIGURATIONS
@@ -77,60 +109,11 @@ ynh_use_logrotate --non-append
 ynh_add_fail2ban_config --logpath="/var/log/$app/gitea.log" --failregex=".*Failed authentication attempt for .* from <HOST>" --max_retry 5
 
 #=================================================
-# RECONFIGURE THE APP (UPDATE CONF, APPLY MIGRATIONS...)
-#=================================================
-# UPDATE A CONFIG FILE
-#=================================================
-ynh_script_progression --message="Updating configuration files..." --weight=1
-
-# Clean template to fix issue : https://github.com/gogits/gogs/issues/4585
-ynh_secure_remove --file="$install_dir/templates"
-
-# Configure gitea with app.ini file
-_gitea_add_config
-_gitea_permissions_install_dir
-
-#=================================================
-# DB migration
-#=================================================
-ynh_script_progression --message="Upgrading database and sources..." --weight=6
-
-if ynh_compare_current_package_version --comparison lt --version "1.6.4~ynh1"; then
-    message="Upgrade from $YNH_APP_CURRENT_VERSION was dropped. You need to run this, then upgrade to the latest version:
-sudo yunohost app upgrade $app -u https://github.com/YunoHost-Apps/gitea_ynh/commit/a9ceb157032ae2290e944c1d0a255451ff2d133d"
-    ynh_print_info "$message"
-    ynh_die --message="$message" --ret_code 1
-fi
-
-ynh_setup_source --dest_dir="$install_dir"
-chmod +x "$install_dir/gitea"
-_gitea_permissions_install_dir
-ynh_systemd_action --service_name="$app" --action="start" --log_path="/var/log/$app/gitea.log" --line_match="Starting new Web server: tcp:127.0.0.1:"
-# FIXME: Leave the time to update the database schema
-sleep 5
-systemctl stop "$app"
-
-
-#=================================================
-# RECONFIGURE THE APP (UPDATE CONF, APPLY MIGRATIONS...)
-#=================================================
-# UPDATE A CONFIG FILE
-#=================================================
-ynh_script_progression --message="Updating LDAP configuration..." --weight=1
-# Should be done after DB migration I guess
-if ! ynh_permission_exists --permission admin; then
-    # Update ldap config
-    ynh_replace_string --match_string="__APP__" --replace_string="$app" --target_file="../conf/login_source.sql"
-    ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name" < ../conf/login_source.sql
-fi
-
-
-#=================================================
 # START SYSTEMD SERVICE
 #=================================================
-ynh_script_progression --message="Starting a systemd service..." --weight=1
+ynh_script_progression --message='Starting a systemd service...' --weight=1
 
-ynh_systemd_action --service_name="$app" --action="start" --log_path="/var/log/$app/gitea.log" --line_match="Starting new Web server: tcp:127.0.0.1:"
+ynh_systemd_action --service_name="$app" --action=start --log_path="/var/log/$app/gitea.log" --line_match="$systemd_match_start_line"
 
 #=================================================
 # END OF SCRIPT
