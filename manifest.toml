@@ -53,6 +53,10 @@ ram.runtime = "100M"
 
 
     [install.init_admin_permission]
+    ask.en = "Which group will have access to Gitea admin page"
+    ask.fr = "Quel groupe aura accès à l'administration de Gitea"
+    help.en = "Users of this group should have access to Gitea admin page"
+    help.fr = "Les utilisateurs de ce groupe devrait avoir accès à la page d'administration de Gitea"
     type = "group"
     default = "admins"
 

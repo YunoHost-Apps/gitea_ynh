@@ -43,8 +43,8 @@ if [ -d "/opt/$app" ]; then
 fi
 
 # Move data directory
-if [ -d "/home/$app" ]; then
-    mv "/home/$app/" "$data_dir"
+if [ -d /home"/$app" ]; then
+    mv /home"/$app/" "$data_dir"
 fi
 
 # Ensure the user has the correct home dir
