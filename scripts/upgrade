@@ -81,6 +81,11 @@ if [[ -z "${lfs_jwt_secret:-}" ]]; then
     ynh_app_setting_set --app "$app" --key lfs_jwt_secret --value="$lfs_jwt_secret"
 fi
 
+if [[ -z "${jwt_secret:-}" ]]; then
+    jwt_secret=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)
+    ynh_app_setting_set --app "$app" --key jwt_secret --value="$jwt_secret"
+fi
+
 #=================================================
 # UPDATE A CONFIG FILE
 #=================================================

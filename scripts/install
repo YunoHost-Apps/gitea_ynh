@@ -45,10 +45,12 @@ ynh_script_progression --message="Configuring application, step 1/2..."
 internal_token=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret INTERNAL_TOKEN)
 secret_key=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret SECRET_KEY)
 lfs_jwt_secret=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)
+jwt_secret=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)
 
 ynh_app_setting_set --app="$app" --key=internal_token --value="$internal_token"
 ynh_app_setting_set --app="$app" --key=secret_key --value="$secret_key"
 ynh_app_setting_set --app="$app" --key=lfs_jwt_secret --value="$lfs_jwt_secret"
+ynh_app_setting_set --app "$app" --key jwt_secret --value="$jwt_secret"
 
 ynh_add_config --template='app.ini' --destination="$install_dir/custom/conf/app.ini"
 
