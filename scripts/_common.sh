@@ -16,9 +16,9 @@ _set_permissions() {
 
     chown -R "$app:$app" "$data_dir"
     find $data_dir \(   \! -perm u=rwX,g=rX,-o= \
-                     -o \! -user $YNH_APP_ID \
-                     -o \! -group $YNH_APP_ID \) \
-                   -exec chown $YNH_APP_ID:$YNH_APP_ID {} \; \
+                     -o \! -user $app \
+                     -o \! -group $app \) \
+                   -exec chown $app:$app {} \; \
                    -exec chmod u=rwX,g=rX,o= {} \;
     chmod -R u=rwX,g=,o= "$data_dir/.ssh"
 
