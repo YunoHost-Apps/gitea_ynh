@@ -88,6 +88,8 @@ ram.runtime = "100M"
     [resources.permissions]
     main.url = "/"
 
+    admin.show_tile = false
+    admin.auth_header = false
     admin.label = "Admins"
 
     [resources.ports]
