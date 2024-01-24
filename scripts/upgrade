@@ -98,6 +98,10 @@ ynh_secure_remove --file="$install_dir/templates"
 ynh_add_config --template=app.ini --destination="$install_dir/custom/conf/app.ini"
 _set_permissions
 
+# Update ldap config
+ynh_replace_string --match_string=__APP__ --replace_string="$app" --target_file=../conf/login_source.sql
+ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name" < ../conf/login_source.sql
+
 #=================================================
 # REAPPLY SYSTEM CONFIGURATIONS
 #=================================================
