@@ -39,7 +39,8 @@ ynh_systemd_action --service_name="$app" --action=stop
 # This is not handled by the core because the previous package did not define final_path...
 if [ -d "/opt/$app" ]; then
     # This is the package version of the manifestv2
-    mv "/opt/$app/" "$install_dir"
+    mv -t "$install_dir/" "/opt/$app/"*
+    ynh_secure_remove --file="/opt/$app"
 fi
 
 # Move data directory
