@@ -88,6 +88,15 @@ if [[ -z "${jwt_secret:-}" ]]; then
 fi
 
 #=================================================
+# MIGRATION STEP Fix regression linked to 77c3678 and #76
+#=================================================
+
+list_param_sql=$(yunohost user list --output-as json | jq -c '.users | keys' | sed 's|\[|\(|' | sed 's|\]|\)|')
+ynh_replace_string --match_string=__APP__ --replace_string="$app" --target_file=./fix_user_db_for_local_users.sql
+ynh_replace_string --match_string=__USER_LIST__ --replace_string="$list_param_sql" --target_file=./fix_user_db_for_local_users.sql
+ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name" < ./fix_user_db_for_local_users.sql
+
+#=================================================
 # UPDATE A CONFIG FILE
 #=================================================
 ynh_script_progression --message='Updating configuration files...' --weight=1
