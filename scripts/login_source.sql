@@ -1,7 +1,12 @@
 INSERT INTO `__APP__`.`login_source`
-(`id`, `type`, `name`, `is_active`, `cfg`, `created_unix`, `updated_unix`)
+(`id`, `type`, `name`, `is_active`, `is_sync_enabled`, `cfg`, `created_unix`, `updated_unix`)
 VALUES
-('1', '2', 'YunoHost LDAP', '1',
+(
+    1,
+    2,
+    'YunoHost LDAP',
+    1,
+    1,
     '{
         "Name": "YunoHost LDAP",
         "Host": "localhost",
@@ -32,10 +37,15 @@ VALUES
         "GroupTeamMap": "",
         "GroupTeamMapRemoval": true,
         "UserUID": "uid"
-    }', UNIX_TIMESTAMP(NOW()), UNIX_TIMESTAMP(NOW()))
+    }',
+    UNIX_TIMESTAMP(NOW()),
+    UNIX_TIMESTAMP(NOW()))
 ON DUPLICATE KEY
 UPDATE
-    updated_unix=UNIX_TIMESTAMP(NOW()),
+    type=2,
+    name='YunoHost LDAP',
+    is_active=1,
+    is_sync_enabled=1,
     cfg='{
         "Name": "YunoHost LDAP",
         "Host": "localhost",
@@ -66,4 +76,5 @@ UPDATE
         "GroupTeamMap": "",
         "GroupTeamMapRemoval": true,
         "UserUID": "uid"
-    }';
+    }',
+    updated_unix=UNIX_TIMESTAMP(NOW());
