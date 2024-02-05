@@ -34,7 +34,7 @@ VALUES
         "GroupDN": "ou=groups,dc=yunohost,dc=org",
         "GroupFilter": "",
         "GroupMemberUID": "memberUid",
-        "GroupTeamMap": "",
+        "GroupTeamMap": __GROUP_TEAM_MAP__,
         "GroupTeamMapRemoval": true,
         "UserUID": "uid"
     }',
@@ -73,7 +73,7 @@ UPDATE
         "GroupDN": "ou=groups,dc=yunohost,dc=org",
         "GroupFilter": "",
         "GroupMemberUID": "memberUid",
-        "GroupTeamMap": "",
+        "GroupTeamMap": __GROUP_TEAM_MAP__,
         "GroupTeamMapRemoval": true,
         "UserUID": "uid"
     }',

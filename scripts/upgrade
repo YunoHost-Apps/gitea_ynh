@@ -109,6 +109,12 @@ ynh_add_config --template=app.ini --destination="$install_dir/custom/conf/app.in
 _set_permissions
 
 # Update ldap config
+
+# Note that the 'GroupTeamMap' depends of the user need so we can't apply a generic values for all instances
+# So to avoid to override the value after each update we retrive and apply the user value
+group_team_map_config=$(mysql --user="$db_user" --password="$db_pwd" --batch --raw "$db_name" <<< 'SELECT `cfg` FROM `'$app'`.`login_source` WHERE `id`=1;' \
+    | tail -n+2 | jq '.GroupTeamMap')
+sed -i 's|__GROUP_TEAM_MAP__|'"${group_team_map_config//\\/\\\\\\\\}"'|g' ./login_source.sql
 ynh_replace_string --match_string=__APP__ --replace_string="$app" --target_file=./login_source.sql
 ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name" < ./login_source.sql
 

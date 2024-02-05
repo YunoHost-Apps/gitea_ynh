@@ -88,6 +88,7 @@ ynh_systemd_action --service_name="$app" --action=start --log_path="/var/log/$ap
 
 # Add ldap config
 ynh_replace_string --match_string=__APP__ --replace_string="$app" --target_file=./login_source.sql
+ynh_replace_string --match_string=__GROUP_TEAM_MAP__ --replace_string='""' --target_file=./login_source.sql
 ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name" < ./login_source.sql
 
 # Stop the service to restart it just afterwards

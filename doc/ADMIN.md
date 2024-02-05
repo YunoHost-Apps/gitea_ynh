@@ -46,7 +46,7 @@ client_max_body_size 200M;
 Don't forget to restart Gitea:
 
 ```bash
-sudo systemctl restart __APP__.service`.
+sudo systemctl restart __APP__.service.
 ```
 
 > These settings are restored to the default configuration when updating Gitea. Remember to restore your configuration after all updates.
@@ -64,6 +64,20 @@ If you want to bypass the safety backup before upgrading, run:
 ```bash
 yunohost app upgrade --no-safety-backup __APP__
 ```
+
+## Group management
+
+Gitea support Yunohost group sync with Gitea Organisation Team.
+As the organisation link to the group depends of the instance this should be configured by the admin on the gitea configuration interface in `DOMAIN/GITEA_PATH/admin/auths/1`.
+Normally the admin just need to set the correct value of the `LDAP Group Team Map` parameter with something like this:
+```json
+{"cn=GROUPE_A_YNH,ou=groups,dc=yunohost,dc=org": {"gitea_organisation": ["gitea_team_A"]},
+ "cn=GROUPE_B_YNH,ou=groups,dc=yunohost,dc=org": {"gitea_organisation": ["gitea_team_B"]}}
+```
+
+By this all members of the Yunohost groupe `GROUPE_A_YNH` will be member of the gitea team `gitea_team_A` of the organisation `gitea_organisation`.
+
+**Note all others parameter are managed by the Yunohost package and should not be changed.**
 
 ## Backup
 
