@@ -6,3 +6,4 @@ test_format = 1.0
 
     test_upgrade_from.6c7d27760137d27ea88c843390c4dbefd7fadb74.name = "1.17.0"
     test_upgrade_from.b327ccd30230ea963a5eef1a566faba76688ac84.name = "1.20.0"
+    test_upgrade_from.67d5bc5dc57d8f8793551d7e07c10e8b9d4fe038.name = "1.21.5"
