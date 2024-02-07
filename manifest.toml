@@ -1,0 +1,104 @@
+#:schema https://raw.githubusercontent.com/YunoHost/apps/master/schemas/manifest.v2.schema.json
+
+packaging_format = 2
+
+id = "gitea"
+name = "Gitea"
+description.en = "Lightweight Git forge"
+description.fr = "Forge Git légère"
+
+version = "1.21.5~ynh1"
+
+maintainers = ["Josué Tille"]
+# previous_maintainers = [
+#     "rafi59"
+# ]
+
+[upstream]
+license = "MIT"
+website = "https://gitea.io/"
+admindoc = "https://docs.gitea.io/"
+code = "https://github.com/go-gitea/gitea"
+cpe = "cpe:2.3:a:gitea:gitea"
+fund = "https://opencollective.com/gitea"
+
+[integration]
+yunohost = ">= 11.2"
+architectures = [
+    "amd64",
+    "i386",
+    "armhf",
+    "arm64"
+]
+multi_instance = true
+ldap = true
+sso = true
+disk = "120M"
+ram.build = "0M"
+ram.runtime = "100M"
+
+[install]
+    [install.domain]
+    type = "domain"
+
+    [install.path]
+    type = "path"
+    default = "/gitea"
+
+    [install.init_main_permission]
+    help.en = "Gitea should be visible by visitors to use git via HTTP and to use the API. You can still set repositories as private individually."
+    help.fr = "Gitea doit être visible par les visiteurs pour utiliser git via HTTP et utiliser l'API. Vous pouvez toujours rendre les dépôts privés individuellement."
+    type = "group"
+    default = "visitors"
+
+
+    [install.init_admin_permission]
+    ask.en = "Which group will have access to Gitea admin page"
+    ask.fr = "Quel groupe aura accès à l'administration de Gitea"
+    help.en = "Users of this group should have access to Gitea admin page"
+    help.fr = "Les utilisateurs de ce groupe devrait avoir accès à la page d'administration de Gitea"
+    type = "group"
+    default = "admins"
+
+[resources]
+
+    [resources.sources.main]
+    extract = false
+    rename = "gitea"
+
+    armhf.url = "https://github.com/go-gitea/gitea/releases/download/v1.21.5/gitea-1.21.5-linux-arm-6"
+    armhf.sha256 = "a531726f695aeb6bed4d69827e56e78e22fd0e4134b02b08edbc31c50c7e8735"
+    arm64.url = "https://github.com/go-gitea/gitea/releases/download/v1.21.5/gitea-1.21.5-linux-arm64"
+    arm64.sha256 = "55d132cfb7016984773029abc8d1d8e9d844138f5e4c8ff8df273b55aa2190f3"
+    i386.url = "https://github.com/go-gitea/gitea/releases/download/v1.21.5/gitea-1.21.5-linux-386"
+    i386.sha256 = "fbfde0506c100cc5e86a42c4eb73907d37be417df493a9b57400a0df55cafb14"
+    amd64.url = "https://github.com/go-gitea/gitea/releases/download/v1.21.5/gitea-1.21.5-linux-amd64"
+    amd64.sha256 = "7a521914203b07c7a0613ae30d8ab229111b149a2fa219423e643cd9a039256e"
+
+    [resources.system_user]
+    home = "/home/yunohost.app/__APP__"
+    allow_ssh = true
+    allow_email = true
+
+    [resources.install_dir]
+    dir = "/opt/yunohost/__APP__"
+
+    [resources.data_dir]
+
+    [resources.permissions]
+    main.url = "/"
+
+    admin.show_tile = false
+    admin.auth_header = false
+    admin.label = "Admins"
+
+    [resources.ports]
+    main.default = 6000
+
+    [resources.apt]
+    packages = [
+        "mariadb-server"
+    ]
+
+    [resources.database]
+    type = "mysql"
