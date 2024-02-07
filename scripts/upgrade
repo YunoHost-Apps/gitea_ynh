@@ -55,11 +55,17 @@ fi
 
 # Ensure secrets are defined
 ynh_setup_source --dest_dir="$install_dir" --source_id=main
-_set_permissions
 
 #=================================================
 # MIGRATION STEP 2 (Set undefined Vars)
 #=================================================
+
+ynh_script_progression --message='Migrating missing settings...'
+
+# Must set permission before to call gitea command
+chown -R "$app:$app" "$install_dir"
+chmod -R u=rwX,g=rX,o= "$install_dir"
+chmod +x "$install_dir/gitea"
 
 if [[ -z "${internal_token:-}" ]]; then
     internal_token=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret INTERNAL_TOKEN)
@@ -106,6 +112,8 @@ ynh_secure_remove --file="$install_dir/templates"
 
 # Configure gitea with app.ini file
 ynh_add_config --template=app.ini --destination="$install_dir/custom/conf/app.ini"
+
+ynh_script_progression --message='Setting permissions...'
 _set_permissions
 
 # Update ldap config
