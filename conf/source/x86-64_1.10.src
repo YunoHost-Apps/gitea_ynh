@@ -1,5 +1,0 @@
-SOURCE_URL=https://github.com/go-gitea/gitea/releases/download/v1.10.3/gitea-1.10.3-linux-amd64
-SOURCE_SUM=e4e393da9f3dbcc6b200a58c0ba8c19ef02346ca24d6b273748b8346313053d0
-SOURCE_SUM_PRG=sha256sum
-SOURCE_FILENAME=gitea
-SOURCE_EXTRACT=false
