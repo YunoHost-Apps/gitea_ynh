@@ -75,6 +75,8 @@ ram.runtime = "100M"
     amd64.url = "https://github.com/go-gitea/gitea/releases/download/v1.21.5/gitea-1.21.5-linux-amd64"
     amd64.sha256 = "7a521914203b07c7a0613ae30d8ab229111b149a2fa219423e643cd9a039256e"
 
+    autoupdate.strategy = "latest_github_tag"
+
     [resources.system_user]
     home = "/home/yunohost.app/__APP__"
     allow_ssh = true
