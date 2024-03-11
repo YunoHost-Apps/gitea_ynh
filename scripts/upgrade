@@ -54,7 +54,7 @@ if [ ~"$app" != "$data_dir" ]; then
 fi
 
 # Ensure secrets are defined
-ynh_setup_source --dest_dir="$install_dir" --source_id=main
+ynh_setup_source --dest_dir="$install_dir" --source_id=main --full_replace=1
 
 #=================================================
 # MIGRATION STEP 2 (Set undefined Vars)
