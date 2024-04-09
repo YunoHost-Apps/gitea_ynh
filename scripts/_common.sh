@@ -3,7 +3,7 @@
 #=================================================
 
 systemd_match_start_line='Starting new Web server: tcp:127.0.0.1:'
-ssh_port=$(grep -P "Port\s+\d+" /etc/ssh/sshd_config | grep -P -o "\d+")
+ssh_port=$(yunohost settings get security.ssh.ssh_port)
 
 #=================================================
 # DEFINE ALL COMMON FONCTIONS
