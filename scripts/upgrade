@@ -53,8 +53,10 @@ if [ ~"$app" != "$data_dir" ]; then
     usermod --home "$data_dir" "$app"
 fi
 
-# Ensure secrets are defined
-ynh_setup_source --dest_dir="$install_dir" --source_id=main --full_replace=1 --keep=custom
+if [ "$upgrade_type" == UPGRADE_APP ]; then
+    # Ensure secrets are defined
+    ynh_setup_source --dest_dir="$install_dir" --source_id=main --full_replace=1 --keep=custom
+fi
 
 #=================================================
 # MIGRATION STEP 2 (Set undefined Vars)
