@@ -1,48 +1,48 @@
 <!--
-Nota bene : ce README est automatiquement généré par https://github.com/YunoHost/apps/tree/master/tools/readme_generator
-Il ne doit pas être modifié à la main.
+NOTA: Este README foi creado automáticamente por <https://github.com/YunoHost/apps/tree/master/tools/readme_generator>
+NON debe editarse manualmente.
 -->
 
-# Gitea pour YunoHost
+# Gitea para YunoHost
 
-[![Niveau d'intégration](https://dash.yunohost.org/integration/gitea.svg)](https://dash.yunohost.org/appci/app/gitea) ![Status du fonctionnement](https://ci-apps.yunohost.org/ci/badges/gitea.status.svg) ![Statut demaintenance](https://ci-apps.yunohost.org/ci/badges/gitea.maintain.svg)
+[![Nivel de integración](https://dash.yunohost.org/integration/gitea.svg)](https://dash.yunohost.org/appci/app/gitea) ![Estado de funcionamento](https://ci-apps.yunohost.org/ci/badges/gitea.status.svg) ![Estado de mantemento](https://ci-apps.yunohost.org/ci/badges/gitea.maintain.svg)
 
-[![Installer Gitea avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=gitea)
+[![Instalar Gitea con YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=gitea)
 
-*[Lire le README dans d'autres langues.](./ALL_README.md)*
+*[Le este README en outros idiomas.](./ALL_README.md)*
 
-> *Ce package vous permet d’installer Gitea rapidement et simplement sur un serveur YunoHost.
-Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour savoir comment l’installer et en profiter.*
+> *Este paquete permíteche instalar Gitea de xeito rápido e doado nun servidor YunoHost.*  
+> *Se non usas YunoHost, le a [documentación](https://yunohost.org/install) para saber como instalalo.*
 
-## Vue d'ensemble
+## Vista xeral
 
 Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to GitHub.
 
-**Version incluse :** 1.21.9~ynh1
 
-## Captures d'écran
+**Versión proporcionada:** 1.21.11~ynh1
 
-![Capture d'écran de Gitea](./doc/screenshots/screenshot.png)
+## Capturas de pantalla
 
-## Documentations et ressources
+![Captura de pantalla de Gitea](./doc/screenshots/screenshot.png)
 
-- Site officiel de l’app : <https://gitea.io/>
-- Documentation officielle de l'admin : <https://docs.gitea.io/>
-- Dépôt de code officiel de l’app : <https://github.com/go-gitea/gitea>
-- YunoHost Store : <https://apps.yunohost.org/app/gitea>
-- Signaler un bug : <https://github.com/YunoHost-Apps/gitea_ynh/issues>
+## Documentación e recursos
 
-## Informations pour les développeurs
+- Web oficial da app: <https://gitea.io/>
+- Documentación oficial para admin: <https://docs.gitea.io/>
+- Repositorio de orixe do código: <https://github.com/go-gitea/gitea>
+- Tenda YunoHost: <https://apps.yunohost.org/app/gitea>
+- Informar dun problema: <https://github.com/YunoHost-Apps/gitea_ynh/issues>
 
-Merci de faire vos pull request sur la [branche branch](https://github.com/YunoHost-Apps/gitea_ynh/tree/testing),
+## Info de desenvolvemento
 
+Envía a túa colaboración á [rama `testing`](https://github.com/YunoHost-Apps/gitea_ynh/tree/testing).
 
-Pour essayer la branche testing, procédez comme suit.
+Para probar a rama `testing`, procede deste xeito:
 
 ```bash
 sudo yunohost app install https://github.com/YunoHost-Apps/gitea_ynh/tree/testing --debug
-or
+ou
 sudo yunohost app upgrade gitea -u https://github.com/YunoHost-Apps/gitea_ynh/tree/testing --debug
 ```
 
-**Plus d'infos sur le packaging d'applications :** <https://yunohost.org/packaging_apps>
+**Máis info sobre o empaquetado da app:** <https://yunohost.org/packaging_apps>
