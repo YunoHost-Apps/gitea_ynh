@@ -9,7 +9,7 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
-upgrade_type=$(ynh_check_app_version_changed)
+upgrade_type="$(ynh_check_app_version_changed)"
 
 #=================================================
 # STANDARD UPGRADE STEPS
@@ -69,12 +69,12 @@ chmod -R u=rwX,g=rX,o= "$install_dir"
 chmod +x "$install_dir/gitea"
 
 if [[ -z "${internal_token:-}" ]]; then
-    internal_token=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret INTERNAL_TOKEN)
+    internal_token="$(ynh_exec_as "$app" "$install_dir/gitea" generate secret INTERNAL_TOKEN)"
     ynh_app_setting_set --app="$app" --key=internal_token --value="$internal_token"
 fi
 
 if [[ -z "${secret_key:-}" ]]; then
-    secret_key=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret SECRET_KEY)
+    secret_key="$(ynh_exec_as "$app" "$install_dir/gitea" generate secret SECRET_KEY)"
     ynh_app_setting_set --app="$app" --key=secret_key --value="$secret_key"
 fi
 
@@ -85,12 +85,12 @@ if [[ -n "${lfs_key:-}" ]]; then
 fi
 
 if [[ -z "${lfs_jwt_secret:-}" ]]; then
-    lfs_jwt_secret=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)
+    lfs_jwt_secret="$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)"
     ynh_app_setting_set --app="$app" --key=lfs_jwt_secret --value="$lfs_jwt_secret"
 fi
 
 if [[ -z "${jwt_secret:-}" ]]; then
-    jwt_secret=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)
+    jwt_secret="$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)"
     ynh_app_setting_set --app="$app" --key=jwt_secret --value="$jwt_secret"
 fi
 
@@ -98,7 +98,7 @@ fi
 # MIGRATION STEP Fix regression linked to 77c3678 and #76
 #=================================================
 
-list_param_sql=$(yunohost user list --output-as json | jq -c '.users | keys' | sed 's|\[|\(|' | sed 's|\]|\)|')
+list_param_sql="$(yunohost user list --output-as json | jq -c '.users | keys' | sed 's|\[|\(|' | sed 's|\]|\)|')"
 ynh_replace_string --match_string=__APP__ --replace_string="$app" --target_file=./fix_user_db_for_local_users.sql
 ynh_replace_string --match_string=__USER_LIST__ --replace_string="$list_param_sql" --target_file=./fix_user_db_for_local_users.sql
 ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name" < ./fix_user_db_for_local_users.sql
