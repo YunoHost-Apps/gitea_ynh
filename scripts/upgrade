@@ -18,11 +18,11 @@ upgrade_type=$(ynh_check_app_version_changed)
 #=================================================
 ynh_script_progression --message='Ensuring downward compatibility...' --weight=1
 
-if ynh_compare_current_package_version --comparison lt --version "1.6.4~ynh1"; then
+if ynh_compare_current_package_version --comparison=lt --version="1.6.4~ynh1"; then
     message="Upgrade from $YNH_APP_CURRENT_VERSION was dropped. You need to run this, then upgrade to the latest version:
 sudo yunohost app upgrade $app -u https://github.com/YunoHost-Apps/gitea_ynh/commit/a9ceb157032ae2290e944c1d0a255451ff2d133d"
     ynh_print_info "$message"
-    ynh_die --message="$message" --ret_code 1
+    ynh_die --message="$message" --ret_code=1
 fi
 
 #=================================================
@@ -71,28 +71,28 @@ chmod +x "$install_dir/gitea"
 
 if [[ -z "${internal_token:-}" ]]; then
     internal_token=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret INTERNAL_TOKEN)
-    ynh_app_setting_set --app "$app" --key internal_token --value="$internal_token"
+    ynh_app_setting_set --app="$app" --key=internal_token --value="$internal_token"
 fi
 
 if [[ -z "${secret_key:-}" ]]; then
     secret_key=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret SECRET_KEY)
-    ynh_app_setting_set --app "$app" --key secret_key --value="$secret_key"
+    ynh_app_setting_set --app="$app" --key=secret_key --value="$secret_key"
 fi
 
 if [[ -n "${lfs_key:-}" ]]; then
     lfs_jwt_secret="$lfs_key"
-    ynh_app_setting_delete --app "$app" --key lfs_key
-    ynh_app_setting_set --app "$app" --key lfs_jwt_secret --value="$lfs_jwt_secret"
+    ynh_app_setting_delete --app="$app" --key=lfs_key
+    ynh_app_setting_set --app="$app" --key=lfs_jwt_secret --value="$lfs_jwt_secret"
 fi
 
 if [[ -z "${lfs_jwt_secret:-}" ]]; then
     lfs_jwt_secret=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)
-    ynh_app_setting_set --app "$app" --key lfs_jwt_secret --value="$lfs_jwt_secret"
+    ynh_app_setting_set --app="$app" --key=lfs_jwt_secret --value="$lfs_jwt_secret"
 fi
 
 if [[ -z "${jwt_secret:-}" ]]; then
     jwt_secret=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)
-    ynh_app_setting_set --app "$app" --key jwt_secret --value="$jwt_secret"
+    ynh_app_setting_set --app="$app" --key=jwt_secret --value="$jwt_secret"
 fi
 
 #=================================================
@@ -141,7 +141,7 @@ yunohost service add "$app" --log="/var/log/$app/gitea.log"
 
 ynh_use_logrotate --non-append
 
-ynh_add_fail2ban_config --logpath="/var/log/$app/gitea.log" --failregex=".*Failed authentication attempt for .* from <HOST>" --max_retry 5
+ynh_add_fail2ban_config --logpath="/var/log/$app/gitea.log" --failregex=".*Failed authentication attempt for .* from <HOST>" --max_retry=5
 
 #=================================================
 # START SYSTEMD SERVICE

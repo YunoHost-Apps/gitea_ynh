@@ -50,7 +50,7 @@ jwt_secret=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)
 ynh_app_setting_set --app="$app" --key=internal_token --value="$internal_token"
 ynh_app_setting_set --app="$app" --key=secret_key --value="$secret_key"
 ynh_app_setting_set --app="$app" --key=lfs_jwt_secret --value="$lfs_jwt_secret"
-ynh_app_setting_set --app "$app" --key jwt_secret --value="$jwt_secret"
+ynh_app_setting_set --app="$app" --key=jwt_secret --value="$jwt_secret"
 
 ynh_add_config --template='app.ini' --destination="$install_dir/custom/conf/app.ini"
 
@@ -69,7 +69,7 @@ ynh_add_systemd_config
 yunohost service add "$app" --log="/var/log/$app/gitea.log"
 
 # Configure logrotate
-ynh_use_logrotate --logfile "/var/log/$app"
+ynh_use_logrotate --logfile="/var/log/$app"
 
 # Create a dedicated Fail2Ban config
 ynh_add_fail2ban_config --logpath="/var/log/$app/gitea.log" --failregex='.*Failed authentication attempt for .* from <HOST>' --max_retry=5

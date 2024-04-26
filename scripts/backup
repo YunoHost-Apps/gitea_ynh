@@ -19,23 +19,23 @@ fi
 ynh_print_info --message='Declaring files to be backed up...'
 
 # Copy the app source files
-ynh_backup --src_path "$install_dir"
+ynh_backup --src_path="$install_dir"
 
 # Copy the data files
-ynh_backup --src_path "$data_dir" --is_big=1
+ynh_backup --src_path="$data_dir" --is_big=1
 
 # Copy the conf files
-ynh_backup --src_path "/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 
 ynh_backup --src_path="/etc/fail2ban/jail.d/$app.conf"
 ynh_backup --src_path="/etc/fail2ban/filter.d/$app.conf"
 
 ynh_backup --src_path="/etc/logrotate.d/$app"
 
-ynh_backup --src_path "/etc/systemd/system/$app.service"
+ynh_backup --src_path="/etc/systemd/system/$app.service"
 
 # Backup logs
-ynh_backup --src_path "/var/log/$app"
+ynh_backup --src_path="/var/log/$app"
 
 # Dump the database
 ynh_print_info --message="Backing up the MySQL database"
