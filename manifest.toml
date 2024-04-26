@@ -32,7 +32,8 @@ architectures = [
 ]
 multi_instance = true
 ldap = true
-sso = true
+# reverse proxy authentication disabled until https://github.com/go-gitea/gitea/pull/18452 is merged
+sso = false
 disk = "120M"
 ram.build = "0M"
 ram.runtime = "100M"
