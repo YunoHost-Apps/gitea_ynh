@@ -7,7 +7,7 @@ name = "Gitea"
 description.en = "Lightweight Git forge"
 description.fr = "Forge Git légère"
 
-version = "1.21.5~ynh1"
+version = "1.22.0~ynh1"
 
 maintainers = ["Josué Tille"]
 # previous_maintainers = [
@@ -32,7 +32,8 @@ architectures = [
 ]
 multi_instance = true
 ldap = true
-sso = true
+# reverse proxy authentication disabled until https://github.com/go-gitea/gitea/pull/18452 is merged
+sso = false
 disk = "120M"
 ram.build = "0M"
 ram.runtime = "100M"
@@ -66,14 +67,14 @@ ram.runtime = "100M"
     extract = false
     rename = "gitea"
 
-    armhf.url = "https://github.com/go-gitea/gitea/releases/download/v1.21.5/gitea-1.21.5-linux-arm-6"
-    armhf.sha256 = "a531726f695aeb6bed4d69827e56e78e22fd0e4134b02b08edbc31c50c7e8735"
-    arm64.url = "https://github.com/go-gitea/gitea/releases/download/v1.21.5/gitea-1.21.5-linux-arm64"
-    arm64.sha256 = "55d132cfb7016984773029abc8d1d8e9d844138f5e4c8ff8df273b55aa2190f3"
-    i386.url = "https://github.com/go-gitea/gitea/releases/download/v1.21.5/gitea-1.21.5-linux-386"
-    i386.sha256 = "fbfde0506c100cc5e86a42c4eb73907d37be417df493a9b57400a0df55cafb14"
-    amd64.url = "https://github.com/go-gitea/gitea/releases/download/v1.21.5/gitea-1.21.5-linux-amd64"
-    amd64.sha256 = "7a521914203b07c7a0613ae30d8ab229111b149a2fa219423e643cd9a039256e"
+    armhf.url = "https://github.com/go-gitea/gitea/releases/download/v1.22.0/gitea-1.22.0-linux-arm-6"
+    armhf.sha256 = "a3881b9d065977923c5646547f1e80e71cffa503d81f08d70ec0419556ffd402"
+    arm64.url = "https://github.com/go-gitea/gitea/releases/download/v1.22.0/gitea-1.22.0-linux-arm64"
+    arm64.sha256 = "ef6afed370b14d33b2b8dcc0c7ea56105b73ce9a3361090708985a878475d94b"
+    i386.url = "https://github.com/go-gitea/gitea/releases/download/v1.22.0/gitea-1.22.0-linux-386"
+    i386.sha256 = "b320cf3a853389b3159ccd611af3bd9f4d96b843bf8eda67613760aa8d566d4d"
+    amd64.url = "https://github.com/go-gitea/gitea/releases/download/v1.22.0/gitea-1.22.0-linux-amd64"
+    amd64.sha256 = "a31086f073cb9592d28611394b2de3655db515d961e4fdcf5b549cb40753ef3d"
 
     autoupdate.strategy = "latest_github_release"
     autoupdate.asset.armhf = "^gitea-.*-linux-arm-6$"
