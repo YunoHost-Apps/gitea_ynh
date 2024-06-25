@@ -26,11 +26,6 @@ ynh_remove_logrotate
 
 ynh_remove_fail2ban_config
 
-if [ "$YNH_APP_PURGE" -eq 1 ]; then
-    ynh_script_progression --message="Removing logs..."
-    ynh_secure_remove --file=/var/log/"$app"
-fi
-
 #=================================================
 # END OF SCRIPT
 #=================================================
