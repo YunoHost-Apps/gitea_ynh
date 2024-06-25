@@ -21,7 +21,6 @@ Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to 
 
 **Paketatutako bertsioa:** 1.22.0~ynh1
 
-
 ## Pantaila-argazkiak
 
 ![Gitea(r)en pantaila-argazkia](./doc/screenshots/screenshot.png)
