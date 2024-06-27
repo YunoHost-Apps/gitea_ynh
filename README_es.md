@@ -5,7 +5,7 @@ No se debe editar a mano.
 
 # Gitea para Yunohost
 
-[![Nivel de integración](https://dash.yunohost.org/integration/gitea.svg)](https://dash.yunohost.org/appci/app/gitea) ![Estado funcional](https://ci-apps.yunohost.org/ci/badges/gitea.status.svg) ![Estado En Mantención](https://ci-apps.yunohost.org/ci/badges/gitea.maintain.svg)
+[![Nivel de integración](https://dash.yunohost.org/integration/gitea.svg)](https://ci-apps.yunohost.org/ci/apps/gitea/) ![Estado funcional](https://ci-apps.yunohost.org/ci/badges/gitea.status.svg) ![Estado En Mantención](https://ci-apps.yunohost.org/ci/badges/gitea.maintain.svg)
 
 [![Instalar Gitea con Yunhost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=gitea)
 
