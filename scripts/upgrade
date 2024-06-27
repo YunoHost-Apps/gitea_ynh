@@ -9,7 +9,7 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
-upgrade_type=$(ynh_check_app_version_changed)
+upgrade_type="$(ynh_check_app_version_changed)"
 
 #=================================================
 # STANDARD UPGRADE STEPS
@@ -18,11 +18,11 @@ upgrade_type=$(ynh_check_app_version_changed)
 #=================================================
 ynh_script_progression --message='Ensuring downward compatibility...' --weight=1
 
-if ynh_compare_current_package_version --comparison lt --version "1.6.4~ynh1"; then
+if ynh_compare_current_package_version --comparison=lt --version="1.6.4~ynh1"; then
     message="Upgrade from $YNH_APP_CURRENT_VERSION was dropped. You need to run this, then upgrade to the latest version:
 sudo yunohost app upgrade $app -u https://github.com/YunoHost-Apps/gitea_ynh/commit/a9ceb157032ae2290e944c1d0a255451ff2d133d"
     ynh_print_info "$message"
-    ynh_die --message="$message" --ret_code 1
+    ynh_die --message="$message" --ret_code=1
 fi
 
 #=================================================
@@ -53,8 +53,9 @@ if [ ~"$app" != "$data_dir" ]; then
     usermod --home "$data_dir" "$app"
 fi
 
-# Ensure secrets are defined
-ynh_setup_source --dest_dir="$install_dir" --source_id=main
+if [ "$upgrade_type" == UPGRADE_APP ]; then
+    ynh_setup_source --dest_dir="$install_dir" --source_id=main --full_replace=1 --keep=custom
+fi
 
 #=================================================
 # MIGRATION STEP 2 (Set undefined Vars)
@@ -68,36 +69,36 @@ chmod -R u=rwX,g=rX,o= "$install_dir"
 chmod +x "$install_dir/gitea"
 
 if [[ -z "${internal_token:-}" ]]; then
-    internal_token=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret INTERNAL_TOKEN)
-    ynh_app_setting_set --app "$app" --key internal_token --value="$internal_token"
+    internal_token="$(ynh_exec_as "$app" "$install_dir/gitea" generate secret INTERNAL_TOKEN)"
+    ynh_app_setting_set --app="$app" --key=internal_token --value="$internal_token"
 fi
 
 if [[ -z "${secret_key:-}" ]]; then
-    secret_key=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret SECRET_KEY)
-    ynh_app_setting_set --app "$app" --key secret_key --value="$secret_key"
+    secret_key="$(ynh_exec_as "$app" "$install_dir/gitea" generate secret SECRET_KEY)"
+    ynh_app_setting_set --app="$app" --key=secret_key --value="$secret_key"
 fi
 
 if [[ -n "${lfs_key:-}" ]]; then
     lfs_jwt_secret="$lfs_key"
-    ynh_app_setting_delete --app "$app" --key lfs_key
-    ynh_app_setting_set --app "$app" --key lfs_jwt_secret --value="$lfs_jwt_secret"
+    ynh_app_setting_delete --app="$app" --key=lfs_key
+    ynh_app_setting_set --app="$app" --key=lfs_jwt_secret --value="$lfs_jwt_secret"
 fi
 
 if [[ -z "${lfs_jwt_secret:-}" ]]; then
-    lfs_jwt_secret=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)
-    ynh_app_setting_set --app "$app" --key lfs_jwt_secret --value="$lfs_jwt_secret"
+    lfs_jwt_secret="$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)"
+    ynh_app_setting_set --app="$app" --key=lfs_jwt_secret --value="$lfs_jwt_secret"
 fi
 
 if [[ -z "${jwt_secret:-}" ]]; then
-    jwt_secret=$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)
-    ynh_app_setting_set --app "$app" --key jwt_secret --value="$jwt_secret"
+    jwt_secret="$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)"
+    ynh_app_setting_set --app="$app" --key=jwt_secret --value="$jwt_secret"
 fi
 
 #=================================================
 # MIGRATION STEP Fix regression linked to 77c3678 and #76
 #=================================================
 
-list_param_sql=$(yunohost user list --output-as json | jq -c '.users | keys' | sed 's|\[|\(|' | sed 's|\]|\)|')
+list_param_sql="$(yunohost user list --output-as json | jq -c '.users | keys' | sed 's|\[|\(|' | sed 's|\]|\)|')"
 ynh_replace_string --match_string=__APP__ --replace_string="$app" --target_file=./fix_user_db_for_local_users.sql
 ynh_replace_string --match_string=__USER_LIST__ --replace_string="$list_param_sql" --target_file=./fix_user_db_for_local_users.sql
 ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name" < ./fix_user_db_for_local_users.sql
@@ -139,7 +140,7 @@ yunohost service add "$app" --log="/var/log/$app/gitea.log"
 
 ynh_use_logrotate --non-append
 
-ynh_add_fail2ban_config --logpath="/var/log/$app/gitea.log" --failregex=".*Failed authentication attempt for .* from <HOST>" --max_retry 5
+ynh_add_fail2ban_config --logpath="/var/log/$app/gitea.log" --failregex=".*Failed authentication attempt for .* from <HOST>" --max_retry=5
 
 #=================================================
 # START SYSTEMD SERVICE

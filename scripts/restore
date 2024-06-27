@@ -34,7 +34,7 @@ yunohost service add "$app" --log="/var/log/$app/gitea.log"
 
 # SETUP FAIL2BAN
 ynh_script_progression --message="Configuring fail2ban..."
-ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
+ynh_add_fail2ban_config --logpath="/var/log/$app/gitea.log" --failregex=".*Failed authentication attempt for .* from <HOST>" --max_retry=5
 
 #=================================================
 # GENERIC FINALIZATION
