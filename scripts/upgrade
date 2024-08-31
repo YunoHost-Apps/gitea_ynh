@@ -18,7 +18,7 @@ fi
 #=================================================
 # STOP SYSTEMD SERVICE
 #=================================================
-ynh_script_progression 'Stopping $app's systemd service...'
+ynh_script_progression "Stopping $app's systemd service..."
 
 ynh_systemctl --service="$app" --action=stop
 
@@ -43,10 +43,7 @@ if [ ~"$app" != "$data_dir" ]; then
     usermod --home "$data_dir" "$app"
 fi
 
-# FIXME: this is still supported but the recommendation is now to *always* re-setup the app sources wether or not the upstream sources changed
-if ynh_app_upstream_version_changed; then
-    ynh_setup_source --dest_dir="$install_dir" --source_id=main --full_replace --keep=custom
-fi
+ynh_setup_source --dest_dir="$install_dir" --source_id=main --full_replace --keep=custom
 
 #=================================================
 # MIGRATION STEP 2 (Set undefined Vars)
@@ -55,38 +52,15 @@ fi
 ynh_script_progression 'Migrating missing settings...'
 
 # Must set permission before to call gitea command
-#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R "$app:$app" "$install_dir"
-#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod -R u=rwX,g=rX,o= "$install_dir"
+chown -R "$app:$app" "$install_dir"
+chmod -R u=rwX,g=rX,o= "$install_dir"
 chmod +x "$install_dir/gitea"
 
-# FIXMEhelpers2.1: maybe replace with: ynh_app_setting_set_default --key=internal_token --value="$(ynh_exec_as_app "$install_dir/gitea" generate secret INTERNAL_TOKEN)"
-if [[ -z "${internal_token:-}" ]]; then
-    internal_token="$(ynh_exec_as_app "$install_dir/gitea" generate secret INTERNAL_TOKEN)"
-    ynh_app_setting_set --key=internal_token --value="$internal_token"
-fi
-
-# FIXMEhelpers2.1: maybe replace with: ynh_app_setting_set_default --key=secret_key --value="$(ynh_exec_as_app "$install_dir/gitea" generate secret SECRET_KEY)"
-if [[ -z "${secret_key:-}" ]]; then
-    secret_key="$(ynh_exec_as_app "$install_dir/gitea" generate secret SECRET_KEY)"
-    ynh_app_setting_set --key=secret_key --value="$secret_key"
-fi
-
+set_settings_default
 if [[ -n "${lfs_key:-}" ]]; then
     lfs_jwt_secret="$lfs_key"
     ynh_app_setting_delete --key=lfs_key
     ynh_app_setting_set --key=lfs_jwt_secret --value="$lfs_jwt_secret"
-fi
-
-# FIXMEhelpers2.1: maybe replace with: ynh_app_setting_set_default --key=lfs_jwt_secret --value="$(ynh_exec_as_app "$install_dir/gitea" generate secret JWT_SECRET)"
-if [[ -z "${lfs_jwt_secret:-}" ]]; then
-    lfs_jwt_secret="$(ynh_exec_as_app "$install_dir/gitea" generate secret JWT_SECRET)"
-    ynh_app_setting_set --key=lfs_jwt_secret --value="$lfs_jwt_secret"
-fi
-
-# FIXMEhelpers2.1: maybe replace with: ynh_app_setting_set_default --key=jwt_secret --value="$(ynh_exec_as_app "$install_dir/gitea" generate secret JWT_SECRET)"
-if [[ -z "${jwt_secret:-}" ]]; then
-    jwt_secret="$(ynh_exec_as_app "$install_dir/gitea" generate secret JWT_SECRET)"
-    ynh_app_setting_set --key=jwt_secret --value="$jwt_secret"
 fi
 
 #=================================================
@@ -140,7 +114,7 @@ ynh_config_add_fail2ban --logpath="/var/log/$app/gitea.log" --failregex=".*Faile
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
-ynh_script_progression 'Starting $app's systemd service...'
+ynh_script_progression "Starting $app's systemd service..."
 
 ynh_systemctl --service="$app" --action=start --log_path="/var/log/$app/gitea.log" --wait_until="$systemd_match_start_line"
 

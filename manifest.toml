@@ -89,7 +89,6 @@ ram.runtime = "100M"
     allow_email = true
 
     [resources.install_dir]
-    dir = "/opt/yunohost/__APP__"
 
     [resources.data_dir]
 
