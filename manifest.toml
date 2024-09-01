@@ -23,7 +23,7 @@ cpe = "cpe:2.3:a:gitea:gitea"
 fund = "https://opencollective.com/gitea"
 
 [integration]
-yunohost = ">= 11.2.18"
+yunohost = ">= 11.2.30"
 helpers_version = "2.1"
 architectures = [
     "amd64",
@@ -89,8 +89,12 @@ ram.runtime = "100M"
     allow_email = true
 
     [resources.install_dir]
+    owner = "__APP__:rwx"
+    group = "__APP__:r-x"
 
     [resources.data_dir]
+    owner = "__APP__:rwx"
+    group = "__APP__:r-x"
 
     [resources.permissions]
     main.url = "/"
