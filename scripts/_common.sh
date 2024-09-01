@@ -15,6 +15,7 @@ _set_permissions() {
     chmod +x "$install_dir/gitea"
 
     chown -R "$app:$app" "$data_dir"
+    chmod u=rwx,g=rx,o= "$data_dir"
     find "$data_dir" \(   \! -perm -o= \
                      -o \! -user "$app" \
                      -o \! -group "$app" \) \
