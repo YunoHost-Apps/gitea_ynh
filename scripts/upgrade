@@ -1,36 +1,28 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC START
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
 
-upgrade_type="$(ynh_check_app_version_changed)"
+ynh_app_setting_set --key=protect_against_basic_auth_spoofing --value=false
 
-#=================================================
-# STANDARD UPGRADE STEPS
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
-ynh_script_progression --message='Ensuring downward compatibility...' --weight=1
+ynh_script_progression 'Ensuring downward compatibility...'
 
-if ynh_compare_current_package_version --comparison=lt --version="1.6.4~ynh1"; then
+if ynh_app_upgrading_from_version_before 1.6.4~ynh1; then
     message="Upgrade from $YNH_APP_CURRENT_VERSION was dropped. You need to run this, then upgrade to the latest version:
 sudo yunohost app upgrade $app -u https://github.com/YunoHost-Apps/gitea_ynh/commit/a9ceb157032ae2290e944c1d0a255451ff2d133d"
     ynh_print_info "$message"
-    ynh_die --message="$message" --ret_code=1
+    ynh_die "$message" --ret_code=1
 fi
 
 #=================================================
 # STOP SYSTEMD SERVICE
 #=================================================
-ynh_script_progression --message='Stopping a systemd service...' --weight=1
+ynh_script_progression "Stopping $app's systemd service..."
 
-ynh_systemd_action --service_name="$app" --action=stop
+ynh_systemctl --service="$app" --action=stop
 
 #=================================================
 # MIGRATION STEP 1 (migrate path from packagin v1)
@@ -40,7 +32,7 @@ ynh_systemd_action --service_name="$app" --action=stop
 if [ -d "/opt/$app" ]; then
     # This is the package version of the manifestv2
     mv -t "$install_dir/" "/opt/$app/"*
-    ynh_secure_remove --file="/opt/$app"
+    ynh_safe_rm "/opt/$app"
 fi
 
 # Move data directory
@@ -53,45 +45,24 @@ if [ ~"$app" != "$data_dir" ]; then
     usermod --home "$data_dir" "$app"
 fi
 
-if [ "$upgrade_type" == UPGRADE_APP ]; then
-    ynh_setup_source --dest_dir="$install_dir" --source_id=main --full_replace=1 --keep=custom
-fi
+ynh_setup_source --dest_dir="$install_dir" --source_id=main --full_replace --keep=custom
 
 #=================================================
 # MIGRATION STEP 2 (Set undefined Vars)
 #=================================================
 
-ynh_script_progression --message='Migrating missing settings...'
+ynh_script_progression 'Migrating missing settings...'
 
 # Must set permission before to call gitea command
 chown -R "$app:$app" "$install_dir"
 chmod -R u=rwX,g=rX,o= "$install_dir"
 chmod +x "$install_dir/gitea"
 
-if [[ -z "${internal_token:-}" ]]; then
-    internal_token="$(ynh_exec_as "$app" "$install_dir/gitea" generate secret INTERNAL_TOKEN)"
-    ynh_app_setting_set --app="$app" --key=internal_token --value="$internal_token"
-fi
-
-if [[ -z "${secret_key:-}" ]]; then
-    secret_key="$(ynh_exec_as "$app" "$install_dir/gitea" generate secret SECRET_KEY)"
-    ynh_app_setting_set --app="$app" --key=secret_key --value="$secret_key"
-fi
-
+set_settings_default
 if [[ -n "${lfs_key:-}" ]]; then
     lfs_jwt_secret="$lfs_key"
-    ynh_app_setting_delete --app="$app" --key=lfs_key
-    ynh_app_setting_set --app="$app" --key=lfs_jwt_secret --value="$lfs_jwt_secret"
-fi
-
-if [[ -z "${lfs_jwt_secret:-}" ]]; then
-    lfs_jwt_secret="$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)"
-    ynh_app_setting_set --app="$app" --key=lfs_jwt_secret --value="$lfs_jwt_secret"
-fi
-
-if [[ -z "${jwt_secret:-}" ]]; then
-    jwt_secret="$(ynh_exec_as "$app" "$install_dir/gitea" generate secret JWT_SECRET)"
-    ynh_app_setting_set --app="$app" --key=jwt_secret --value="$jwt_secret"
+    ynh_app_setting_delete --key=lfs_key
+    ynh_app_setting_set --key=lfs_jwt_secret --value="$lfs_jwt_secret"
 fi
 
 #=================================================
@@ -99,22 +70,22 @@ fi
 #=================================================
 
 list_param_sql="$(yunohost user list --output-as json | jq -c '.users | keys' | sed 's|\[|\(|' | sed 's|\]|\)|')"
-ynh_replace_string --match_string=__APP__ --replace_string="$app" --target_file=./fix_user_db_for_local_users.sql
-ynh_replace_string --match_string=__USER_LIST__ --replace_string="$list_param_sql" --target_file=./fix_user_db_for_local_users.sql
-ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name" < ./fix_user_db_for_local_users.sql
+ynh_replace --match=__APP__ --replace="$app" --file=./fix_user_db_for_local_users.sql
+ynh_replace --match=__USER_LIST__ --replace="$list_param_sql" --file=./fix_user_db_for_local_users.sql
+ynh_mysql_db_shell < ./fix_user_db_for_local_users.sql
 
 #=================================================
 # UPDATE A CONFIG FILE
 #=================================================
-ynh_script_progression --message='Updating configuration files...' --weight=1
+ynh_script_progression 'Updating configuration files...'
 
 # Clean template to fix issue : https://github.com/gogits/gogs/issues/4585
-ynh_secure_remove --file="$install_dir/templates"
+ynh_safe_rm "$install_dir/templates"
 
 # Configure gitea with app.ini file
-ynh_add_config --template=app.ini --destination="$install_dir/custom/conf/app.ini"
+ynh_config_add --template=app.ini --destination="$install_dir/custom/conf/app.ini"
 
-ynh_script_progression --message='Setting permissions...'
+ynh_script_progression 'Setting permissions...'
 _set_permissions
 
 # Update ldap config
@@ -124,33 +95,33 @@ _set_permissions
 group_team_map_config=$(mysql --user="$db_user" --password="$db_pwd" --batch --raw "$db_name" <<< 'SELECT `cfg` FROM `'$app'`.`login_source` WHERE `id`=1;' \
     | tail -n+2 | jq '.GroupTeamMap')
 sed -i 's|__GROUP_TEAM_MAP__|'"${group_team_map_config//\\/\\\\\\\\}"'|g' ./login_source.sql
-ynh_replace_string --match_string=__APP__ --replace_string="$app" --target_file=./login_source.sql
-ynh_mysql_connect_as "$db_user" "$db_pwd" "$db_name" < ./login_source.sql
+ynh_replace --match=__APP__ --replace="$app" --file=./login_source.sql
+ynh_mysql_db_shell < ./login_source.sql
 
 #=================================================
 # REAPPLY SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression --message="Upgrading system configurations related to $app..." --weight=1
+ynh_script_progression "Upgrading system configurations related to $app..."
 
-ynh_add_nginx_config
+ynh_config_add_nginx
 
-ynh_add_systemd_config
+ynh_config_add_systemd
 
 yunohost service add "$app" --log="/var/log/$app/gitea.log"
 
-ynh_use_logrotate --non-append
+ynh_config_add_logrotate
 
-ynh_add_fail2ban_config --logpath="/var/log/$app/gitea.log" --failregex=".*Failed authentication attempt for .* from <HOST>" --max_retry=5
+ynh_config_add_fail2ban --logpath="/var/log/$app/gitea.log" --failregex=".*Failed authentication attempt for .* from <HOST>"
 
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
-ynh_script_progression --message='Starting a systemd service...' --weight=1
+ynh_script_progression "Starting $app's systemd service..."
 
-ynh_systemd_action --service_name="$app" --action=start --log_path="/var/log/$app/gitea.log" --line_match="$systemd_match_start_line"
+ynh_systemctl --service="$app" --action=start --log_path="/var/log/$app/gitea.log" --wait_until="$systemd_match_start_line"
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Upgrade of $app completed" --last
+ynh_script_progression "Upgrade of $app completed"
