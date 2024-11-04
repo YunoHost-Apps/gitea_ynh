@@ -19,7 +19,7 @@ No se debe editar a mano.
 Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to GitHub.
 
 
-**Versión actual:** 1.22.0~ynh1
+**Versión actual:** 1.22.3~ynh1
 
 ## Capturas
 
@@ -35,7 +35,7 @@ Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to 
 
 ## Información para desarrolladores
 
-Por favor enviar sus correcciones a la [`branch testing`](https://github.com/YunoHost-Apps/gitea_ynh/tree/testing
+Por favor enviar sus correcciones a la [rama `testing`](https://github.com/YunoHost-Apps/gitea_ynh/tree/testing).
 
 Para probar la rama `testing`, sigue asÍ:
 
