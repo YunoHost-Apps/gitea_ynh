@@ -5,77 +5,52 @@
 #=================================================
 
 # Load common variables and helpers
-source ../settings/scripts/experimental_helper.sh
 source ../settings/scripts/_common.sh
-
-# IMPORT GENERIC HELPERS
 source /usr/share/yunohost/helpers
 
-# Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
-
-ynh_script_progression --message="Loading settings..."
-
-# Retrieve old app settings
-domain=$(ynh_app_setting_get --app $app --key domain)
-path_url=$(ynh_app_setting_get --app $app --key path)
-db_password=$(ynh_app_setting_get --app $app --key mysqlpwd)
-admin=$(ynh_app_setting_get --app $app --key adminusername)
-port=$(ynh_app_setting_get --app $app --key web_port)
-upstream_version=$(ynh_app_setting_get $app upstream_version)
-
-# Check user parameter
-ynh_user_exists "$admin" \
-  || ynh_die --message "The chosen admin user does not exist."
-
-# Check Final Path availability
-test ! -e "$final_path" || ynh_die --message "This path already contains a folder"
+#=================================================
+# RESTORE THE APP MAIN DIR
+#=================================================
+ynh_script_progression "Restoring the app files..."
+ynh_restore_everything
+_set_permissions
 
 #=================================================
-# STANDARD RESTORATION STEPS
+# RESTORE THE MYSQL DATABASE
 #=================================================
+ynh_script_progression "Restoring the MySQL database..."
 
-# Add users
-ynh_script_progression --message="Configuring system user..."
-ynh_system_user_create --username=$app --home_dir=$datadir --use_shell
+ynh_mysql_db_shell < ./db.sql
 
-# Restore all files
-ynh_script_progression --message="Restoring files..." --weight=10
-ynh_restore
+#=================================================
+# RESTORE SYSTEM CONFIGURATIONS
+#=================================================
+ynh_script_progression "Restoring system configurations related to $app..."
 
-# Create and restore the database
-ynh_script_progression --message="Restoring database..." --weight=3
-ynh_mysql_create_db "$dbname" "$db_user" "$db_password"
-ynh_mysql_connect_as "$db_user" "$db_password" "$dbname" < ./db.sql
-
-# Restore systemd files
 systemctl daemon-reload
 systemctl enable "$app".service --quiet
 
+yunohost service add "$app" --log="/var/log/$app/gitea.log"
+
 # SETUP FAIL2BAN
-ynh_script_progression --message="Configuring fail2ban..."
-ynh_add_fail2ban_config --logpath "/var/log/$app/gitea.log" --failregex ".*Failed authentication attempt for .* from <HOST>" --max_retry 5
+ynh_script_progression "Configuring fail2ban..."
+ynh_config_add_fail2ban --logpath="/var/log/$app/gitea.log" --failregex=".*Failed authentication attempt for .* from <HOST>"
+
+mkdir -p /var/log/"$app"
+ynh_config_add_logrotate
 
 #=================================================
-# GENERIC FINALIZATION
+# RELOAD NGINX AND PHP-FPM OR THE APP SERVICE
+#=================================================
+ynh_script_progression "Reloading NGINX web server and $app's service..."
+
+# Typically you only have either $app or php-fpm but not both at the same time...
+ynh_systemctl --service="$app" --action=start --log_path="/var/log/$app/gitea.log" --wait_until="$systemd_match_start_line"
+
+ynh_systemctl --service=nginx --action=reload
+
+#=================================================
+# END OF SCRIPT
 #=================================================
 
-# Set permissions
-ynh_script_progression --message="Protecting directory..."
-set_permission
-
-# Configure logrotate
-ynh_script_progression --message="Configuring log rotation..."
-ynh_use_logrotate --logfile "/var/log/$app"
-
-# Add gitea to YunoHost's monitored services
-ynh_script_progression --message="Register Gitea service..."
-yunohost service add "$app" --log=/var/log/$app/gitea.log
-
-# Reload services
-ynh_script_progression --message="Reloading services..."
-systemctl reload nginx.service
-ynh_systemd_action -l "Starting new Web server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 10
-sleep 1
-
-ynh_script_progression --message="Restoration completed for $app" --last
+ynh_script_progression "Restoration completed for $app"

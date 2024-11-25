@@ -1,66 +1,41 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC START
-#=================================================
-
-# Import common cmd
-source ./experimental_helper.sh
-source ./_common.sh
-
-# IMPORT GENERIC HELPERS
+source _common.sh
 source /usr/share/yunohost/helpers
 
-# Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
+#=================================================
+# STOP SYSTEMD SERVICE
+#=================================================
+ynh_script_progression "Stopping $app's systemd service..."
 
-ynh_script_progression --message="Loading installation settings..."
-
-# RETRIEVE ARGUMENTS
-old_domain=$YNH_APP_OLD_DOMAIN
-domain=$YNH_APP_NEW_DOMAIN
-path_url=$(ynh_normalize_url_path --path_url ${YNH_APP_NEW_PATH:-'/'})
-app=$YNH_APP_INSTANCE_NAME
-
-db_password=$(ynh_app_setting_get --app $app --key mysqlpwd)
-admin=$(ynh_app_setting_get --app $app --key adminusername)
-key=$(ynh_app_setting_get --app $app --key secret_key)
-lfs_key=$(ynh_app_setting_get --app $app --key lfs_key)
-port=$(ynh_app_setting_get --app $app --key web_port)
-upstream_version=$(ynh_app_setting_get $app upstream_version)
+ynh_systemctl --service="$app" --action=stop
 
 #=================================================
-# STANDARD MODIFICATIONS
-#=================================================
-
-ynh_script_progression --message="Updating nginx configuration..."
-
 # MODIFY URL IN NGINX CONF
-nginx_conf_path=/etc/nginx/conf.d/$old_domain.d/$app.conf
+#=================================================
+ynh_script_progression "Updating NGINX web server configuration..."
 
-# Change the domain for nginx
-# Change the domain for nginx
-if [[ "$old_domain" != "$domain" ]]; then
-    # Delete file checksum for the old conf file location
-    ynh_delete_file_checksum --file "$nginx_conf_path"
-    mv $nginx_conf_path /etc/nginx/conf.d/$domain.d/$app.conf
-    # Store file checksum for the new config file location
-    ynh_store_file_checksum --file "/etc/nginx/conf.d/$domain.d/$app.conf"
-fi
+ynh_config_change_url_nginx
 
-config_nginx
+#=================================================
+# SPECIFIC MODIFICATIONS
+#=================================================
+# Setup gitea.ini
+#=================================================
+ynh_script_progression "Updating gitea configuration..."
 
-# Update gitea config
-ynh_script_progression --message="Updating gitea configuration..."
-config_gitea
+ynh_config_add --template="app.ini" --destination="$install_dir/custom/conf/app.ini"
+_set_permissions
 
-# RELOAD services
-ynh_script_progression --message="Starting services..."
-ynh_systemd_action -l "Starting new Web server: tcp:127.0.0.1:" -p "/var/log/$app/gitea.log" -t 10 -a restart
-sleep 1
+#=================================================
+# START SYSTEMD SERVICE
+#=================================================
+ynh_script_progression "Starting gitea services..."
 
-# Store the checksum with the 'INTERNAL_TOKEN' value.
-# Should be removed when the issue https://github.com/go-gitea/gitea/issues/3246 is fixed
-ynh_store_file_checksum --file "$final_path/custom/conf/app.ini"
+ynh_systemctl --service="$app" --action=start --log_path="/var/log/$app/gitea.log" --wait_until="$systemd_match_start_line"
 
-ynh_script_progression --message="Change of URL completed for $app" --last
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_script_progression "Change of URL completed for $app"
