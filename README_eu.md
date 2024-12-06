@@ -5,7 +5,9 @@ EZ editatu eskuz.
 
 # Gitea YunoHost-erako
 
-[![Integrazio maila](https://dash.yunohost.org/integration/gitea.svg)](https://ci-apps.yunohost.org/ci/apps/gitea/) ![Funtzionamendu egoera](https://ci-apps.yunohost.org/ci/badges/gitea.status.svg) ![Mantentze egoera](https://ci-apps.yunohost.org/ci/badges/gitea.maintain.svg)
+[![Integrazio maila](https://apps.yunohost.org/badge/integration/gitea)](https://ci-apps.yunohost.org/ci/apps/gitea/)
+![Funtzionamendu egoera](https://apps.yunohost.org/badge/state/gitea)
+![Mantentze egoera](https://apps.yunohost.org/badge/maintained/gitea)
 
 [![Instalatu Gitea YunoHost-ekin](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=gitea)
 

@@ -5,7 +5,9 @@
 
 # YunoHost 上的 Gitea
 
-[![集成程度](https://dash.yunohost.org/integration/gitea.svg)](https://ci-apps.yunohost.org/ci/apps/gitea/) ![工作状态](https://ci-apps.yunohost.org/ci/badges/gitea.status.svg) ![维护状态](https://ci-apps.yunohost.org/ci/badges/gitea.maintain.svg)
+[![集成程度](https://apps.yunohost.org/badge/integration/gitea)](https://ci-apps.yunohost.org/ci/apps/gitea/)
+![工作状态](https://apps.yunohost.org/badge/state/gitea)
+![维护状态](https://apps.yunohost.org/badge/maintained/gitea)
 
 [![使用 YunoHost 安装 Gitea](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=gitea)
 
