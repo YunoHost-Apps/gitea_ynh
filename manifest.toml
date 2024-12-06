@@ -103,6 +103,12 @@ ram.runtime = "100M"
     admin.auth_header = false
     admin.label = "Admins"
 
+    container_registry.show_tile = false
+    container_registry.auth_header = false
+    container_registry.label = "Container registry"
+    container_registry.url = "__DOMAIN__/v2"
+    container_registry.allowed = "visitors"
+
     [resources.ports]
     main.default = 6000
 
