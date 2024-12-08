@@ -27,7 +27,6 @@ yunohost = ">= 11.2.30"
 helpers_version = "2.1"
 architectures = [
     "amd64",
-    "i386",
     "armhf",
     "arm64"
 ]
@@ -72,15 +71,12 @@ ram.runtime = "100M"
     armhf.sha256 = "28c92642acd87544b9bff9b1c333325abd3993659839f27d438a7ba9ae85ff6e"
     arm64.url = "https://github.com/go-gitea/gitea/releases/download/v1.22.3/gitea-1.22.3-linux-arm64"
     arm64.sha256 = "0d957ca51317be75788a7d286193fb550463c432518fb4b2dd05c19df3910b22"
-    i386.url = "https://github.com/go-gitea/gitea/releases/download/v1.22.3/gitea-1.22.3-linux-386"
-    i386.sha256 = "7bb4715606f66c6a1f42af53a1d9b61b684d8ab92258b423852b1d1b66487166"
     amd64.url = "https://github.com/go-gitea/gitea/releases/download/v1.22.3/gitea-1.22.3-linux-amd64"
     amd64.sha256 = "a720ff937912a6eb6c0cacf6ebcdd774deed5197cd945ecc34f5744cb5c517e8"
 
     autoupdate.strategy = "latest_github_release"
     autoupdate.asset.armhf = "^gitea-.*-linux-arm-6$"
     autoupdate.asset.arm64 = "^gitea-.*-linux-arm64$"
-    autoupdate.asset.i386 = "^gitea-.*-linux-386$"
     autoupdate.asset.amd64 = "^gitea-.*-linux-amd64$"
 
     [resources.system_user]
