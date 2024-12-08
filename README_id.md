@@ -5,7 +5,9 @@ Ini TIDAK boleh diedit dengan tangan.
 
 # Gitea untuk YunoHost
 
-[![Tingkat integrasi](https://dash.yunohost.org/integration/gitea.svg)](https://ci-apps.yunohost.org/ci/apps/gitea/) ![Status kerja](https://ci-apps.yunohost.org/ci/badges/gitea.status.svg) ![Status pemeliharaan](https://ci-apps.yunohost.org/ci/badges/gitea.maintain.svg)
+[![Tingkat integrasi](https://apps.yunohost.org/badge/integration/gitea)](https://ci-apps.yunohost.org/ci/apps/gitea/)
+![Status kerja](https://apps.yunohost.org/badge/state/gitea)
+![Status pemeliharaan](https://apps.yunohost.org/badge/maintained/gitea)
 
 [![Pasang Gitea dengan YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=gitea)
 
