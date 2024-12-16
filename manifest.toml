@@ -7,7 +7,7 @@ name = "Gitea"
 description.en = "Lightweight Git forge"
 description.fr = "Forge Git légère"
 
-version = "1.22.3~ynh1"
+version = "1.22.6~ynh1"
 
 maintainers = ["Josué Tille"]
 # previous_maintainers = [
@@ -68,14 +68,14 @@ ram.runtime = "100M"
     extract = false
     rename = "gitea"
 
-    armhf.url = "https://github.com/go-gitea/gitea/releases/download/v1.22.3/gitea-1.22.3-linux-arm-6"
-    armhf.sha256 = "28c92642acd87544b9bff9b1c333325abd3993659839f27d438a7ba9ae85ff6e"
-    arm64.url = "https://github.com/go-gitea/gitea/releases/download/v1.22.3/gitea-1.22.3-linux-arm64"
-    arm64.sha256 = "0d957ca51317be75788a7d286193fb550463c432518fb4b2dd05c19df3910b22"
-    i386.url = "https://github.com/go-gitea/gitea/releases/download/v1.22.3/gitea-1.22.3-linux-386"
-    i386.sha256 = "7bb4715606f66c6a1f42af53a1d9b61b684d8ab92258b423852b1d1b66487166"
-    amd64.url = "https://github.com/go-gitea/gitea/releases/download/v1.22.3/gitea-1.22.3-linux-amd64"
-    amd64.sha256 = "a720ff937912a6eb6c0cacf6ebcdd774deed5197cd945ecc34f5744cb5c517e8"
+    armhf.url = "https://github.com/go-gitea/gitea/releases/download/v1.22.6/gitea-1.22.6-linux-arm-6"
+    armhf.sha256 = "dd4f5ebbcf9ff1a582810523dab134a71fd35143e557eb89e7e95ebbaf15e078"
+    arm64.url = "https://github.com/go-gitea/gitea/releases/download/v1.22.6/gitea-1.22.6-linux-arm64"
+    arm64.sha256 = "135b9946c1624f1b567373efc550cdb6d4aa1beff040c3d3ff1295f68bafd2f5"
+    i386.url = "https://github.com/go-gitea/gitea/releases/download/v1.22.6/gitea-1.22.6-linux-386"
+    i386.sha256 = "c32e162740491141ae27e49748f2ca58b25847d29150d5f77c2a72a266dc7649"
+    amd64.url = "https://github.com/go-gitea/gitea/releases/download/v1.22.6/gitea-1.22.6-linux-amd64"
+    amd64.sha256 = "fd77f1a0273c85a0950207c1cfa6753a9fa57604e4ab1382484b191cc919ce15"
 
     autoupdate.strategy = "latest_github_release"
     autoupdate.asset.armhf = "^gitea-.*-linux-arm-6$"
@@ -102,6 +102,12 @@ ram.runtime = "100M"
     admin.show_tile = false
     admin.auth_header = false
     admin.label = "Admins"
+
+    container_registry.show_tile = false
+    container_registry.auth_header = false
+    container_registry.label = "Container registry"
+    container_registry.url = "__DOMAIN__/v2"
+    container_registry.allowed = "visitors"
 
     [resources.ports]
     main.default = 6000

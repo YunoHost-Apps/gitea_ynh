@@ -5,7 +5,9 @@ Hij mag NIET handmatig aangepast worden.
 
 # Gitea voor Yunohost
 
-[![Integratieniveau](https://dash.yunohost.org/integration/gitea.svg)](https://ci-apps.yunohost.org/ci/apps/gitea/) ![Mate van functioneren](https://ci-apps.yunohost.org/ci/badges/gitea.status.svg) ![Onderhoudsstatus](https://ci-apps.yunohost.org/ci/badges/gitea.maintain.svg)
+[![Integratieniveau](https://apps.yunohost.org/badge/integration/gitea)](https://ci-apps.yunohost.org/ci/apps/gitea/)
+![Mate van functioneren](https://apps.yunohost.org/badge/state/gitea)
+![Onderhoudsstatus](https://apps.yunohost.org/badge/maintained/gitea)
 
 [![Gitea met Yunohost installeren](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=gitea)
 
@@ -19,7 +21,7 @@ Hij mag NIET handmatig aangepast worden.
 Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to GitHub.
 
 
-**Geleverde versie:** 1.22.3~ynh1
+**Geleverde versie:** 1.22.6~ynh1
 
 ## Schermafdrukken
 

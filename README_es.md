@@ -5,7 +5,9 @@ No se debe editar a mano.
 
 # Gitea para Yunohost
 
-[![Nivel de integración](https://dash.yunohost.org/integration/gitea.svg)](https://ci-apps.yunohost.org/ci/apps/gitea/) ![Estado funcional](https://ci-apps.yunohost.org/ci/badges/gitea.status.svg) ![Estado En Mantención](https://ci-apps.yunohost.org/ci/badges/gitea.maintain.svg)
+[![Nivel de integración](https://apps.yunohost.org/badge/integration/gitea)](https://ci-apps.yunohost.org/ci/apps/gitea/)
+![Estado funcional](https://apps.yunohost.org/badge/state/gitea)
+![Estado En Mantención](https://apps.yunohost.org/badge/maintained/gitea)
 
 [![Instalar Gitea con Yunhost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=gitea)
 
@@ -19,7 +21,7 @@ No se debe editar a mano.
 Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to GitHub.
 
 
-**Versión actual:** 1.22.3~ynh1
+**Versión actual:** 1.22.6~ynh1
 
 ## Capturas
 
