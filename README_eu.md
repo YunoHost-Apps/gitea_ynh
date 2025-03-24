@@ -21,7 +21,7 @@ EZ editatu eskuz.
 Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to GitHub.
 
 
-**Paketatutako bertsioa:** 1.23.5~ynh1
+**Paketatutako bertsioa:** 1.23.6~ynh1
 
 ## Pantaila-argazkiak
 
@@ -39,7 +39,7 @@ Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to 
 
 Bidali `pull request`a [`testing` abarrera](https://github.com/YunoHost-Apps/gitea_ynh/tree/testing).
 
-`testing` abarra probatzeko, ondorengoa egin:
+`testing` abarra probatzeko, honakoa egin:
 
 ```bash
 sudo yunohost app install https://github.com/YunoHost-Apps/gitea_ynh/tree/testing --debug
