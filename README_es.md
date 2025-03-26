@@ -3,7 +3,7 @@ Este archivo README esta generado automaticamente<https://github.com/YunoHost/ap
 No se debe editar a mano.
 -->
 
-# Gitea para Yunohost
+# Gitea para YunoHost
 
 [![Nivel de integración](https://apps.yunohost.org/badge/integration/gitea)](https://ci-apps.yunohost.org/ci/apps/gitea/)
 ![Estado funcional](https://apps.yunohost.org/badge/state/gitea)
@@ -21,7 +21,7 @@ No se debe editar a mano.
 Gitea is a fork of Gogs a self-hosted Git service written in Go. Alternative to GitHub.
 
 
-**Versión actual:** 1.23.5~ynh1
+**Versión actual:** 1.23.6~ynh1
 
 ## Capturas
 
