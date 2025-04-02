@@ -99,7 +99,7 @@ yunohost backup create --app __APP__
 - Restart Gitea service:
 
 ```bash
-systemctl stop __APP__.service
+systemctl start __APP__.service
 ```
 
 ## Remove
