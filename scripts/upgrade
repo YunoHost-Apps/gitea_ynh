@@ -17,6 +17,11 @@ sudo yunohost app upgrade $app -u https://github.com/YunoHost-Apps/gitea_ynh/com
     ynh_die "$message" --ret_code=1
 fi
 
+# If indexer doesn't exist, create it
+if [ -z "${indexer:-}" ]; then
+	ynh_app_setting_set --app=$app --key=indexer --value=false
+fi
+
 #=================================================
 # STOP SYSTEMD SERVICE
 #=================================================
