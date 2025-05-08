@@ -19,7 +19,8 @@ fi
 
 # If indexer doesn't exist, create it
 if [ -z "${indexer:-}" ]; then
-	ynh_app_setting_set --app=$app --key=indexer --value=false
+	indexer=0
+	ynh_app_setting_set --app=$app --key=indexer --value=$indexer
 fi
 
 #=================================================
