@@ -28,37 +28,4 @@ name.de="Erweiterte Einstellungen"
         help.fr="Cela modifie également la visibilité sur la page explore/users qui è accessible au public."
         help.de="Diese Einstellung beeinflusst auch die Darstellung auf der Seite explore/users, die öffentlich erreichbar ist."
 
-        [main.privacy.email_private]
-        ask.en="Should the users email address be hidden?"
-        ask.fr="L'adresse e-mail des utilisateurs doit-elle être masquée?"
-        ask.de="Soll die E-Mail-Adresse des Nutzers ausgeblendet werden?"
-        type="boolean"
-        default=false
-        bind="DEFAULT_KEEP_EMAIL_PRIVATE:__INSTALL_DIR__/app.ini"
-    [main.advanced]
-    name.en="Advanced"
-    name.fr="Paramètres Avancés"
-    name.de="Erweiterte Einstellungen"
-    [main.advanced.user_visibility]
-    ask.en="Should user visibility be private or public?"
-    ask.fr="La visibilité des utilisateurs doit-elle être privée ou publique?"
-    ask.de="Sollen Nutzer für alle sichtbar oder privat sein?"
-    type="select"
-    choices=["private", "public"]
-    default="public"
-    bind="DEFAULT_USER_VISIBILITY:/etc/yunohost/apps/__APP__/conf/app.ini"
-    help.en="This also changes visibility on the publicly accessible explore/users page."
-    help.fr="Cela modifie également la visibilité sur la page explore/users qui è accessible au public."
-    help.de="Diese Einstellung beeinflusst auch die Darstellung auf der Seite explore/users, die öffentlich erreichbar ist."
-
-    [main.advanced.email_private]
-    ask.en="Should the users email address be hidden?"
-    ask.fr="L'adresse e-mail des utilisateurs doit-elle être masquée?"
-    ask.de="Soll die E-Mail-Adresse des Nutzers ausgeblendet werden?"
-    type="boolean"
-    yes = true
-    no = false
-    default=false
-    bind="DEFAULT_KEEP_EMAIL_PRIVATE:/etc/yunohost/apps/__APP__/conf/app.ini"
-    
-
+ 
