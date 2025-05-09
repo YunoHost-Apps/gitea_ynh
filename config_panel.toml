@@ -4,7 +4,6 @@ version = "1.0"
 name.en="Advanced"
 name.fr="Paramètres Avancés"
 name.de="Erweiterte Einstellungen"
-
     [main.general]
     name.en = "Code indexing"
         [main.general.repos_indexer_enabled]
