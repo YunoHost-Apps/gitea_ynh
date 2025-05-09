@@ -17,7 +17,7 @@ services=["__APP__"]
     yes="true"
     no="false"
     default=true
-    bind="SHOW_USER_EMAIL:/var/www/__APP__/conf/app.ini"
+    bind="SHOW_USER_EMAIL:/var/www/__APP__/custom/conf/app.ini"
 
     [main.advanced.default_keep_email_private]
     ask.en="Should the users email address be hidden in user profile?"
@@ -27,7 +27,7 @@ services=["__APP__"]
     yes="true"
     no="false"
     default=false
-    bind="DEFAULT_KEEP_EMAIL_PRIVATE:/var/www/__APP__/conf/app.ini"
+    bind="DEFAULT_KEEP_EMAIL_PRIVATE:/var/www/__APP__/custom/conf/app.ini"
 
     [main.advanced.disable_users_page]
     ask.en="Should the page explore/users be disabled?"
@@ -37,7 +37,7 @@ services=["__APP__"]
     yes="true"
     no="false"
     default=false
-    bind="DISABLE_USERS_PAGE:/var/www/__APP__/conf/app.ini"
+    bind="DISABLE_USERS_PAGE:/var/www/__APP__/custom/conf/app.ini"
 
 
     
