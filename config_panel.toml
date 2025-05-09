@@ -1,3 +1,5 @@
+version="1.0"
+
 [main]
 
     [main.advanced]
@@ -22,8 +24,7 @@
     ask.fr="L'adresse e-mail des utilisateurs doit-elle être masquée?"
     ask.de="Soll die E-Mail-Adresse des Nutzers ausgeblendet werden?"
     type="boolean"
-    yes=true
-    no=false
+    yes="true"
     default=false
     bind="DEFAULT_KEEP_EMAIL_PRIVATE:/etc/yunohost/apps/__APP__/conf/app.ini"
     
