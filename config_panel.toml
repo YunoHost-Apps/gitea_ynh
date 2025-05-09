@@ -1,31 +1,44 @@
 version="1.0"
 
 [main]
+name.en="Advanced"
+name.fr="Paramètres Avancés"
+name.de="Erweiterte Einstellungen"
+services=["__APP__"]
 
     [main.advanced]
-    name.en="Advanced"
-    name.fr="Paramètres Avancés"
-    name.de="Erweiterte Einstellungen"
-    
-    [main.advanced.default_user_visibility]
-    ask.en="Should user visibility be private or public?"
-    ask.fr="La visibilité des utilisateurs doit-elle être privée ou publique?"
-    ask.de="Sollen Nutzer für alle sichtbar oder privat sein?"
-    type="select"
-    choices=["private", "public"]
-    default="public"
-    bind="DEFAULT_USER_VISIBILITY:/etc/yunohost/apps/__APP__/conf/app.ini"
-    help.en="This also changes visibility on the publicly accessible explore/users page."
-    help.fr="Cela modifie également la visibilité sur la page explore/users qui è accessible au public."
-    help.de="Diese Einstellung beeinflusst auch die Darstellung auf der Seite explore/users, die öffentlich erreichbar ist."
 
-    [main.advanced.default_keep_email_private]
-    ask.en="Should the users email address be hidden?"
-    ask.fr="L'adresse e-mail des utilisateurs doit-elle être masquée?"
-    ask.de="Soll die E-Mail-Adresse des Nutzers ausgeblendet werden?"
+    
+    [main.advanced.explore_user_email]
+    ask.en="Should email addresses be show on explore/users page?"
+    ask.fr="Les adresses e-mail doivent-elles être affichées sur la page explore/users?"
+    ask.de="Sollen Email Adressen auf der Seite explore/users angezeigt werden?"
     type="boolean"
     yes="true"
+    no="false"
+    default=true
+    bind="SHOW_USER_EMAIL:/etc/yunohost/apps/__APP__/conf/app.ini"
+
+    [main.advanced.default_keep_email_private]
+    ask.en="Should the users email address be hidden in user profile?"
+    ask.fr="L'adresse e-mail des utilisateurs doit-elle être masquée dans user profile?"
+    ask.de="Soll die E-Mail-Adresse im Nutzerprofil ausgeblendet werden?"
+    type="boolean"
+    yes="true"
+    no="false"
     default=false
     bind="DEFAULT_KEEP_EMAIL_PRIVATE:/etc/yunohost/apps/__APP__/conf/app.ini"
+
+    [main.advanced.disable_users_page]
+    ask.en="Should the page explore/users be disabled?"
+    ask.fr="La page explore/users doit-elle être désactivée ?"
+    ask.de="Soll die Seite explore/users deaktiviert werden?"
+    type="boolean"
+    yes="true"
+    no="false"
+    default=false
+    bind="DISABLE_USERS_PAGE:/etc/yunohost/apps/__APP__/conf/app.ini"
+
+
     
 
