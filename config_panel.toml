@@ -12,7 +12,7 @@
     type="select"
     choices=["private", "public"]
     default="public"
-    bind="DEFAULT_USER_VISIBILITY:__INSTALL_DIR__/app.ini"
+    bind="DEFAULT_USER_VISIBILITY:__INSTALL_DIR__/conf/app.ini"
     help.en="This also changes visibility on the publicly accessible explore/users page."
     help.fr="Cela modifie également la visibilité sur la page explore/users qui è accessible au public."
     help.de="Diese Einstellung beeinflusst auch die Darstellung auf der Seite explore/users, die öffentlich erreichbar ist."
@@ -23,6 +23,6 @@
     ask.de="Soll die E-Mail-Adresse des Nutzers ausgeblendet werden?"
     type="boolean"
     default=false
-    bind="DEFAULT_KEEP_EMAIL_PRIVATE:__INSTALL_DIR__/app.ini"
+    bind="DEFAULT_KEEP_EMAIL_PRIVATE:__INSTALL_DIR__/conf/app.ini"
     
 
