@@ -12,6 +12,9 @@ name.de="Erweiterte Einstellungen"
         type = "boolean"
 
     [main.privacy]
+    name.en = "Privacy Settings"
+    name.de = "Privatsphäre-Einstellungen"
+    name.fr = "Paramètres de confidentialité"
 
 
         [main.privacy.show_user_email]
