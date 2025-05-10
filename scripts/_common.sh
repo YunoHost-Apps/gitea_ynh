@@ -29,4 +29,5 @@ set_settings_default() {
     ynh_app_setting_set_default --key=secret_key --value="$(ynh_exec_as_app "$install_dir/gitea" generate secret SECRET_KEY)"
     ynh_app_setting_set_default --key=lfs_jwt_secret --value="$(ynh_exec_as_app "$install_dir/gitea" generate secret JWT_SECRET)"
     ynh_app_setting_set_default --key=jwt_secret --value="$(ynh_exec_as_app "$install_dir/gitea" generate secret JWT_SECRET)"
+    ynh_app_setting_set_default --app=$app --key=repos_indexer_enabled --value=false
 }
