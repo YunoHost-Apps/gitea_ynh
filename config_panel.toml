@@ -24,8 +24,7 @@ name.de="Erweiterte Einstellungen"
         type="boolean"
         yes="true"
         no="false"
-        default=true
-        
+                
         [main.privacy.default_keep_email_private]
         ask.en="Should the users email address be hidden in user profile?"
         ask.fr="L'adresse e-mail des utilisateurs doit-elle être masquée dans user profile?"
@@ -33,8 +32,7 @@ name.de="Erweiterte Einstellungen"
         type="boolean"
         yes="true"
         no="false"
-        default=false
-                
+                        
         [main.privacy.disable_users_page]
         ask.en="Should the page explore/users be disabled?"
         ask.fr="La page explore/users doit-elle être désactivée ?"
@@ -42,5 +40,5 @@ name.de="Erweiterte Einstellungen"
         type="boolean"
         yes="true"
         no="false"
-        default=false
+
        
