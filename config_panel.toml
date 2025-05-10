@@ -12,7 +12,7 @@ name.de="Erweiterte Einstellungen"
     [main.privacy]
 
 
-        [main.privacy.explore_user_email]
+        [main.privacy.show_user_email]
         ask.en="Should email addresses be show on explore/users page?"
         ask.fr="Les adresses e-mail doivent-elles être affichées sur la page explore/users?"
         ask.de="Sollen Email Adressen auf der Seite explore/users angezeigt werden?"
@@ -20,8 +20,7 @@ name.de="Erweiterte Einstellungen"
         yes="true"
         no="false"
         default=true
-        bind="SHOW_USER_EMAIL:__INSTALL_DIR__/custom/conf/app.ini"
-
+        
         [main.privacy.default_keep_email_private]
         ask.en="Should the users email address be hidden in user profile?"
         ask.fr="L'adresse e-mail des utilisateurs doit-elle être masquée dans user profile?"
@@ -30,8 +29,7 @@ name.de="Erweiterte Einstellungen"
         yes="true"
         no="false"
         default=false
-        bind="DEFAULT_KEEP_EMAIL_PRIVATE:__INSTALL_DIR__/custom/conf/app.ini"
-
+                
         [main.privacy.disable_users_page]
         ask.en="Should the page explore/users be disabled?"
         ask.fr="La page explore/users doit-elle être désactivée ?"
@@ -40,4 +38,4 @@ name.de="Erweiterte Einstellungen"
         yes="true"
         no="false"
         default=false
-        bind="DISABLE_USERS_PAGE:__INSTALL_DIR__/custom/conf/app.ini"
+       
