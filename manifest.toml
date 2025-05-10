@@ -47,12 +47,6 @@ ram.runtime = "100M"
     type = "path"
     default = "/gitea"
 
-    [install.indexer]
-    ask.en = "Enable code search"
-    help.en = "Indexing code can take a lot of system resources, especially when first enabled or on major Gitea upgrade"
-    type = "boolean"
-    default = false
-
     [install.init_main_permission]
     help.en = "Gitea should be visible by visitors to use git via HTTP and to use the API. You can still set repositories as private individually."
     help.fr = "Gitea doit être visible par les visiteurs pour utiliser git via HTTP et utiliser l'API. Vous pouvez toujours rendre les dépôts privés individuellement."

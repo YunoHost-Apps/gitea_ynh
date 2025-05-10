@@ -18,10 +18,7 @@ sudo yunohost app upgrade $app -u https://github.com/YunoHost-Apps/gitea_ynh/com
 fi
 
 # If indexer doesn't exist, create it
-if [ -z "${indexer:-}" ]; then
-	indexer=0
-	ynh_app_setting_set --app=$app --key=indexer --value=$indexer
-fi
+ynh_app_setting_set_default --app=$app --key=repos_indexer --value=false
 
 #=================================================
 # STOP SYSTEMD SERVICE

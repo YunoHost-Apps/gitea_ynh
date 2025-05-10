@@ -7,8 +7,8 @@ source /usr/share/yunohost/helpers
 
 ynh_app_config_apply() {
     _ynh_app_config_apply
-
+    ynh_config_add --template="app.ini" --destination="$install_dir/custom/conf/app.ini"
     ynh_systemctl --service="$app" --action=restart
 }
 
-ynh_app_config_run $1
+ynh_app_config_run "$1"
