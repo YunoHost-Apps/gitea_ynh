@@ -32,4 +32,5 @@ set_settings_default() {
     ynh_app_setting_set_default --app=$app --key=show_user_email --value=true
     ynh_app_setting_set_default --app=$app --key=default_keep_email_private --value=false
     ynh_app_setting_set_default --app=$app --key=disable_users_page --value=false
+    ynh_app_setting_set_default --app=$app --key=repos_indexer_enabled --value=false
 }
