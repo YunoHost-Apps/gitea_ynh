@@ -7,7 +7,7 @@ name = "Gitea"
 description.en = "Lightweight Git forge"
 description.fr = "Forge Git légère"
 
-version = "1.23.7~ynh1"
+version = "1.23.7~ynh2"
 
 maintainers = ["Josué Tille"]
 # previous_maintainers = [
