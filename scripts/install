@@ -72,7 +72,7 @@ ynh_script_progression 'Configuring application, step 2/2...'
 _set_permissions
 
 # Start gitea for building mysql tables
-ynh_systemctl --service="$app" --action=start --log_path="/var/log/$app/gitea.log" --wait_until="$systemd_match_start_line"
+ynh_systemctl --service="$app" --action=start --log_path='systemd' --wait_until="$systemd_match_start_line"
 
 # Add ldap config
 ynh_replace --match=__APP__ --replace="$app" --file=./login_source.sql
@@ -80,14 +80,14 @@ ynh_replace --match=__GROUP_TEAM_MAP__ --replace='""' --file=./login_source.sql
 ynh_mysql_db_shell < ./login_source.sql
 
 # Stop the service to restart it just afterwards
-ynh_systemctl --service="$app" --action='stop' --log_path="/var/log/$app/gitea.log"
+ynh_systemctl --service="$app" --action='stop' --log_path='systemd'
 
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
 ynh_script_progression 'Starting gitea services...'
 
-ynh_systemctl --service="$app" --action=start --log_path="/var/log/$app/gitea.log" --wait_until="$systemd_match_start_line"
+ynh_systemctl --service="$app" --action=start --log_path='systemd' --wait_until="$systemd_match_start_line"
 
 #=================================================
 # END OF SCRIPT

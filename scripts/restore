@@ -45,7 +45,7 @@ ynh_config_add_logrotate
 ynh_script_progression "Reloading NGINX web server and $app's service..."
 
 # Typically you only have either $app or php-fpm but not both at the same time...
-ynh_systemctl --service="$app" --action=start --log_path="/var/log/$app/gitea.log" --wait_until="$systemd_match_start_line"
+ynh_systemctl --service="$app" --action=start --log_path='systemd' --wait_until="$systemd_match_start_line"
 
 ynh_systemctl --service=nginx --action=reload
 

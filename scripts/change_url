@@ -32,7 +32,7 @@ _set_permissions
 #=================================================
 ynh_script_progression "Starting gitea services..."
 
-ynh_systemctl --service="$app" --action=start --log_path="/var/log/$app/gitea.log" --wait_until="$systemd_match_start_line"
+ynh_systemctl --service="$app" --action=start --log_path='systemd' --wait_until="$systemd_match_start_line"
 
 #=================================================
 # END OF SCRIPT
