@@ -29,8 +29,14 @@ set_settings_default() {
     ynh_app_setting_set_default --key=secret_key --value="$(ynh_exec_as_app "$install_dir/gitea" generate secret SECRET_KEY)"
     ynh_app_setting_set_default --key=lfs_jwt_secret --value="$(ynh_exec_as_app "$install_dir/gitea" generate secret JWT_SECRET)"
     ynh_app_setting_set_default --key=jwt_secret --value="$(ynh_exec_as_app "$install_dir/gitea" generate secret JWT_SECRET)"
-    ynh_app_setting_set_default --app=$app --key=show_user_email --value=true
-    ynh_app_setting_set_default --app=$app --key=default_keep_email_private --value=false
-    ynh_app_setting_set_default --app=$app --key=disable_users_page --value=false
-    ynh_app_setting_set_default --app=$app --key=repos_indexer_enabled --value=false
+
+    ynh_app_setting_set_default --key=require_signin_view --value=false
+    ynh_app_setting_set_default --key=disable_users_page --value=false
+    ynh_app_setting_set_default --key=disable_organizations_page --value=false
+    ynh_app_setting_set_default --key=disable_code_page --value=false
+
+    ynh_app_setting_set_default --key=show_user_email --value=true
+    ynh_app_setting_set_default --key=default_keep_email_private --value=false
+
+    ynh_app_setting_set_default --key=repos_indexer_enabled --value=false
 }
