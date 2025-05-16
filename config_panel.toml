@@ -1,10 +1,72 @@
-version = "1.0"
+version="1.0"
 
 [main]
-name.en = "Gitea configuration"
-    [main.general]
+
+services = [ "__APP__" ]
+
+name.en = "Main config panel"
+name.fr = "Panneau de configuration principal"
+
+help = "Here you can easily configure some things about your Gitea instance."
+
+    [main.explore_ui]
+    name.en = "Paramètre de la page explore"
+
+        [main.explore_ui.require_signin_view]
+        ask.en = "Require sign in to view"
+        help.en = "Only allow signed in users to view the explore pages"
+        help.fr = "L'utilisateur doit s'identifier pour visualiser le contenu."
+        type = "boolean"
+        yes = "true"
+        no = "false"
+
+        [main.explore_ui.disable_users_page]
+        ask.en = "Disable the users explore page"
+        ask.fr = "La page explore/users doit-elle être désactivée ?"
+        ask.de = "Soll die Seite explore/users deaktiviert werden?"
+        type="boolean"
+        yes="true"
+        no="false"
+
+        [main.explore_ui.disable_organizations_page]
+        ask.en = "Disable the organizations explore page"
+        type="boolean"
+        yes="true"
+        no="false"
+
+        [main.explore_ui.disable_code_page]
+        ask.en = "Disable the code explore page"
+        type="boolean"
+        yes="true"
+        no="false"
+
+    [main.privacy]
+    name.en = "Privacy Settings"
+    name.de = "Privatsphäre-Einstellungen"
+    name.fr = "Paramètres de confidentialité"
+
+        [main.privacy.show_user_email]
+        ask.en="Should email addresses be show on explore/users page?"
+        ask.fr="Les adresses e-mail doivent-elles être affichées sur la page explore/users?"
+        ask.de="Sollen Email Adressen auf der Seite explore/users angezeigt werden?"
+        type="boolean"
+        yes="true"
+        no="false"
+
+        [main.privacy.default_keep_email_private]
+        ask.en="Should the users email address be hidden in user profile?"
+        ask.fr="L'adresse e-mail des utilisateurs doit-elle être masquée dans user profile?"
+        ask.de="Soll die E-Mail-Adresse im Nutzerprofil ausgeblendet werden?"
+        type="boolean"
+        yes="true"
+        no="false"
+
+    [main.indexing]
     name.en = "Code indexing"
-        [main.general.repos_indexer_enabled]
+
+        [main.indexing.repos_indexer_enabled]
         ask.en = "Enable repo indexer"
         help.en = "Indexing code can take a lot of system resources, especially when first enabled or on major Gitea upgrade"
         type = "boolean"
+        yes="true"
+        no="false"
