@@ -6,8 +6,11 @@ services = [ "__APP__" ]
 
 name.en = "Main config panel"
 name.fr = "Panneau de configuration principal"
+name.de = "Hauptmenü für Einstellungen"
 
-help = "Here you can easily configure some things about your Gitea instance."
+help.en = "Here you can easily configure some things about your Gitea instance."
+help.de = "Hier kannst du leicht einige Einstellungen deiner Gitea-Instanz anpassen."
+help.fr = "Ici tu peux simplement changer des paramètres de ta Gitea instance"
 
     [main.explore_ui]
     name.en = "Paramètre de la page explore"
