@@ -59,8 +59,8 @@ help.fr = "Ici tu peux simplement changer des paramètres de ta Gitea instance"
 
         [main.privacy.show_user_email]
         ask.en="Should email addresses be show on explore/users page?"
-        ask.fr="Les adresses e-mail doivent-elles être affichées sur la page explore/users?"
-        ask.de="Sollen Email Adressen auf der Seite explore/users angezeigt werden?"
+        ask.fr="Les adresses e-mail doivent-elles être affichées sur la page Explorateur/ Utilisateurs?"
+        ask.de="Sollen Email Adressen auf der Seite Erkunden/ Benutzer angezeigt werden?"
         type="boolean"
         yes="true"
         no="false"
@@ -74,11 +74,17 @@ help.fr = "Ici tu peux simplement changer des paramètres de ta Gitea instance"
         no="false"
 
     [main.indexing]
-    name.en = "Code indexing"
+    name.en = "Code Indexing"
+    name.de = "Code Indexing"
+    name.fr = "Code Indexing"
 
         [main.indexing.repos_indexer_enabled]
         ask.en = "Enable repo indexer"
+        ask.de = "Aktiviere Repo Indexer"
+        ask.fr = "Activez Repo Indexer"
         help.en = "Indexing code can take a lot of system resources, especially when first enabled or on major Gitea upgrade"
+        help.de = "Code Indexing kann viele Systemresourcen beanspruchen, besonders wenn es das erste Mal aktiviert wird oder nach einem Gitea Update"
+        help.fr = "L'indexation du code peut consommer beaucoup de ressources système, en particulier lors de la première activation ou après d'un update de Gitea".
         type = "boolean"
         yes="true"
         no="false"
