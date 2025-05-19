@@ -13,32 +13,41 @@ help.de = "Hier kannst du leicht einige Einstellungen deiner Gitea-Instanz anpas
 help.fr = "Ici tu peux simplement changer des paramètres de ta Gitea instance"
 
     [main.explore_ui]
-    name.en = "Paramètre de la page explore"
+    name.fr = "Paramètres de la page Explorateur"
+    name.de = "Einstellungen für die Erkunden-Seite"
+    name.en = "Settings concerning the Explore page"
 
         [main.explore_ui.require_signin_view]
         ask.en = "Require sign in to view"
+        ask.de = "Aktives Login um Erkunden zu sehen"
+        ask.fr = "Besoin de login pour voir la page Explorateur"
         help.en = "Only allow signed in users to view the explore pages"
         help.fr = "L'utilisateur doit s'identifier pour visualiser le contenu."
+        help.de = "Nur aktiv eingeloggte Benutzer:innen dürfen die Erkunden-Seite sehen"
         type = "boolean"
         yes = "true"
         no = "false"
 
         [main.explore_ui.disable_users_page]
-        ask.en = "Disable the users explore page"
-        ask.fr = "La page explore/users doit-elle être désactivée ?"
-        ask.de = "Soll die Seite explore/users deaktiviert werden?"
+        ask.en = "Disable the users explore page?"
+        ask.fr = "La page Explorateur/Utilisateurs doit-elle être désactivée?"
+        ask.de = "Soll die Seite Erkunden/Benutzer deaktiviert werden?"
         type="boolean"
         yes="true"
         no="false"
 
         [main.explore_ui.disable_organizations_page]
-        ask.en = "Disable the organizations explore page"
+        ask.en = "Disable the organizations explore page?"
+        ask.de = "Soll die Seite Erkunden/ Organisationen deaktiviert werden?"
+        ask.fr = "La page Explorateur/ Organisationsd doit-elle être désactivée?"
         type="boolean"
         yes="true"
         no="false"
 
         [main.explore_ui.disable_code_page]
-        ask.en = "Disable the code explore page"
+        ask.en = "Disable the code explore page?"
+        ask.de = "Soll die Seite Erkunden/ Repositories deaktiviert werden?"
+        ask.fr = "La page Explorateur/ Dépôts doit-elle être désactivée?"
         type="boolean"
         yes="true"
         no="false"
