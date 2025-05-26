@@ -6,36 +6,48 @@ services = [ "__APP__" ]
 
 name.en = "Main config panel"
 name.fr = "Panneau de configuration principal"
+name.de = "Hauptmenü für Einstellungen"
 
-help = "Here you can easily configure some things about your Gitea instance."
+help.en = "Here you can easily configure some things about your Gitea instance."
+help.de = "Hier kannst du leicht einige Einstellungen deiner Gitea-Instanz anpassen."
+help.fr = "Ici tu peux simplement changer des paramètres de ta Gitea instance"
 
     [main.explore_ui]
-    name.en = "Paramètre de la page explore"
+    name.fr = "Paramètres de la page Explorateur"
+    name.de = "Einstellungen für die Erkunden-Seite"
+    name.en = "Settings concerning the Explore page"
 
         [main.explore_ui.require_signin_view]
         ask.en = "Require sign in to view"
+        ask.de = "Aktives Login um Erkunden zu sehen"
+        ask.fr = "Besoin de login pour voir la page Explorateur"
         help.en = "Only allow signed in users to view the explore pages"
         help.fr = "L'utilisateur doit s'identifier pour visualiser le contenu."
+        help.de = "Nur aktiv eingeloggte Benutzer:innen dürfen die Erkunden-Seite sehen"
         type = "boolean"
         yes = "true"
         no = "false"
 
         [main.explore_ui.disable_users_page]
-        ask.en = "Disable the users explore page"
-        ask.fr = "La page explore/users doit-elle être désactivée ?"
-        ask.de = "Soll die Seite explore/users deaktiviert werden?"
+        ask.en = "Disable the users explore page?"
+        ask.fr = "La page Explorateur/Utilisateurs doit-elle être désactivée?"
+        ask.de = "Soll die Seite Erkunden/Benutzer deaktiviert werden?"
         type="boolean"
         yes="true"
         no="false"
 
         [main.explore_ui.disable_organizations_page]
-        ask.en = "Disable the organizations explore page"
+        ask.en = "Disable the organizations explore page?"
+        ask.de = "Soll die Seite Erkunden/ Organisationen deaktiviert werden?"
+        ask.fr = "La page Explorateur/ Organisationsd doit-elle être désactivée?"
         type="boolean"
         yes="true"
         no="false"
 
         [main.explore_ui.disable_code_page]
-        ask.en = "Disable the code explore page"
+        ask.en = "Disable the code explore page?"
+        ask.de = "Soll die Seite Erkunden/ Repositories deaktiviert werden?"
+        ask.fr = "La page Explorateur/ Dépôts doit-elle être désactivée?"
         type="boolean"
         yes="true"
         no="false"
@@ -47,8 +59,8 @@ help = "Here you can easily configure some things about your Gitea instance."
 
         [main.privacy.show_user_email]
         ask.en="Should email addresses be show on explore/users page?"
-        ask.fr="Les adresses e-mail doivent-elles être affichées sur la page explore/users?"
-        ask.de="Sollen Email Adressen auf der Seite explore/users angezeigt werden?"
+        ask.fr="Les adresses e-mail doivent-elles être affichées sur la page Explorateur/ Utilisateurs?"
+        ask.de="Sollen Email Adressen auf der Seite Erkunden/ Benutzer angezeigt werden?"
         type="boolean"
         yes="true"
         no="false"
@@ -62,11 +74,17 @@ help = "Here you can easily configure some things about your Gitea instance."
         no="false"
 
     [main.indexing]
-    name.en = "Code indexing"
+    name.en = "Code Indexing"
+    name.de = "Code Indexing"
+    name.fr = "Code Indexing"
 
         [main.indexing.repos_indexer_enabled]
         ask.en = "Enable repo indexer"
-        help.en = "Indexing code can take a lot of system resources, especially when first enabled or on major Gitea upgrade"
+        ask.de = "Aktiviere Repo Indexer"
+        ask.fr = "Activez Repo Indexer"
+        help.en = "Indexing code can take a lot of system resources, especially when first enabled or on major Gitea upgrade."
+        help.de = "Code Indexing kann viele Systemresourcen beanspruchen, besonders wenn es das erste Mal aktiviert wird oder nach einem Gitea Update."
+        help.fr = "L'indexation du code peut consommer beaucoup de ressources système, en particulier lors de la première activation ou après d'un update de Gitea."
         type = "boolean"
         yes="true"
         no="false"
