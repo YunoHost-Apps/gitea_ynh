@@ -39,4 +39,6 @@ set_settings_default() {
     ynh_app_setting_set_default --key=default_keep_email_private --value=false
 
     ynh_app_setting_set_default --key=repos_indexer_enabled --value=false
+
+    ynh_app_setting_set_default --key=actions_enabled --value=false
 }

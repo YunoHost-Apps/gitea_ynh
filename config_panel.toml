@@ -88,3 +88,16 @@ help.fr = "Ici tu peux simplement changer des paramètres de ta Gitea instance"
         type = "boolean"
         yes="true"
         no="false"
+
+    [main.actions]
+    name.en = "Gitea Actions and Webhook"
+    name.de = "Gitea Actions und Webhook"
+    name.fr = "Gitea Actions et Webhook"
+
+        [main.actions.actions_enabled]
+        ask.en = "Enable Gitea Actions"
+        ask.de = "Gitea Actions aktivieren"
+        ask.fr = "Activez Gitea Actions"
+        type = "boolean"
+        yes = "true"
+        np = "false"
