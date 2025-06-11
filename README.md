@@ -11,7 +11,7 @@ It shall NOT be edited by hand.
 Lightweight Git forge
 
 [![🌐 Official app website](https://img.shields.io/badge/Official_app_website-darkgreen?style=for-the-badge)](https://gitea.io/)
-[![Version: 1.23.8~ynh1](https://img.shields.io/badge/Version-1.23.8~ynh1-rgba(0,150,0,1)?style=for-the-badge)](https://ci-apps.yunohost.org/ci/apps/gitea/)
+[![Version: 1.24.0~ynh1](https://img.shields.io/badge/Version-1.24.0~ynh1-rgba(0,150,0,1)?style=for-the-badge)](https://ci-apps.yunohost.org/ci/apps/gitea/)
 
 <div align="center">
 <a href="https://apps.yunohost.org/app/gitea"><img height="100px" src="https://github.com/YunoHost/yunohost-artwork/raw/refs/heads/main/badges/neopossum-badges/badge_more_info_on_the_appstore.svg"/></a>
