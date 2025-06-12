@@ -41,5 +41,5 @@ set_settings_default() {
     ynh_app_setting_set_default --key=repos_indexer_enabled --value=false
 
     ynh_app_setting_set_default --key=actions_enabled --value=false
-    ynh_app_setting_set_default --key=webhook_allowed_hosts --value="example.com"
+    ynh_app_setting_set_default --key=webhook_allowed_hosts --value=""
 }
