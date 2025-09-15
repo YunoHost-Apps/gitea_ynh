@@ -27,6 +27,8 @@ ynh_script_progression "Updating gitea configuration..."
 ynh_config_add --template="app.ini" --destination="$install_dir/custom/conf/app.ini"
 _set_permissions
 
+ynh_permission_url --permission=container_registry --url="$domain/v2"
+
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
