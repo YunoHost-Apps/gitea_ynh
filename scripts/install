@@ -72,7 +72,7 @@ ynh_script_progression 'Configuring application, step 2/2...'
 _set_permissions
 
 # Start gitea for building mysql tables
-ynh_systemctl --service="$app" --action=start --log_path="/var/log/$app/gitea.log" --wait_until="$systemd_match_start_line"
+ynh_systemctl --service="$app" --action=start --log_path="/var/log/$app/gitea.log" --wait_until="$systemd_match_start_line" --timeout=300
 
 # Add ldap config
 ynh_replace --match=__APP__ --replace="$app" --file=./login_source.sql
