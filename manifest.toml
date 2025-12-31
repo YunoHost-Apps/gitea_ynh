@@ -23,7 +23,7 @@ cpe = "cpe:2.3:a:gitea:gitea"
 fund = "https://opencollective.com/gitea"
 
 [integration]
-yunohost = ">= 11.2.30"
+yunohost = ">= 12.1.38"
 helpers_version = "2.1"
 architectures = [
     "amd64",
