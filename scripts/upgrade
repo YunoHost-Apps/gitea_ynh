@@ -50,7 +50,6 @@ ynh_setup_source --dest_dir="$install_dir" --source_id=main --full_replace --kee
 #=================================================
 # MIGRATION STEP 2 (Set undefined Vars)
 #=================================================
-
 ynh_script_progression 'Migrating missing settings...'
 
 # Must set permission before to call gitea command
