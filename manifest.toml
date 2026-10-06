@@ -27,7 +27,6 @@ yunohost = ">= 12.1.40"
 helpers_version = "2.1"
 architectures = [
     "amd64",
-    "i386",
     "armhf",
     "arm64"
 ]
