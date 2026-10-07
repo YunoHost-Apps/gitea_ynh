@@ -6,11 +6,8 @@ source /usr/share/yunohost/helpers
 ynh_app_setting_set --key=protect_against_basic_auth_spoofing --value=false
 
 #=================================================
-# APP "BUILD" (DEPLOYING SOURCES, VENV, COMPILING ETC)
-#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-
 ynh_script_progression 'Creating base directory...'
 
 if [ -n "$(ls -A "$data_dir")" ]; then
@@ -63,12 +60,10 @@ ynh_config_add_logrotate "/var/log/$app"
 ynh_config_add_fail2ban --logpath="/var/log/$app/gitea.log" --failregex='.*Failed authentication attempt for .* from <HOST>'
 
 #=================================================
-# APP INITIAL CONFIGURATION
-#=================================================
 # ADD A CONFIGURATION
 #=================================================
-
 ynh_script_progression 'Configuring application, step 2/2...'
+
 _set_permissions
 
 # Start gitea for building mysql tables

@@ -1,0 +1,1 @@
+Gitea est un fork de Gogs, un service Git auto-hébergé écrit en Go. C'est une alternative à GitHub.

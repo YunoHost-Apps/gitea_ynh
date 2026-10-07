@@ -7,7 +7,7 @@ name = "Gitea"
 description.en = "Lightweight Git forge"
 description.fr = "Forge Git légère"
 
-version = "1.27.1~ynh1"
+version = "28.1.0~ynh1"
 
 maintainers = ["Josué Tille"]
 # previous_maintainers = [
@@ -23,11 +23,10 @@ cpe = "cpe:2.3:a:gitea:gitea"
 fund = "https://opencollective.com/gitea"
 
 [integration]
-yunohost = ">= 12.1.38"
+yunohost = ">= 12.1.40"
 helpers_version = "2.1"
 architectures = [
     "amd64",
-    "i386",
     "armhf",
     "arm64"
 ]
@@ -68,19 +67,16 @@ ram.runtime = "100M"
     extract = false
     rename = "gitea"
 
-    armhf.url = "https://github.com/go-gitea/gitea/releases/download/v1.27.1/gitea-1.27.1-linux-arm-6"
-    armhf.sha256 = "86bd708022e847845a63573a2e0c599b93d63c60d3d0c0b524d8ca1014e3076e"
-    arm64.url = "https://github.com/go-gitea/gitea/releases/download/v1.27.1/gitea-1.27.1-linux-arm64"
-    arm64.sha256 = "aa544be7d305ddc7a0fac389e562b698a2b9d5059314177257c4daf08cf38827"
-    i386.url = "https://github.com/go-gitea/gitea/releases/download/v1.27.1/gitea-1.27.1-linux-386"
-    i386.sha256 = "7979328eaa777968d839e6e160d22c9b74fecf4e3496dc31c464aabfabce4a3d"
-    amd64.url = "https://github.com/go-gitea/gitea/releases/download/v1.27.1/gitea-1.27.1-linux-amd64"
-    amd64.sha256 = "86a7ac26e7f9c9cca0f56c4fac07fff205d5fc3bca0e54af23a204f07b833bc9"
+    armhf.url = "https://github.com/go-gitea/gitea/releases/download/v28.1.0/gitea-28.1.0-linux-arm-6"
+    armhf.sha256 = "2bf4d222be997103b6668cdf241a83bb26ec365ee6d182faa67ec9f7f021ef39"
+    arm64.url = "https://github.com/go-gitea/gitea/releases/download/v28.1.0/gitea-28.1.0-linux-arm64"
+    arm64.sha256 = "47bf18a8e4602b17910cd660a902541e2c13b67c732f2607da8326fa3cd46805"
+    amd64.url = "https://github.com/go-gitea/gitea/releases/download/v28.1.0/gitea-28.1.0-linux-amd64"
+    amd64.sha256 = "ea93cfa4a300564ac457d3903469fea49ec5a4da37d0cebaa435f8e329ea64d0"
 
     autoupdate.strategy = "latest_github_release"
     autoupdate.asset.armhf = "^gitea-.*-linux-arm-6$"
     autoupdate.asset.arm64 = "^gitea-.*-linux-arm64$"
-    autoupdate.asset.i386 = "^gitea-.*-linux-386$"
     autoupdate.asset.amd64 = "^gitea-.*-linux-amd64$"
 
     [resources.system_user]
