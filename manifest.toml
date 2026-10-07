@@ -7,7 +7,7 @@ name = "Gitea"
 description.en = "Lightweight Git forge"
 description.fr = "Forge Git légère"
 
-version = "1.27.3~ynh1"
+version = "28.1.0~ynh1"
 
 maintainers = ["Josué Tille"]
 # previous_maintainers = [
@@ -27,7 +27,6 @@ yunohost = ">= 12.1.40"
 helpers_version = "2.1"
 architectures = [
     "amd64",
-    "i386",
     "armhf",
     "arm64"
 ]
@@ -68,19 +67,16 @@ ram.runtime = "100M"
     extract = false
     rename = "gitea"
 
-    armhf.url = "https://github.com/go-gitea/gitea/releases/download/v1.27.3/gitea-1.27.3-linux-arm-6"
-    armhf.sha256 = "93b98871c3913853f0ca8335429df4d2558c3e0a813c6db9f081221e1f466f6a"
-    arm64.url = "https://github.com/go-gitea/gitea/releases/download/v1.27.3/gitea-1.27.3-linux-arm64"
-    arm64.sha256 = "04c086d36dba793546e331484a9da34571763efdfa77dc526cc98e0f10917e7b"
-    i386.url = "https://github.com/go-gitea/gitea/releases/download/v1.27.3/gitea-1.27.3-linux-386"
-    i386.sha256 = "4cfc4a13e5ba7b0f165c8056b479fa13f1d4cd8e77f17bc86bd78f6c3dc207ea"
-    amd64.url = "https://github.com/go-gitea/gitea/releases/download/v1.27.3/gitea-1.27.3-linux-amd64"
-    amd64.sha256 = "4da93c2c10b6980c359bcb86d5573ebfd7770e2e151756534edee24c8c12d971"
+    armhf.url = "https://github.com/go-gitea/gitea/releases/download/v28.1.0/gitea-28.1.0-linux-arm-6"
+    armhf.sha256 = "2bf4d222be997103b6668cdf241a83bb26ec365ee6d182faa67ec9f7f021ef39"
+    arm64.url = "https://github.com/go-gitea/gitea/releases/download/v28.1.0/gitea-28.1.0-linux-arm64"
+    arm64.sha256 = "47bf18a8e4602b17910cd660a902541e2c13b67c732f2607da8326fa3cd46805"
+    amd64.url = "https://github.com/go-gitea/gitea/releases/download/v28.1.0/gitea-28.1.0-linux-amd64"
+    amd64.sha256 = "ea93cfa4a300564ac457d3903469fea49ec5a4da37d0cebaa435f8e329ea64d0"
 
     autoupdate.strategy = "latest_github_release"
     autoupdate.asset.armhf = "^gitea-.*-linux-arm-6$"
     autoupdate.asset.arm64 = "^gitea-.*-linux-arm64$"
-    autoupdate.asset.i386 = "^gitea-.*-linux-386$"
     autoupdate.asset.amd64 = "^gitea-.*-linux-amd64$"
 
     [resources.system_user]
