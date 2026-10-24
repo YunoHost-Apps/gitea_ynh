@@ -12,6 +12,7 @@ source /usr/share/yunohost/helpers
 # RESTORE THE APP MAIN DIR
 #=================================================
 ynh_script_progression "Restoring the app files..."
+
 ynh_restore_everything
 _set_permissions
 
